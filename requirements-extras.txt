@@ -1,0 +1,4 @@
+# PyTorch must be installed separately for the target CUDA/GPU environment.
+# Protenix must also be installed separately according to its own release instructions.
+fair-esm==2.0.0
+pytest>=8.0

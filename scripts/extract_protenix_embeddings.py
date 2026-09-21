@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+"""Extract frozen Protenix-v1 Pairformer representations for antibody Fv inputs.
+
+This intentionally stops after the Pairformer trunk.  It does not run diffusion
+structure sampling, because the FoldAbS representation stage needs the frozen
+single/pair representations rather than a predicted coordinate file.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+
+# Must be set before importing Protenix: RTX 50-series cards do not support the
+# optional prebuilt fused LayerNorm extension used by the upstream default.
+os.environ.setdefault("LAYERNORM_TYPE", "torch")
+
+import torch
+
+from protenix.data.inference.infer_dataloader import get_inference_dataloader
+from protenix.model import sample_confidence
+from protenix.model.protenix import update_input_feature_dict
+from protenix.utils.torch_utils import autocasting_disable_decorator, to_device
+from runner.batch_inference import get_default_runner, preprocess_input
+from runner.inference import update_inference_configs
+
+
+def _cpu_tensor(value: torch.Tensor) -> torch.Tensor:
+    """Store compact, portable feature tensors without retaining GPU memory."""
+    return value.detach().to(dtype=torch.float16, device="cpu").contiguous()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Extract frozen Protenix-v1 s_inputs, s, z, and p_dist tensors."
+    )
+    parser.add_argument("--input-json", required=True)
+    parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--cycles", type=int, default=1)
+    parser.add_argument("--limit", type=int, default=10)
+    parser.add_argument("--use-msa", action="store_true")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Reuse valid per-sample .pt files already in --output-dir after an interrupted run.",
+    )
+    parser.add_argument(
+        "--msa-server-mode", choices=["protenix", "colabfold"], default="protenix"
+    )
+    args = parser.parse_args()
+    if args.cycles < 1:
+        raise ValueError("--cycles must be at least 1")
+    if args.limit < 0:
+        raise ValueError("--limit must be non-negative")
+
+    input_path = Path(args.input_json).resolve()
+    output_dir = Path(args.output_dir).resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    work_dir = output_dir / "protenix_input_cache"
+    work_dir.mkdir(exist_ok=True)
+
+    prepared_json = preprocess_input(
+        str(input_path),
+        out_dir=str(work_dir),
+        use_msa=args.use_msa,
+        use_template=False,
+        msa_server_mode=args.msa_server_mode,
+    )
+    runner = get_default_runner(
+        seeds=[101],
+        n_cycle=args.cycles,
+        n_step=1,
+        n_sample=1,
+        dtype="bf16",
+        use_msa=args.use_msa,
+        trimul_kernel="torch",
+        triatt_kernel="torch",
+        enable_cache=True,
+        enable_fusion=False,
+        use_template=False,
+    )
+    configs = runner.configs
+    configs.input_json_path = prepared_json
+    dataloader = get_inference_dataloader(configs=configs)
+
+    index_rows: list[dict[str, object]] = []
+    for item_index, batch in enumerate(dataloader):
+        if args.limit and item_index >= args.limit:
+            break
+        data, _atom_array, data_error_message = batch[0]
+        sample_name = str(data["sample_name"])
+        if data_error_message:
+            raise RuntimeError(f"Input preparation failed for {sample_name}: {data_error_message}")
+
+        output_path = output_dir / f"{sample_name}.pt"
+        if args.resume and output_path.is_file():
+            existing = torch.load(output_path, map_location="cpu", weights_only=True)
+            required = {"s_inputs", "s", "z", "p_dist"}
+            if not required.issubset(existing):
+                raise ValueError(f"Cannot resume from incomplete feature file: {output_path}")
+            index_rows.append(
+                {
+                    "sample_id": sample_name,
+                    "file": output_path.name,
+                    "n_token": int(existing["s"].shape[0]),
+                    "s_inputs_shape": list(existing["s_inputs"].shape),
+                    "s_shape": list(existing["s"].shape),
+                    "z_shape": list(existing["z"].shape),
+                    "p_dist_shape": list(existing["p_dist"].shape),
+                }
+            )
+            print(f"[{item_index + 1}] reused {output_path.name}", flush=True)
+            continue
+
+        data = to_device(data, runner.device)
+        token_count = int(data["N_token"].item())
+        runner.update_model_configs(update_inference_configs(configs, token_count))
+        features = data["input_feature_dict"]
+
+        with torch.no_grad(), torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+            features = runner.model.relative_position_encoding.generate_relp(features)
+            features = update_input_feature_dict(features)
+            s_inputs, s, z = runner.model.get_pairformer_output(
+                input_feature_dict=features,
+                N_cycle=args.cycles,
+                inplace_safe=True,
+                chunk_size=runner.model.configs.infer_setting.chunk_size,
+            )
+            p_dist = autocasting_disable_decorator(True)(torch.softmax)(
+                runner.model.distogram_head(z), dim=-1
+            )
+
+        torch.save(
+            {
+                "sample_name": sample_name,
+                "token_asym_id": _cpu_tensor(features["asym_id"]),
+                "token_residue_index": _cpu_tensor(features["residue_index"]),
+                "s_inputs": _cpu_tensor(s_inputs),
+                "s": _cpu_tensor(s),
+                "z": _cpu_tensor(z),
+                "p_dist": _cpu_tensor(p_dist),
+            },
+            output_path,
+        )
+        index_rows.append(
+            {
+                "sample_id": sample_name,
+                "file": output_path.name,
+                "n_token": token_count,
+                "s_inputs_shape": list(s_inputs.shape),
+                "s_shape": list(s.shape),
+                "z_shape": list(z.shape),
+                "p_dist_shape": list(p_dist.shape),
+            }
+        )
+        del s_inputs, s, z, p_dist, features, data
+        torch.cuda.empty_cache()
+        print(f"[{item_index + 1}] saved {output_path.name}", flush=True)
+
+    index_path = output_dir / "index.json"
+    index_path.write_text(json.dumps(index_rows, indent=2), encoding="utf-8")
+    print(f"Extracted {len(index_rows)} representations; index: {index_path}")
+
+
+if __name__ == "__main__":
+    main()
