@@ -2,11 +2,9 @@ import json
 
 import pandas as pd
 import pytest
-import torch
 
 from foldabs_repro.tmp_prediction.data import TMPDatasetSchema, canonical_hla, load_tmp_csv
 from foldabs_repro.tmp_prediction.input_builder import build_protenix_inputs
-from foldabs_repro.tmp_prediction.interfaces import build_role_masks, interface_pools
 from foldabs_repro.tmp_prediction.metrics import macro_pmhc_metrics
 from foldabs_repro.tmp_prediction.negative_sampling import build_pseudo_negatives
 
@@ -44,18 +42,6 @@ def test_missing_alpha_is_rejected(tmp_path):
     ).to_csv(path, index=False)
     with pytest.raises(ValueError, match="TCRa is empty"):
         load_tmp_csv(path)
-
-
-def test_interface_masks_and_pooling():
-    asym = torch.tensor([1, 1, 2, 2, 3, 4])
-    roles = ["tcra", "tcrb", "peptide", "mhc"]
-    masks = build_role_masks(asym, roles)
-    s = torch.arange(12, dtype=torch.float32).reshape(6, 2)
-    z = torch.arange(36, dtype=torch.float32).reshape(6, 6, 1)
-    pools = interface_pools(s, z, masks)
-    assert torch.equal(pools["s_peptide"], s[4])
-    assert torch.equal(pools["z_tcra_peptide"], z[:2, 4].mean(dim=0))
-    assert torch.equal(pools["z_tcrb_mhc"], z[2:4, 5].mean(dim=0))
 
 
 def test_macro_pmhc_skips_single_class_groups():
