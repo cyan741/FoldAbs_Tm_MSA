@@ -64,6 +64,16 @@ best_model.pt + predictions.csv + metrics.json
 submission/prediction CSV + optional pooled latent .pt
 ```
 
+如果原始训练数据只有阳性，应在固定 split 后先运行：
+
+```bash
+python scripts/build_tmp_negatives.py \
+  --positives-csv data/tmp_positives_with_split.csv \
+  --output-csv work/tmp_train_binary.csv
+```
+
+该脚本只在各 split 内构造 `same_hla_cross_epitope` 和 `tcr_swap`，并使用全局已知阳性 TCR+peptide 表排除候选。生成标签属于 pseudo-negative，不应描述成实验 non-binder。
+
 每个复合物的实体顺序固定为：
 
 ```text
