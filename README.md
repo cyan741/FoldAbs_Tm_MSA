@@ -51,3 +51,15 @@ python -m pytest tests -q
 ## 引用与共享说明
 
 请称其为“基于公开文献的 FoldAbS Tm 技术重建/工程参考”，不要称为 FoldAbS 官方实现或官方结果。分享前请自行确认所在课题组对代码再分发、外部依赖和数据来源的要求。
+
+## TMP-Prediction 分支
+
+`tmp-specificity` 分支新增了 MHC-I paired TCRαβ specificity 管线：
+
+- `scripts/make_tmp_protenix_input.py`：TMP CSV 与完整 HLA 重链序列映射转 Protenix complex JSON；
+- `src/foldabs_repro/tmp_prediction/`：数据契约、实体/界面 mask、指标、数据集与分类头；
+- `scripts/train_tmp_specificity.py`：在冻结 `s/z/p_dist` 上训练 BCE 分类头；
+- `scripts/predict_tmp_specificity.py`：输出连续结合概率、0/1和可选 latent blocks；
+- `docs/TMP_PREDICTION_PIPELINE.md`：完整输入输出、命令和方法边界。
+
+当前版本是基于 Protenix trunk representation 的 phase-1 模型，不包含最终坐标、PAE 或 ipTM，不能称为完整 FoldAbS specificity 复现。
