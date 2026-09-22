@@ -8,6 +8,7 @@ from foldabs_repro.tmp_prediction.data import TMPDatasetSchema, canonical_hla, l
 from foldabs_repro.tmp_prediction.input_builder import build_protenix_inputs
 from foldabs_repro.tmp_prediction.interfaces import build_role_masks, interface_pools
 from foldabs_repro.tmp_prediction.metrics import macro_pmhc_metrics
+from foldabs_repro.tmp_prediction.negative_sampling import build_pseudo_negatives
 
 
 def test_hla_canonicalization():
@@ -68,3 +69,24 @@ def test_macro_pmhc_skips_single_class_groups():
     result = macro_pmhc_metrics(frame)
     assert result["eligible_pmhc"] == 1
     assert result["macro_auroc"] == 1.0
+
+
+def test_negatives_stay_inside_split_and_exclude_known_positives():
+    positives = pd.DataFrame(
+        {
+            "sample_id": ["a", "b", "c", "d"],
+            "original_id": ["a", "b", "c", "d"],
+            "tcra": ["AAA", "CCC", "DDD", "EEE"],
+            "tcrb": ["FFF", "GGG", "HHH", "III"],
+            "peptide": ["PEPTIDEA", "PEPTIDEB", "PEPTIDEA", "PEPTIDEB"],
+            "hla": ["HLA-A*02:01"] * 4,
+            "pmhc_id": ["PEPTIDEA|HLA-A*02:01", "PEPTIDEB|HLA-A*02:01"] * 2,
+            "split": ["train", "train", "test", "test"],
+        }
+    )
+    sampled = build_pseudo_negatives(positives, seed=1)
+    assert set(sampled["split"]) == {"train", "test"}
+    assert {"same_hla_cross_epitope", "tcr_swap"} <= set(sampled["negative_type"])
+    known = set(zip(positives.tcra, positives.tcrb, positives.peptide))
+    generated = sampled[sampled.label.eq(0)]
+    assert not any(key in known for key in zip(generated.tcra, generated.tcrb, generated.peptide))
