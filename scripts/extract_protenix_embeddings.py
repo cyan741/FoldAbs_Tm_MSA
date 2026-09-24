@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import time
 from pathlib import Path
 
 DEFAULT_PROTENIX_ROOT = Path(__file__).resolve().parents[1] / ".foldtmp-run" / "protenix_assets"
@@ -81,6 +82,7 @@ def main() -> None:
     work_dir = output_dir / "protenix_input_cache"
     work_dir.mkdir(exist_ok=True)
 
+    run_start = time.perf_counter()
     prepared_json = preprocess_input(
         str(input_path),
         out_dir=str(work_dir),
@@ -106,6 +108,13 @@ def main() -> None:
     dataloader = get_inference_dataloader(configs=configs)
 
     index_rows: list[dict[str, object]] = []
+    generated_count = 0
+    reused_count = 0
+    generated_seconds = 0.0
+
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
+
     for item_index, batch in enumerate(dataloader):
         if args.limit and item_index >= args.limit:
             break
@@ -123,11 +132,13 @@ def main() -> None:
             if not required.issubset(existing):
                 raise ValueError(f"Cannot resume from incomplete feature file: {output_path}")
             existing = _strip_unused_s_inputs(output_path, existing)
+            reused_count += 1
             index_rows.append(
                 {
                     "sample_id": sample_name,
                     "file": output_path.name,
                     "n_token": int(existing["s"].shape[0]),
+                    "file_bytes": int(output_path.stat().st_size),
                     "s_shape": list(existing["s"].shape),
                     "z_shape": list(existing["z"].shape),
                     "p_dist_shape": list(existing["p_dist"].shape),
@@ -136,6 +147,7 @@ def main() -> None:
             print(f"[{item_index + 1}] reused {output_path.name}", flush=True)
             continue
 
+        sample_start = time.perf_counter()
         data = to_device(data, runner.device)
         token_count = int(data["N_token"].item())
         runner.update_model_configs(update_inference_configs(configs, token_count))
@@ -165,11 +177,17 @@ def main() -> None:
             },
             output_path,
         )
+        elapsed = time.perf_counter() - sample_start
+        generated_count += 1
+        generated_seconds += elapsed
+
         index_rows.append(
             {
                 "sample_id": sample_name,
                 "file": output_path.name,
                 "n_token": token_count,
+                "file_bytes": int(output_path.stat().st_size),
+                "seconds": elapsed,
                 "s_shape": list(s.shape),
                 "z_shape": list(z.shape),
                 "p_dist_shape": list(p_dist.shape),
@@ -177,11 +195,44 @@ def main() -> None:
         )
         del _s_inputs, s, z, p_dist, features, data
         torch.cuda.empty_cache()
-        print(f"[{item_index + 1}] saved {output_path.name}", flush=True)
+        print(
+            f"[{item_index + 1}] saved {output_path.name} "
+            f"({elapsed:.2f}s, {output_path.stat().st_size / 1024**2:.2f} MiB)",
+            flush=True,
+        )
 
     index_path = output_dir / "index.json"
     index_path.write_text(json.dumps(index_rows, indent=2), encoding="utf-8")
+
+    total_seconds = time.perf_counter() - run_start
+    total_bytes = sum(int(row.get("file_bytes", 0)) for row in index_rows)
+    mean_tokens = (
+        sum(int(row["n_token"]) for row in index_rows) / len(index_rows)
+        if index_rows else 0.0
+    )
+    stats = {
+        "samples_total": len(index_rows),
+        "samples_generated": generated_count,
+        "samples_reused": reused_count,
+        "mean_n_token": mean_tokens,
+        "total_cache_bytes": total_bytes,
+        "mean_cache_bytes": total_bytes / len(index_rows) if index_rows else 0.0,
+        "generated_seconds": generated_seconds,
+        "generated_seconds_per_sample": (
+            generated_seconds / generated_count if generated_count else None
+        ),
+        "total_wall_seconds": total_seconds,
+        "gpu_peak_memory_bytes": (
+            int(torch.cuda.max_memory_allocated()) if torch.cuda.is_available() else None
+        ),
+        "use_msa": bool(args.use_msa),
+        "cycles": int(args.cycles),
+    }
+    stats_path = output_dir / "extraction_stats.json"
+    stats_path.write_text(json.dumps(stats, indent=2), encoding="utf-8")
+
     print(f"Extracted {len(index_rows)} representations; index: {index_path}")
+    print(json.dumps(stats, indent=2), flush=True)
 
 
 if __name__ == "__main__":
