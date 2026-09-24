@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Extract frozen Protenix-v1 Pairformer representations for antibody Fv inputs.
+"""Extract frozen Protenix-v1 Pairformer representations for TMP inputs.
 
-This intentionally stops after the Pairformer trunk.  It does not run diffusion
-structure sampling, because the FoldAbS representation stage needs the frozen
-single/pair representations rather than a predicted coordinate file.
+This intentionally stops after the Pairformer trunk. It does not run diffusion
+structure sampling. Stage 1 caches only the tensors consumed by the TMP head:
+s, z, p_dist, token_asym_id and token_residue_index. s_inputs is deliberately
+not stored because the current/follow-up TMP experiments do not consume it.
 """
 
 from __future__ import annotations
@@ -13,20 +14,13 @@ import json
 import os
 from pathlib import Path
 
-# Protenix reads PROTENIX_ROOT_DIR while its config modules are imported.  Keep
-# the repository-local checkpoint/common assets as the default, while allowing
-# callers to override the location explicitly in their environment.
 DEFAULT_PROTENIX_ROOT = Path(__file__).resolve().parents[1] / ".foldtmp-run" / "protenix_assets"
 os.environ.setdefault("PROTENIX_ROOT_DIR", str(DEFAULT_PROTENIX_ROOT))
-
-# Must be set before importing Protenix: RTX 50-series cards do not support the
-# optional prebuilt fused LayerNorm extension used by the upstream default.
 os.environ.setdefault("LAYERNORM_TYPE", "torch")
 
 import torch
 
 from protenix.data.inference.infer_dataloader import get_inference_dataloader
-from protenix.model import sample_confidence
 from protenix.model.protenix import update_input_feature_dict
 from protenix.utils.torch_utils import autocasting_disable_decorator, to_device
 from runner.batch_inference import get_default_runner, preprocess_input
@@ -34,13 +28,21 @@ from runner.inference import update_inference_configs
 
 
 def _cpu_tensor(value: torch.Tensor) -> torch.Tensor:
-    """Store compact, portable feature tensors without retaining GPU memory."""
     return value.detach().to(dtype=torch.float16, device="cpu").contiguous()
+
+
+def _strip_unused_s_inputs(path: Path, payload: dict) -> dict:
+    if "s_inputs" not in payload:
+        return payload
+    payload = dict(payload)
+    payload.pop("s_inputs", None)
+    torch.save(payload, path)
+    return payload
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Extract frozen Protenix-v1 s_inputs, s, z, and p_dist tensors."
+        description="Extract frozen Protenix-v1 s, z, and p_dist tensors."
     )
     parser.add_argument("--input-json", required=True)
     parser.add_argument("--output-dir", required=True)
@@ -50,7 +52,10 @@ def main() -> None:
     parser.add_argument(
         "--resume",
         action="store_true",
-        help="Reuse valid per-sample .pt files already in --output-dir after an interrupted run.",
+        help=(
+            "Reuse valid per-sample .pt files after an interrupted run. "
+            "Legacy caches containing s_inputs are rewritten without it."
+        ),
     )
     parser.add_argument(
         "--msa-server-mode", choices=["protenix", "colabfold"], default="protenix"
@@ -112,15 +117,17 @@ def main() -> None:
         output_path = output_dir / f"{sample_name}.pt"
         if args.resume and output_path.is_file():
             existing = torch.load(output_path, map_location="cpu", weights_only=True)
-            required = {"s_inputs", "s", "z", "p_dist"}
+            required = {
+                "token_asym_id", "token_residue_index", "s", "z", "p_dist"
+            }
             if not required.issubset(existing):
                 raise ValueError(f"Cannot resume from incomplete feature file: {output_path}")
+            existing = _strip_unused_s_inputs(output_path, existing)
             index_rows.append(
                 {
                     "sample_id": sample_name,
                     "file": output_path.name,
                     "n_token": int(existing["s"].shape[0]),
-                    "s_inputs_shape": list(existing["s_inputs"].shape),
                     "s_shape": list(existing["s"].shape),
                     "z_shape": list(existing["z"].shape),
                     "p_dist_shape": list(existing["p_dist"].shape),
@@ -137,7 +144,7 @@ def main() -> None:
         with torch.no_grad(), torch.autocast(device_type="cuda", dtype=torch.bfloat16):
             features = runner.model.relative_position_encoding.generate_relp(features)
             features = update_input_feature_dict(features)
-            s_inputs, s, z = runner.model.get_pairformer_output(
+            _s_inputs, s, z = runner.model.get_pairformer_output(
                 input_feature_dict=features,
                 N_cycle=args.cycles,
                 inplace_safe=True,
@@ -152,7 +159,6 @@ def main() -> None:
                 "sample_name": sample_name,
                 "token_asym_id": _cpu_tensor(features["asym_id"]),
                 "token_residue_index": _cpu_tensor(features["residue_index"]),
-                "s_inputs": _cpu_tensor(s_inputs),
                 "s": _cpu_tensor(s),
                 "z": _cpu_tensor(z),
                 "p_dist": _cpu_tensor(p_dist),
@@ -164,13 +170,12 @@ def main() -> None:
                 "sample_id": sample_name,
                 "file": output_path.name,
                 "n_token": token_count,
-                "s_inputs_shape": list(s_inputs.shape),
                 "s_shape": list(s.shape),
                 "z_shape": list(z.shape),
                 "p_dist_shape": list(p_dist.shape),
             }
         )
-        del s_inputs, s, z, p_dist, features, data
+        del _s_inputs, s, z, p_dist, features, data
         torch.cuda.empty_cache()
         print(f"[{item_index + 1}] saved {output_path.name}", flush=True)
 
