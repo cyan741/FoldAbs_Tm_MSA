@@ -1,5 +1,12 @@
 from __future__ import annotations
 
+import os
+
+# Use Protenix's portable implementation for both CPU smoke tests and GPUs
+# without the optional precompiled fused LayerNorm extension.  This must be set
+# before importing PairformerBlock.
+os.environ.setdefault("LAYERNORM_TYPE", "torch")
+
 import torch
 import torch.nn as nn
 
@@ -87,8 +94,8 @@ class TMPTrunkSpecificityHead(nn.Module):
                 for _ in range(pairformer_blocks)
             ]
         )
-        # Four entity-level s pools plus four biologically distinct interfaces.
-        input_dim = 4 * c_s + 4 * c_z
+        # Four entity-level s pools plus five biologically distinct interfaces.
+        input_dim = 4 * c_s + 5 * c_z
         self.classifier = nn.Sequential(
             nn.LayerNorm(input_dim),
             nn.Linear(input_dim, hidden_dim),
@@ -127,7 +134,7 @@ class TMPTrunkSpecificityHead(nn.Module):
         pools = interface_pools(s_batch.squeeze(0), z_batch.squeeze(0), masks)
         order = (
             "s_tcra", "s_tcrb", "s_peptide", "s_mhc",
-            "z_tcra_peptide", "z_tcrb_peptide", "z_tcra_mhc", "z_tcrb_mhc",
+            "z_tcra_peptide", "z_tcrb_peptide", "z_tcra_mhc", "z_tcrb_mhc", "z_peptide_mhc",
         )
         latent = torch.cat([pools[name] for name in order], dim=-1)
         return latent, pools

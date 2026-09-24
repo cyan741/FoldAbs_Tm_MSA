@@ -25,10 +25,14 @@ def main() -> None:
     parser.add_argument("--split", default=None)
     parser.add_argument("--threshold", type=float, default=None)
     parser.add_argument("--latent-dir", default=None)
+    parser.add_argument("--device", choices=["auto", "cuda", "cpu"], default="auto")
     args = parser.parse_args()
-    if not torch.cuda.is_available():
-        raise RuntimeError("CUDA is required for TMP Pairformer inference")
-    device = torch.device("cuda")
+    device_name = "cuda" if args.device == "auto" and torch.cuda.is_available() else args.device
+    if device_name == "auto":
+        device_name = "cpu"
+    if device_name == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA was requested but is not available")
+    device = torch.device(device_name)
     checkpoint = torch.load(args.checkpoint, map_location=device, weights_only=True)
     model = TMPTrunkSpecificityHead(**checkpoint["model_config"]).to(device)
     model.load_state_dict(checkpoint["model"])
@@ -57,6 +61,8 @@ def main() -> None:
                 "Prediction": score,
                 "prediction_binary": int(score >= threshold),
             }
+            if checkpoint.get("smoke_output", False):
+                row["smoke_output"] = True
             if batch["label"] is not None:
                 row["label"] = int(batch["label"].item())
             rows.append(row)

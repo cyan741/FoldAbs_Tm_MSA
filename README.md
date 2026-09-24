@@ -56,7 +56,7 @@ python -m pytest tests -q
 
 `tmp-specificity` 分支新增了 MHC-I paired TCRαβ specificity 管线：
 
-- `scripts/make_tmp_protenix_input.py`：TMP CSV 与完整 HLA 重链序列映射转 Protenix complex JSON；
+- `scripts/make_protenix_input/`：将固定格式 TMP CSV 转为 Protenix complex JSON；
 - `src/foldabs_repro/tmp_prediction/`：数据契约、实体/界面 mask、指标、数据集与分类头；
 - `scripts/train_tmp_specificity.py`：在冻结 `s/z/p_dist` 上训练 BCE 分类头；
 - `scripts/predict_tmp_specificity.py`：输出连续结合概率、0/1和可选 latent blocks；

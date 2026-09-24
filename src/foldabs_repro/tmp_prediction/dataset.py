@@ -7,7 +7,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-from .input_builder import parse_roles
+from .interfaces import REQUIRED_ROLES
 
 
 @dataclass(frozen=True)
@@ -27,7 +27,7 @@ def examples_from_manifest(
     split: str | None = None,
     require_label: bool = False,
 ) -> list[TMPFeatureExample]:
-    required = {"sample_id", "original_id", "pmhc_id", "entity_roles"}
+    required = {"sample_id", "original_id", "pmhc_id"}
     if split is not None:
         required.add("split")
     if require_label:
@@ -52,7 +52,7 @@ def examples_from_manifest(
                 sample_id=str(row.sample_id),
                 original_id=str(row.original_id),
                 pmhc_id=str(row.pmhc_id),
-                roles=tuple(parse_roles(row.entity_roles)),
+                roles=tuple(REQUIRED_ROLES),
                 feature_path=feature_path,
                 label=label,
             )

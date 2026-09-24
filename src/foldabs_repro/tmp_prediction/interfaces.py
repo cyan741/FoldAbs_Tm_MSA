@@ -52,6 +52,7 @@ def interface_pools(
         ("tcrb", "peptide"),
         ("tcra", "mhc"),
         ("tcrb", "mhc"),
+        ("peptide", "mhc"), # add peptide-mhc interface
     ):
         result[f"z_{left}_{right}"] = masked_mean_2d(z, masks[left], masks[right])
     return result

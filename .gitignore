@@ -1,0 +1,6 @@
+# Local TMP runtime outputs
+.foldtmp-run/
+
+# Python bytecode caches
+__pycache__/
+*.py[cod]

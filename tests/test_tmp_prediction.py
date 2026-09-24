@@ -1,12 +1,10 @@
-import json
-
 import pandas as pd
 import pytest
 
-from foldabs_repro.tmp_prediction.data import TMPDatasetSchema, canonical_hla, load_tmp_csv
-from foldabs_repro.tmp_prediction.input_builder import build_protenix_inputs
 from foldabs_repro.tmp_prediction.metrics import macro_pmhc_metrics
 from foldabs_repro.tmp_prediction.negative_sampling import build_pseudo_negatives
+from scripts.make_protenix_input.data import canonical_hla, load_tmp_csv
+from scripts.make_protenix_input.make_tmp_protenix_input import build_protenix_inputs
 
 
 def test_hla_canonicalization():
@@ -18,29 +16,38 @@ def test_load_and_build_tmp_input(tmp_path):
     path = tmp_path / "tmp.csv"
     pd.DataFrame(
         {
-            "ID": ["pair-1"],
-            "TCRa": [" CASSL "],
-            "TCRb": ["CASSP"],
-            "Peptide": ["GILGFVFTL"],
-            "HLA": ["A0201"],
+            "id": ["pair-1"],
+            "tcra": [" CASSL "],
+            "tcrb": ["CASSP"],
+            "peptide": ["GILGFVFTL"],
+            "hla": ["A0201"],
+            "hla_sequence": ["GSHSMRYFYTAMSRPGR"],
             "label": [1],
             "split": ["train"],
         }
     ).to_csv(path, index=False)
-    frame = load_tmp_csv(path, require_label=True, require_split=True)
-    records, manifest = build_protenix_inputs(frame, {"HLA-A*02:01": "GSHSMRYFYTAMSRPGR"})
+    frame = load_tmp_csv(path)
+    records = build_protenix_inputs(frame)
     assert records[0]["name"] == "pair-1"
     assert len(records[0]["sequences"]) == 4
-    assert json.loads(manifest.loc[0, "entity_roles"]) == ["tcra", "tcrb", "peptide", "mhc"]
-    assert manifest.loc[0, "pmhc_id"] == "GILGFVFTL|HLA-A*02:01"
+    assert records[0]["sequences"][3]["proteinChain"]["sequence"] == "GSHSMRYFYTAMSRPGR"
 
 
 def test_missing_alpha_is_rejected(tmp_path):
     path = tmp_path / "tmp.csv"
     pd.DataFrame(
-        {"TCRa": [""], "TCRb": ["CASSP"], "Peptide": ["GILGFVFTL"], "HLA": ["A0201"]}
+        {
+            "id": ["pair-1"],
+            "tcra": [""],
+            "tcrb": ["CASSP"],
+            "peptide": ["GILGFVFTL"],
+            "hla": ["A0201"],
+            "hla_sequence": ["GSHSMRYFYTAMSRPGR"],
+            "label": [0],
+            "split": ["test"],
+        }
     ).to_csv(path, index=False)
-    with pytest.raises(ValueError, match="TCRa is empty"):
+    with pytest.raises(ValueError, match="tcra is empty"):
         load_tmp_csv(path)
 
 

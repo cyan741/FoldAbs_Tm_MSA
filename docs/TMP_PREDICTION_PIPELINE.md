@@ -16,46 +16,23 @@
 
 ## 2. 输入数据契约
 
-### 2.1 结构编码使用完整 MHC-I 重链
-
-输入 CSV 可以保留 HLA allele 或 pseudo-sequence，但 Protenix 输入必须通过 allele 映射到连续的完整 HLA-I extracellular heavy-chain sequence。pseudo-sequence 不能作为一条可折叠蛋白链。
-
-HLA 映射文件：
-
-```json
-{
-  "HLA-A*02:01": "FULL_EXTRACELLULAR_HEAVY_CHAIN_SEQUENCE",
-  "HLA-B*40:01": "FULL_EXTRACELLULAR_HEAVY_CHAIN_SEQUENCE"
-}
-```
-
-### 2.2 推理 CSV（例如 IMMREP25）
+### 2.1 固定 CSV 格式
 
 ```csv
-ID,TCRa,TCRb,Peptide,HLA
-pair_0001,...,...,GILGFVFTL,HLA-A*02:01
+id,tcra,tcrb,peptide,hla,hla_sequence,label,split
+pair_0001,...,...,GILGFVFTL,HLA-A*02:01,...,1,test
 ```
 
-要求 TCRα、TCRβ、peptide 均非空。首版不悄悄将 α 缺失样本降级为 β-only。
-
-### 2.3 训练 CSV
-
-```csv
-ID,TCRa,TCRb,Peptide,HLA,label,split
-pair_0001,...,...,GILGFVFTL,HLA-A*02:01,1,train
-pair_0002,...,...,GILGFVFTL,HLA-A*02:01,0,train
-pair_0003,...,...,NLVPMVATV,HLA-A*02:01,1,validation
-pair_0004,...,...,NLVPMVATV,HLA-A*02:01,0,test
-```
-
-`label` 必须为0/1；`split` 必须显式为 `train/validation/test`。脚本不会对全表随机拆分，避免先生成负样本再拆分造成实体泄漏。
+八个字段均必需。`label` 必须为 0/1，`split` 必须为
+`train/validation/test`。`tcra/tcrb/peptide/hla_sequence` 均不能为空。
+原始数据转换为该固定 CSV 的过程不属于本输入模块。
 
 ## 3. 数据流程
 
 ```text
-TMP CSV + allele→完整HLA序列 JSON
-  ↓ make_tmp_protenix_input.py
-tmp_protenix_inputs.json + tmp_manifest.csv
+固定格式 TMP CSV
+  ↓ scripts/make_protenix_input/make_tmp_protenix_input.py
+tmp_protenix_inputs.json
   ↓ extract_protenix_embeddings.py（复用现有冻结提取器）
 per-complex .pt: token_asym_id, s, z, p_dist
   ↓ train_tmp_specificity.py
@@ -77,39 +54,20 @@ python scripts/build_tmp_negatives.py \
 每个复合物的实体顺序固定为：
 
 ```text
-TCRα, TCRβ, peptide, MHC-I heavy chain, [optional β2m]
+TCRα, TCRβ, peptide, MHC-I heavy chain
 ```
 
-该顺序会以 `entity_roles` 写入 manifest。训练和预测时，代码把排序后的 Protenix `asym_id` 映射回角色，并在链数不一致时立即报错。
+因为顺序是固定契约，不再额外生成 `entity_roles` manifest。
 
 ## 4. 构造 Protenix 输入
 
 ```bash
-python scripts/make_tmp_protenix_input.py \
-  --input-csv data/immrep25_test.csv \
-  --hla-sequences-json data/hla_class_i_full_sequences.json \
-  --output-json work/tmp_protenix_inputs.json \
-  --output-manifest work/tmp_manifest.csv
+python scripts/make_protenix_input/make_tmp_protenix_input.py \
+  --input-csv data/tmp_input.csv \
+  --output-json work/tmp_protenix_inputs.json
 ```
 
-如需 β2m：
-
-```bash
-  --beta2m-sequence FULL_HUMAN_B2M_SEQUENCE
-```
-
-训练输入额外使用：
-
-```bash
-  --require-label --require-split
-```
-
-输出 manifest 至少包含：
-
-```text
-sample_id,original_id,tcra,tcrb,peptide,hla,pmhc_id,
-entity_roles,include_beta2m,[label],[split]
-```
+Protenix 只需要该 JSON；原 CSV 继续作为标签、split 和样本 ID 的
 
 ## 5. 提取冻结 Protenix latent representation
 
@@ -165,6 +123,7 @@ z_TCRα↔peptide
 z_TCRβ↔peptide
 z_TCRα↔MHC
 z_TCRβ↔MHC
+z_peptide↔MHC
 ```
 
 首版使用无参数 masked mean，避免在 latent 导出阶段引入额外未训练的 attention pooling。
@@ -250,7 +209,8 @@ ID,sample_id,pmhc_id,logit,Prediction,prediction_binary,[label]
     "z_tcra_peptide": ...,
     "z_tcrb_peptide": ...,
     "z_tcra_mhc": ...,
-    "z_tcrb_mhc": ...
+    "z_tcrb_mhc": ...,
+    "z_peptide_mhc": ...
   },
   "feature_schema": "protenix_trunk_s_z_pdist_v1"
 }
@@ -275,10 +235,8 @@ ID,sample_id,pmhc_id,logit,Prediction,prediction_binary,[label]
 当前版本已经提供：
 
 - MHC-I αβ TCR输入；
-- 完整HLA重链映射；
-- 可选β2m；
 - latent `s/z/p_dist`；
-- 显式 TCR–peptide/TCR–MHC 界面；
+- 显式 TCR–peptide/TCR–MHC/MHC-peptide 界面；
 - 二分类训练、连续概率、0/1与latent导出；
 - per-pMHC AUC0.1。
 

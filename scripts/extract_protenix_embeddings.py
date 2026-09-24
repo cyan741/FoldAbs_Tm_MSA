@@ -13,6 +13,12 @@ import json
 import os
 from pathlib import Path
 
+# Protenix reads PROTENIX_ROOT_DIR while its config modules are imported.  Keep
+# the repository-local checkpoint/common assets as the default, while allowing
+# callers to override the location explicitly in their environment.
+DEFAULT_PROTENIX_ROOT = Path(__file__).resolve().parents[1] / ".foldtmp-run" / "protenix_assets"
+os.environ.setdefault("PROTENIX_ROOT_DIR", str(DEFAULT_PROTENIX_ROOT))
+
 # Must be set before importing Protenix: RTX 50-series cards do not support the
 # optional prebuilt fused LayerNorm extension used by the upstream default.
 os.environ.setdefault("LAYERNORM_TYPE", "torch")
@@ -54,6 +60,15 @@ def main() -> None:
         raise ValueError("--cycles must be at least 1")
     if args.limit < 0:
         raise ValueError("--limit must be non-negative")
+
+    protenix_root = Path(os.environ["PROTENIX_ROOT_DIR"]).resolve()
+    checkpoint = protenix_root / "checkpoint" / "protenix_base_default_v1.0.0.pt"
+    if not checkpoint.is_file():
+        raise FileNotFoundError(
+            f"Protenix checkpoint not found at {checkpoint}. "
+            "Set PROTENIX_ROOT_DIR to the directory containing checkpoint/ and common/."
+        )
+    print(f"PROTENIX_ROOT_DIR={protenix_root}", flush=True)
 
     input_path = Path(args.input_json).resolve()
     output_dir = Path(args.output_dir).resolve()

@@ -15,3 +15,4 @@ def test_interface_masks_and_pooling():
     assert torch.equal(pools["s_peptide"], s[4])
     assert torch.equal(pools["z_tcra_peptide"], z[:2, 4].mean(dim=0))
     assert torch.equal(pools["z_tcrb_mhc"], z[2:4, 5].mean(dim=0))
+    assert torch.equal(pools["z_peptide_mhc"], z[4, 5])
