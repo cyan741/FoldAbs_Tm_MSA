@@ -16,6 +16,37 @@
 
 ## 2. 输入数据契约
 
+### 2.0 HITPH Stage-1 原始数据转换
+
+HITPH 原始列为：
+
+```text
+pep,hla,hla.allele,ab,label,beta
+```
+
+使用：
+
+```bash
+python scripts/make_protenix_input/convert_hitph.py \
+  --input-csv data/hitph.csv \
+  --hla-map-json /path/to/Hi-TpH/data/Hi-TpH-hla_allele2seq.json \
+  --output-csv work/hitph_tmp.csv \
+  --seed 42
+```
+
+转换规则：
+
+- `pep → peptide`；
+- `ab` 按 `TCRα/TCRβ` 拆分；
+- `beta` 用于校验拆出的 TCRβ；
+- `hla.allele → hla`；
+- 原始 34-aa `hla` pseudo-sequence 不作为输入；
+- `hla_sequence` 固定来自 Hi-TpH allele mapping 的 `clip sequence`；
+- label 分层随机 80/10/10；
+- allele 未映射时保留所有已映射 records，同时写 unmatched CSV 并报错退出，不 fallback。
+
+
+
 ### 2.1 固定 CSV 格式
 
 ```csv
@@ -25,7 +56,7 @@ pair_0001,...,...,GILGFVFTL,HLA-A*02:01,...,1,test
 
 八个字段均必需。`label` 必须为 0/1，`split` 必须为
 `train/validation/test`。`tcra/tcrb/peptide/hla_sequence` 均不能为空。
-原始数据转换为该固定 CSV 的过程不属于本输入模块。
+HITPH Stage-1 原始数据转换由 `convert_hitph.py` 完成；其他数据源仍需先适配到该固定 CSV。
 
 ## 3. 数据流程
 
@@ -34,7 +65,7 @@ pair_0001,...,...,GILGFVFTL,HLA-A*02:01,...,1,test
   ↓ scripts/make_protenix_input/make_tmp_protenix_input.py
 tmp_protenix_inputs.json
   ↓ extract_protenix_embeddings.py（复用现有冻结提取器）
-per-complex .pt: token_asym_id, s, z, p_dist
+per-complex .pt: token_asym_id, token_residue_index, s, z, p_dist
   ↓ train_tmp_specificity.py
 best_model.pt + predictions.csv + metrics.json
   ↓ predict_tmp_specificity.py
@@ -67,7 +98,15 @@ python scripts/make_protenix_input/make_tmp_protenix_input.py \
   --output-json work/tmp_protenix_inputs.json
 ```
 
-Protenix 只需要该 JSON；原 CSV 继续作为标签、split 和样本 ID 的
+Protenix 只需要该 JSON；原 CSV 继续作为标签、split 和样本 ID 的来源。训练前用：
+
+```bash
+python scripts/make_protenix_input/make_tmp_manifest.py \\
+  --input-csv data/tmp_input.csv \\
+  --output-csv work/train_manifest.csv
+```
+
+生成 `sample_id,original_id,pmhc_id,label,split` manifest。
 
 ## 5. 提取冻结 Protenix latent representation
 
@@ -90,13 +129,12 @@ python scripts/extract_protenix_embeddings.py \
 sample_name
 token_asym_id
 token_residue_index
-s_inputs
 s             [N, Ds]
 z             [N, N, Dz]
 p_dist        [N, N, K]
 ```
 
-训练头使用 `s/z/p_dist/token_asym_id`；`s_inputs` 暂不使用。
+训练头使用 `s/z/p_dist/token_asym_id`。Stage 1 不再保存 `s_inputs`，因为后续 TMP 设计未使用该张量；`--resume` 遇到旧缓存时会自动剥离旧 `s_inputs` 后重写。提取结束会额外生成 `extraction_stats.json`，记录 token、缓存大小、耗时和 GPU peak memory。
 
 ## 6. TMP 分类头
 
@@ -165,7 +203,9 @@ python scripts/train_tmp_specificity.py \
 - batch size 1，适配可变长度复合物；
 - 梯度累计和梯度裁剪1.0；
 - 按 validation BCE 选择 checkpoint；
-- test split 不参与选择。
+- test split 不参与选择；
+- train BCE、moving-average train BCE、validation BCE 和 checkpoint 事件写入 `train.log`；
+- 不生成 `history.json`。
 
 输出：
 
@@ -173,7 +213,7 @@ python scripts/train_tmp_specificity.py \
 best_model.pt
 predictions.csv
 metrics.json
-history.json
+train.log
 ```
 
 `best_model.pt` 保存模型参数、完整模型配置、阈值和 feature schema，预测时不需要手工重填通道维度。
