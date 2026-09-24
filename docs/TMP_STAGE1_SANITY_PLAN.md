@@ -119,7 +119,25 @@ python scripts/make_protenix_input/make_tmp_protenix_input.py \
 
 ---
 
-## 4. 提取 frozen Protenix trunk cache
+## 4. 生成训练 manifest
+
+在 feature extraction 前后均可生成；manifest 的 `sample_id` 与 Protenix JSON 中的 `id/name` 保持一致：
+
+```bash
+python scripts/make_protenix_input/make_tmp_manifest.py \
+  --input-csv work/hitph_level1.csv \
+  --output-csv work/hitph_level1_manifest.csv
+```
+
+manifest 字段：
+
+```text
+sample_id,original_id,pmhc_id,label,split
+```
+
+---
+
+## 5. 提取 frozen Protenix trunk cache
 
 本阶段：
 
@@ -160,7 +178,7 @@ s_inputs
 
 ---
 
-## 5. Level-1 训练配置
+## 6. Level-1 训练配置
 
 为了最大限度降低调试变量，先不用额外 trainable Pairformer：
 
@@ -199,7 +217,7 @@ python scripts/train_tmp_specificity.py \
 
 ---
 
-## 6. Level-1 判定标准
+## 7. Level-1 判定标准
 
 ### PASS
 
@@ -286,19 +304,32 @@ python scripts/extract_protenix_embeddings.py \
   --resume
 ```
 
-同时记录实际：
+提取脚本会自动写：
 
 ```text
-样本数
-平均 n_token
-.pt 总大小
-平均 .pt 大小
-总耗时
-sec/sample
-GPU peak memory
+work/hitph_level2_features/extraction_stats.json
+```
+
+其中记录：
+
+```text
+samples_total / samples_generated / samples_reused
+mean_n_token
+total_cache_bytes / mean_cache_bytes
+generated_seconds / generated_seconds_per_sample
+total_wall_seconds
+gpu_peak_memory_bytes
 ```
 
 用这组实测数据再估算几万条 full cache 的时间与磁盘需求，不在 Stage 1 预先批量生成全部缓存。
+
+在训练前生成 manifest：
+
+```bash
+python scripts/make_protenix_input/make_tmp_manifest.py \
+  --input-csv work/hitph_level2.csv \
+  --output-csv work/hitph_level2_manifest.csv
+```
 
 ---
 
