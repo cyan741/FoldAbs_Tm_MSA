@@ -1,0 +1,55 @@
+{
+  "best_validation_bce": 0.6957498304545879,
+  "best_step": 150,
+  "train": {
+    "bce": 0.6937018297612667,
+    "auroc": 0.8828125,
+    "auprc": 0.904353496744801,
+    "auc_0_1": 0.8026315789473684,
+    "macro_pmhc": {
+      "eligible_pmhc": 1,
+      "macro_auc_0_1": 1.0,
+      "macro_auroc": 1.0,
+      "macro_auprc": 1.0,
+      "per_pmhc": {
+        "SACVLAAEC|HLA-A*02:01": {
+          "n": 2,
+          "auroc": 1.0,
+          "auprc": 1.0,
+          "auc_0_1": 1.0
+        }
+      }
+    }
+  },
+  "validation": {
+    "bce": 0.6957498304545879,
+    "auroc": 0.515625,
+    "auprc": 0.6162202380952381,
+    "auc_0_1": 0.5394736842105263,
+    "macro_pmhc": {
+      "eligible_pmhc": 0,
+      "macro_auc_0_1": NaN,
+      "per_pmhc": {}
+    }
+  },
+  "test": {
+    "bce": 0.6951238997280598,
+    "auroc": 0.765625,
+    "auprc": 0.8052579365079364,
+    "auc_0_1": 0.6710526315789473,
+    "macro_pmhc": {
+      "eligible_pmhc": 1,
+      "macro_auc_0_1": 1.0,
+      "macro_auroc": 1.0,
+      "macro_auprc": 1.0,
+      "per_pmhc": {
+        "SVFNICQAV|HLA-A*02:01": {
+          "n": 2,
+          "auroc": 1.0,
+          "auprc": 1.0,
+          "auc_0_1": 1.0
+        }
+      }
+    }
+  }
+}
