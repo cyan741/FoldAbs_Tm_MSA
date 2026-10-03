@@ -4,14 +4,13 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import random
 import socket
-import subprocess
-from collections import deque
 from contextlib import nullcontext
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -30,17 +29,92 @@ from foldabs_repro.tmp_prediction.model import TMPTrunkSpecificityHead
 from foldabs_repro.tmp_prediction.pooling import POOLING_MODES
 
 
-def git_sha() -> str | None:
-    try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[1],
-            text=True, stderr=subprocess.DEVNULL,
-        ).strip()
-    except (OSError, subprocess.CalledProcessError):
+@dataclass
+class EarlyStopping:
+    """Track the strict validation-BCE minimum and consecutive non-improvements."""
+
+    enabled: bool = False
+    patience: int = 5
+    best_loss: float = float("inf")
+    best_epoch: int = 0
+    bad_epochs: int = 0
+
+    def update(self, loss: float, epoch: int) -> bool:
+        """Return whether BCE improved; equal BCE counts toward patience."""
+        if not np.isfinite(loss):
+            raise ValueError(f"Non-finite validation BCE at epoch {epoch}: {loss}")
+        if loss < self.best_loss:
+            self.best_loss, self.best_epoch, self.bad_epochs = loss, epoch, 0
+            return True
+        self.bad_epochs += 1
+        return False
+
+    @property
+    def should_stop(self) -> bool:
+        """Stop only when enabled and patience consecutive epochs did not improve."""
+        return self.enabled and self.bad_epochs >= self.patience
+
+
+def checkpoint_stem(args, world_size: int, epoch: int, kind: str = "final") -> str:
+    """Name artifacts using initial LR, effective batch size, decay and epoch."""
+    batch_size = world_size * args.gradient_accumulation
+    stem = f"lr{args.learning_rate:g}_bs{batch_size}_wd{args.weight_decay:g}_ep{epoch}"
+    if kind == "val_best":
+        return f"{stem}_val_best_ep{epoch}"
+    if kind == "es":
+        return f"{stem}_es_ep{epoch}"
+    if kind != "final":
+        raise ValueError(f"Unknown checkpoint kind: {kind}")
+    return stem
+
+
+def make_scheduler(optimizer, args):
+    """Build an optional validation-BCE-driven learning-rate scheduler."""
+    if args.lr_scheduler == "none":
         return None
+    return torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode="min", factor=args.lr_scheduler_factor,
+        patience=args.lr_scheduler_patience, threshold=0.0,
+        min_lr=args.min_lr,
+    )
+
+
+def save_loss_curves(history: list[dict], output_dir: Path, stems: list[str]) -> None:
+    """Save full epoch loss history and matching PNGs for retained checkpoints."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    pd.DataFrame(history).to_csv(output_dir / "loss_history.csv", index=False)
+    figure, axis = plt.subplots(figsize=(8, 5))
+    epochs = [row["epoch"] for row in history]
+    axis.plot(epochs, [row["train_bce_loss"] for row in history], label="Train BCE", marker="o")
+    axis.plot(epochs, [row["valid_bce_loss"] for row in history], label="Validation BCE", marker="o")
+    axis.set(xlabel="Epoch", ylabel="BCE loss", title="Training / validation loss")
+    axis.grid(alpha=0.25)
+    axis.legend()
+    figure.tight_layout()
+    for stem in stems:
+        figure.savefig(output_dir / f"{stem}.png", dpi=160)
+    plt.close(figure)
+
+
+def save_checkpoint(path, model, run_config, epoch, step, validation_metrics,
+                    stopper, scheduler, current_lr) -> None:
+    """Save weights and epoch metadata without retaining an epoch-by-epoch archive."""
+    torch.save({
+        "model": model.state_dict(), "model_config": model.config,
+        "run_config": run_config, "epoch": epoch, "step": step,
+        "threshold": 0.5, "feature_schema": "protenix_trunk_s_z_pdist_v1",
+        "validation_metrics": validation_metrics,
+        "best_validation_bce": stopper.best_loss, "best_epoch": stopper.best_epoch,
+        "bad_epochs": stopper.bad_epochs, "learning_rate": current_lr,
+        "scheduler_state": None if scheduler is None else scheduler.state_dict(),
+    }, path)
 
 
 def set_seed(seed: int) -> None:
+    """Seed Python, NumPy and PyTorch for reproducible initialization/shuffling."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -48,20 +122,25 @@ def set_seed(seed: int) -> None:
 
 
 def log_line(handle, message: str) -> None:
+    """Write a timestamped, human-readable line to console and train.log."""
+    message = f"{datetime.now():%Y-%m-%d %H:%M:%S} | INFO | {message}"
     print(message, flush=True)
     handle.write(message + "\n")
     handle.flush()
 
 
 @torch.no_grad()
-def evaluate(model, loader, device, loss_pos_weight=None):
+def evaluate(model, loader, device, loss_pos_weight=None, precision="fp32"):
+    """Return BCE and binary predictions; logit retains ranking for ROC/PR metrics."""
     model.eval()
     rows, losses = [], []
     for batch in loader:
-        logit = model(
-            batch["s"].to(device), batch["z"].to(device), batch["p_dist"].to(device),
-            batch["token_asym_id"].to(device), batch["roles"],
-        )
+        with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
+                            enabled=precision == "bf16"):
+            logit = model(
+                batch["s"].to(device), batch["z"].to(device), batch["p_dist"].to(device),
+                batch["token_asym_id"].to(device), batch["roles"],
+            ).float()
         target = batch["label"].to(device)
         losses.append(float(F.binary_cross_entropy_with_logits(logit, target, pos_weight=loss_pos_weight).item()))
         rows.append(
@@ -71,7 +150,7 @@ def evaluate(model, loader, device, loss_pos_weight=None):
                 "pmhc_id": batch["pmhc_id"],
                 "label": int(target.item()),
                 "logit": float(logit.item()),
-                "prediction": float(torch.sigmoid(logit).item()),
+                "prediction": int(logit.item() >= 0.0),
             }
         )
     frame = pd.DataFrame(rows)
@@ -115,13 +194,16 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--max-steps", type=int, default=4000)
+    parser.add_argument("--max-steps", type=int, default=4000,
+                        help="Optimizer-step budget; stop at the first complete epoch reaching it")
+    parser.add_argument("--epochs", type=int, default=None,
+                        help="Number of complete epochs; overrides --max-steps")
     parser.add_argument("--learning-rate", type=float, default=1e-4)
     parser.add_argument("--weight-decay", type=float, default=0.01)
     parser.add_argument("--gradient-accumulation", type=int, default=3)
-    parser.add_argument("--validate-every", type=int, default=100)
+    parser.add_argument("--validate-every", type=int, default=None,
+                        help="Deprecated compatibility option; validation always runs once per epoch")
     parser.add_argument("--log-every", type=int, default=20)
-    parser.add_argument("--train-loss-window", type=int, default=50)
     parser.add_argument("--pairformer-blocks", type=int, default=4)
     parser.add_argument(
         "--pooling-mode", choices=POOLING_MODES, default="A",
@@ -130,6 +212,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hidden-dim", type=int, default=512)
     parser.add_argument("--dropout", type=float, default=0.1)
     parser.add_argument("--auto-pos-weight", action="store_true")
+    parser.add_argument("--early_stop", "--early-stop", action="store_true",
+                        help="Stop after patience epochs without validation BCE improvement")
+    parser.add_argument("--early_stop_patience", "--early-stop-patience", type=int, default=5)
+    parser.add_argument("--lr-scheduler", choices=["none", "plateau"], default="plateau")
+    parser.add_argument("--lr-scheduler-factor", type=float, default=0.5)
+    parser.add_argument("--lr-scheduler-patience", type=int, default=2)
+    parser.add_argument("--min-lr", type=float, default=1e-6)
+    parser.add_argument("--precision", choices=["fp32", "bf16"], default="fp32",
+                        help="Optional CUDA bfloat16 autocast to reduce activation memory")
     return parser.parse_args()
 
 
@@ -183,11 +274,17 @@ def run_training(
     if min(
         args.max_steps,
         args.gradient_accumulation,
-        args.validate_every,
         args.log_every,
-        args.train_loss_window,
     ) < 1:
-        raise ValueError("Step counts and train-loss window must be positive")
+        raise ValueError("Step counts must be positive")
+    if args.epochs is not None and args.epochs < 1:
+        raise ValueError("--epochs must be positive")
+    if args.early_stop_patience < 1 or args.lr_scheduler_patience < 0:
+        raise ValueError("Early-stop patience must be positive; scheduler patience nonnegative")
+    if not 0 < args.lr_scheduler_factor < 1 or not 0 <= args.min_lr <= args.learning_rate:
+        raise ValueError("Scheduler factor must be in (0,1), min LR in [0, initial LR]")
+    if args.precision == "bf16" and device.type == "cuda" and not torch.cuda.is_bf16_supported():
+        raise ValueError("Selected GPU does not support bfloat16")
 
     manifest = pd.read_csv(args.manifest)
     if set(manifest.get("split", [])) != {"train", "validation", "test"}:
@@ -250,16 +347,19 @@ def run_training(
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay
     )
+    scheduler = make_scheduler(optimizer, args)
     output_dir = Path(args.output_dir)
     if is_main:
         output_dir.mkdir(parents=True, exist_ok=True)
+        if any(output_dir.glob("*.pt")):
+            raise FileExistsError(f"Use a fresh output directory to preserve checkpoints: {output_dir}")
         run_config = {
             **vars(args),
-            "git_sha": git_sha(),
-            "manifest_sha256": hashlib.sha256(Path(args.manifest).read_bytes()).hexdigest(),
+            "validation_schedule": "every_epoch",
             "model_config": raw_model.config,
             "feature_schema": "protenix_trunk_s_z_pdist_v1",
             "selection_metric": "validation_bce",
+            "effective_batch_size": world_size * args.gradient_accumulation,
             "trainable_parameters": sum(
                 parameter.numel() for parameter in raw_model.parameters()
                 if parameter.requires_grad
@@ -275,186 +375,208 @@ def run_training(
         dist.barrier()
     log_path = output_dir / "train.log"
 
-    best_loss, optimizer_step = float("inf"), 0
-    recent_train_losses: deque[float] = deque(maxlen=args.train_loss_window)
+    stopper = EarlyStopping(args.early_stop, args.early_stop_patience)
+    optimizer_step = 0
+    best_path = None
+    history = []
+    stopped_early = False
     train_epoch = 0
-    if train_sampler is not None:
-        train_sampler.set_epoch(train_epoch)
-    train_iterator = iter(train_loader)
-    optimizer.zero_grad(set_to_none=True)
 
     log = log_path.open("w", encoding="utf-8") if is_main else None
     try:
         if is_main:
-            selected_gpus = gpu_ids or ["first-visible"]
+            selected_gpus = gpu_ids or [os.environ.get("CUDA_VISIBLE_DEVICES", "first-visible")]
             log_line(
                 log,
-                json.dumps(
-                    {
-                        "event": "start",
-                        "train_examples": len(datasets["train"]),
-                        "validation_examples": len(datasets["validation"]),
-                        "test_examples": len(datasets["test"]),
-                        "train_positive": positives,
-                        "train_negative": negatives,
-                        "pairformer_blocks": args.pairformer_blocks,
-                        "pooling_mode": args.pooling_mode,
-                        "seed": args.seed,
-                        "pooling_parameters": run_config["pooling_parameters"],
-                        "learning_rate": args.learning_rate,
-                        "weight_decay": args.weight_decay,
-                        "gradient_accumulation": args.gradient_accumulation,
-                        "gpu_ids": selected_gpus,
-                        "world_size": world_size,
-                        "distributed": distributed,
-                        "per_device_batch_size": 1,
-                        "effective_batch_size": (
-                            world_size * args.gradient_accumulation
-                        ),
-                    }
-                ),
+                f"Start | train={len(datasets['train'])} "
+                f"validation={len(datasets['validation'])} test={len(datasets['test'])} "
+                f"pooling={args.pooling_mode} seed={args.seed} "
+                f"GPUs={','.join(selected_gpus)} world_size={world_size} "
+                f"batch_size_per_device=1 accumulation={args.gradient_accumulation} "
+                f"lr={args.learning_rate:g} weight_decay={args.weight_decay:g}",
             )
+            if args.validate_every is not None:
+                log_line(log, "--validate-every is ignored; validation runs once per epoch.")
 
-        while optimizer_step < args.max_steps:
+        while True:
+            train_epoch += 1
+            if train_sampler is not None:
+                train_sampler.set_epoch(train_epoch - 1)
+            epoch_lr = float(optimizer.param_groups[0]["lr"])
             model.train()
+            optimizer.zero_grad(set_to_none=True)
+            epoch_loss_sum, epoch_samples = 0.0, 0
             micro_losses = []
-            for micro_step in range(args.gradient_accumulation):
-                try:
-                    batch = next(train_iterator)
-                except StopIteration:
-                    train_epoch += 1
-                    if train_sampler is not None:
-                        train_sampler.set_epoch(train_epoch)
-                    train_iterator = iter(train_loader)
-                    batch = next(train_iterator)
-
-                synchronize = micro_step == args.gradient_accumulation - 1
+            batches = len(train_loader)
+            for batch_index, batch in enumerate(train_loader):
+                # Normalize the last, possibly short, accumulation group by its
+                # actual size. Never carry gradients/samples across epochs.
+                group_start = (batch_index // args.gradient_accumulation) * args.gradient_accumulation
+                group_size = min(args.gradient_accumulation, batches - group_start)
+                synchronize = (batch_index - group_start + 1) == group_size
                 sync_context = (
-                    nullcontext()
-                    if not distributed or synchronize
-                    else model.no_sync()
+                    nullcontext() if not distributed or synchronize else model.no_sync()
                 )
                 with sync_context:
-                    logit = model(
-                        batch["s"].to(device),
-                        batch["z"].to(device),
-                        batch["p_dist"].to(device),
-                        batch["token_asym_id"].to(device),
-                        batch["roles"],
-                    )
+                    with torch.autocast(device_type=device.type, dtype=torch.bfloat16,
+                                        enabled=args.precision == "bf16"):
+                        logit = model(
+                            batch["s"].to(device), batch["z"].to(device),
+                            batch["p_dist"].to(device), batch["token_asym_id"].to(device),
+                            batch["roles"],
+                        ).float()
                     target = batch["label"].to(device)
                     loss = F.binary_cross_entropy_with_logits(
                         logit, target, pos_weight=pos_weight
                     )
-                    micro_losses.append(float(loss.detach().item()))
-                    (loss / args.gradient_accumulation).backward()
+                    loss_value = float(loss.detach().item())
+                    epoch_loss_sum += loss_value
+                    epoch_samples += 1
+                    micro_losses.append(loss_value)
+                    (loss / group_size).backward()
+                if not synchronize:
+                    continue
 
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
-            optimizer.zero_grad(set_to_none=True)
-            optimizer_step += 1
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
+                optimizer.zero_grad(set_to_none=True)
+                optimizer_step += 1
+                step_loss_tensor = torch.tensor(
+                    float(np.mean(micro_losses)), dtype=torch.float64, device=device
+                )
+                micro_losses.clear()
+                if distributed:
+                    dist.reduce(step_loss_tensor, dst=0, op=dist.ReduceOp.SUM)
+                if is_main and (optimizer_step % args.log_every == 0 or optimizer_step == 1):
+                    log_line(
+                        log,
+                        f"Epoch {train_epoch} | Batch {batch_index + 1}/{batches} "
+                        f"| Step {optimizer_step} | loss={step_loss_tensor.item() / world_size:.6f} "
+                        f"| lr={optimizer.param_groups[0]['lr']:g}",
+                    )
 
-            step_loss_tensor = torch.tensor(
-                float(np.mean(micro_losses)), dtype=torch.float64, device=device
+            totals = torch.tensor(
+                [epoch_loss_sum, epoch_samples], dtype=torch.float64, device=device
             )
+            validation_loss_tensor = torch.zeros((), dtype=torch.float64, device=device)
             if distributed:
-                dist.reduce(step_loss_tensor, dst=0, op=dist.ReduceOp.SUM)
+                dist.reduce(totals, dst=0, op=dist.ReduceOp.SUM)
+                dist.barrier()
             if is_main:
-                step_loss = float(step_loss_tensor.item()) / world_size
-                recent_train_losses.append(step_loss)
-
-            if is_main and (
-                optimizer_step % args.log_every == 0 or optimizer_step == 1
-            ):
+                train_loss = float((totals[0] / totals[1]).item())
+                validation_loss, validation = evaluate(
+                    raw_model, evaluation_loaders["validation"], device, pos_weight,
+                    args.precision,
+                )
+                validation_loss_tensor.fill_(validation_loss)
+                validation_metrics = {
+                    "bce": validation_loss,
+                    **binary_metrics(validation.label, validation.logit),
+                    "macro_pmhc": macro_pmhc_metrics(validation),
+                }
+            # All ranks step the scheduler using rank-zero validation BCE and
+            # receive the same early-stop decision before starting the next epoch.
+            if distributed:
+                dist.broadcast(validation_loss_tensor, src=0)
+            if not torch.isfinite(validation_loss_tensor):
+                raise ValueError(f"Non-finite validation BCE at epoch {train_epoch}")
+            if scheduler is not None:
+                scheduler.step(float(validation_loss_tensor.item()))
+            next_lr = float(optimizer.param_groups[0]["lr"])
+            stop_tensor = torch.zeros((), dtype=torch.int64, device=device)
+            if is_main:
+                improved = stopper.update(validation_loss, train_epoch)
+                history.append({
+                    "epoch": train_epoch, "step": optimizer_step,
+                    "train_bce_loss": train_loss, "valid_bce_loss": validation_loss,
+                    "lr": epoch_lr, "next_lr": next_lr,
+                })
                 log_line(
                     log,
-                    json.dumps(
-                        {
-                            "event": "train",
-                            "step": optimizer_step,
-                            "train_bce": step_loss,
-                            "train_bce_moving": float(np.mean(recent_train_losses)),
-                            "lr": float(optimizer.param_groups[0]["lr"]),
-                        }
-                    ),
+                    f"Epoch {train_epoch} complete | Step {optimizer_step} "
+                    f"| loss={train_loss:.6f} | val_loss={validation_loss:.6f} "
+                    f"| val_AUROC={validation_metrics['auroc']:.6f} "
+                    f"| val_AUPRC={validation_metrics['auprc']:.6f} "
+                    f"| val_AUC_0.1={validation_metrics['auc_0_1']:.6f} "
+                    f"| lr={epoch_lr:g} next_lr={next_lr:g} "
+                    f"| no_improvement={stopper.bad_epochs}/{stopper.patience}",
                 )
-
-            if optimizer_step % args.validate_every == 0 or optimizer_step == args.max_steps:
-                if distributed:
-                    dist.barrier()
-                if is_main:
-                    validation_loss, validation = evaluate(
-                        raw_model,
-                        evaluation_loaders["validation"],
-                        device,
-                        pos_weight,
+                if improved:
+                    new_path = output_dir / (
+                        checkpoint_stem(args, world_size, train_epoch, "val_best") + ".pt"
                     )
-                    record = {
-                        "event": "validation",
-                        "step": optimizer_step,
-                        "train_bce_moving": float(np.mean(recent_train_losses)),
-                        "validation_bce": validation_loss,
-                        **binary_metrics(validation.label, validation.prediction),
-                    }
-                    log_line(log, json.dumps(record))
-                    if validation_loss < best_loss:
-                        best_loss = validation_loss
-                        torch.save(
-                            {
-                                "model": raw_model.state_dict(),
-                                "model_config": raw_model.config,
-                                "step": optimizer_step,
-                                "threshold": 0.5,
-                                "feature_schema": "protenix_trunk_s_z_pdist_v1",
-                                "run_config": run_config,
-                            },
-                            output_dir / "best_model.pt",
-                        )
-                        log_line(
-                            log,
-                            json.dumps(
-                                {
-                                    "event": "checkpoint",
-                                    "step": optimizer_step,
-                                    "validation_bce": validation_loss,
-                                    "path": str(output_dir / "best_model.pt"),
-                                }
-                            ),
-                        )
-                if distributed:
-                    dist.barrier()
+                    save_checkpoint(
+                        new_path, raw_model, run_config, train_epoch, optimizer_step,
+                        validation_metrics, stopper, scheduler, next_lr,
+                    )
+                    # Delete only the previous best created by this run; keep
+                    # exactly one validation-best checkpoint at any time.
+                    if best_path is not None and best_path != new_path:
+                        best_path.unlink()
+                    best_path = new_path
+                    log_line(
+                        log, f"Checkpoint saved | epoch={train_epoch} "
+                        f"step={optimizer_step} val_loss={stopper.best_loss:.6f} path={best_path}",
+                    )
+                stop_tensor.fill_(int(stopper.should_stop))
+            if distributed:
+                dist.broadcast(stop_tensor, src=0)
+            stopped_early = bool(stop_tensor.item())
+            if stopped_early or (
+                args.epochs is not None and train_epoch >= args.epochs
+            ) or (
+                args.epochs is None and optimizer_step >= args.max_steps
+            ):
+                break
 
         if is_main:
-            checkpoint = torch.load(
-                output_dir / "best_model.pt", map_location=device, weights_only=True
+            final_kind = "es" if stopped_early else "final"
+            final_stem = checkpoint_stem(args, world_size, train_epoch, final_kind)
+            final_path = output_dir / f"{final_stem}.pt"
+            save_checkpoint(
+                final_path, raw_model, run_config, train_epoch, optimizer_step,
+                validation_metrics, stopper, scheduler, next_lr,
             )
+            log_line(
+                log, f"{'Early stopping' if stopped_early else 'Training finished'} "
+                f"| epoch={train_epoch} step={optimizer_step} "
+                f"| checkpoint={final_path}",
+            )
+            save_loss_curves(history, output_dir, [best_path.stem, final_stem])
+            checkpoint = torch.load(best_path, map_location=device, weights_only=True)
             raw_model.load_state_dict(checkpoint["model"])
-            result_frames = []
-            metrics = {
-                "pooling_mode": args.pooling_mode,
-                "seed": args.seed,
-                "best_validation_bce": best_loss,
-                "best_step": checkpoint["step"],
-            }
-            for split, loader in evaluation_loaders.items():
-                loss, predictions = evaluate(raw_model, loader, device, pos_weight)
-                predictions.insert(1, "split", split)
-                result_frames.append(predictions)
-                metrics[split] = {
-                    "bce": loss,
-                    **binary_metrics(predictions.label, predictions.prediction),
-                    "macro_pmhc": macro_pmhc_metrics(predictions),
-                }
-
-            pd.concat(result_frames, ignore_index=True).to_csv(
-                output_dir / "predictions.csv", index=False
+            log_line(
+                log, f"Testing validation-best checkpoint | epoch={checkpoint['epoch']} "
+                f"step={checkpoint['step']}",
             )
+            # Export only hard labels and logits. ROC/PR metrics always use
+            # continuous logits, never thresholded class predictions.
+            test_loss, predictions = evaluate(
+                raw_model, evaluation_loaders["test"], device, pos_weight, args.precision
+            )
+            predictions.insert(1, "split", "test")
+            predictions.to_csv(output_dir / "predictions.csv", index=False)
+            test_metrics = {
+                "bce": test_loss,
+                **binary_metrics(predictions.label, predictions.logit),
+                "macro_pmhc": macro_pmhc_metrics(predictions),
+            }
+            metrics = {
+                "pooling_mode": args.pooling_mode, "seed": args.seed,
+                "best_validation_bce": stopper.best_loss,
+                "best_step": checkpoint["step"], "best_epoch": checkpoint["epoch"],
+                "stopped_early": stopped_early, "final_epoch": train_epoch,
+                "best_checkpoint": best_path.name, "final_checkpoint": final_path.name,
+                "validation": checkpoint["validation_metrics"], "test": test_metrics,
+            }
             (output_dir / "metrics.json").write_text(
                 json.dumps(metrics, indent=2, allow_nan=True), encoding="utf-8"
             )
             log_line(
-                log,
-                json.dumps({"event": "complete", "metrics": metrics}, allow_nan=True),
+                log, f"Test | samples={len(predictions)} | loss={test_loss:.6f} "
+                f"| AUROC={test_metrics['auroc']:.6f} "
+                f"| AUPRC={test_metrics['auprc']:.6f} "
+                f"| AUC_0.1={test_metrics['auc_0_1']:.6f}",
             )
         if distributed:
             dist.barrier()

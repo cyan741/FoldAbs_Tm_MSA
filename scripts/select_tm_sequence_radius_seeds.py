@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import json
 import math
 from pathlib import Path
@@ -135,7 +134,6 @@ def run(manifest, output, radii):
               "k": 3, "jaccard_weight": 0.8, "length_weight": 0.2,
               "length_normalization": "fixed max-minus-min training length within each stratum",
               "initialization": "shortest and longest; same as original selector",
-              "manifest_sha256": hashlib.sha256(Path(manifest).read_bytes()).hexdigest(),
               "uses_msa_or_labels_for_selection": False,
               "training_unique_chains": len(set().union(*map(set, groups.values()))),
               "original_budget_sequence_coverage": baseline, "exploratory_summaries": summaries,

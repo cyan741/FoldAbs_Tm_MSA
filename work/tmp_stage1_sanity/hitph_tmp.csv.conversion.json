@@ -1,0 +1,18 @@
+{
+  "input_rows": 484,
+  "mapped_rows": 484,
+  "unmatched_rows": 0,
+  "label_counts": {
+    "0": 242,
+    "1": 242
+  },
+  "split_counts": {
+    "train": 388,
+    "test": 48,
+    "validation": 48
+  },
+  "hla_source": "data/Hi-TpH-hla_allele2seq.json",
+  "hla_sequence_field": "clip sequence",
+  "hla_aliases": "data/Hi-TpH-hla_aliases.json",
+  "source_pseudo_sequence_used": false
+}
