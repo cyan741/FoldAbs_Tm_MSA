@@ -1,0 +1,35 @@
+{
+  "pooling_mode": "C",
+  "seed": 42,
+  "best_validation_bce": 0.636992195310692,
+  "best_step": 650,
+  "best_epoch": 5,
+  "stopped_early": true,
+  "final_epoch": 10,
+  "best_checkpoint": "lr0.0003_bs3_wd0.0001_ep5_val_best_ep5.pt",
+  "final_checkpoint": "lr0.0003_bs3_wd0.0001_ep10_es_ep10.pt",
+  "validation": {
+    "bce": 0.636992195310692,
+    "auroc": 0.6892361111111112,
+    "auprc": 0.6773791543192685,
+    "auc_0_1": 0.5347222222222222,
+    "macro_pmhc": {
+      "eligible_pmhc": 1,
+      "macro_auc_0_1": 1.0,
+      "macro_auroc": 1.0,
+      "macro_auprc": 1.0
+    }
+  },
+  "test": {
+    "bce": 0.5287031258145968,
+    "auroc": 0.7578125,
+    "auprc": 0.6707215498802694,
+    "auc_0_1": 0.5146198830409356,
+    "macro_pmhc": {
+      "eligible_pmhc": 4,
+      "macro_auc_0_1": 0.736842105263158,
+      "macro_auroc": 0.6666666666666667,
+      "macro_auprc": 0.75
+    }
+  }
+}

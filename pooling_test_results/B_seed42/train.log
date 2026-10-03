@@ -1,0 +1,91 @@
+2026-10-03 23:43:02 | INFO | Start | train=388 validation=48 test=48 pooling=B seed=42 GPUs=2 world_size=1 batch_size_per_device=1 accumulation=3 lr=0.0003 weight_decay=0.0001
+2026-10-03 23:43:05 | INFO | Epoch 1 | Batch 3/388 | Step 1 | loss=0.705957 | lr=0.0003
+2026-10-03 23:43:39 | INFO | Epoch 1 | Batch 60/388 | Step 20 | loss=0.646744 | lr=0.0003
+2026-10-03 23:44:06 | INFO | Epoch 1 | Batch 120/388 | Step 40 | loss=0.628670 | lr=0.0003
+2026-10-03 23:44:23 | INFO | Epoch 1 | Batch 180/388 | Step 60 | loss=0.195167 | lr=0.0003
+2026-10-03 23:44:36 | INFO | Epoch 1 | Batch 240/388 | Step 80 | loss=0.649920 | lr=0.0003
+2026-10-03 23:44:48 | INFO | Epoch 1 | Batch 300/388 | Step 100 | loss=0.745357 | lr=0.0003
+2026-10-03 23:45:00 | INFO | Epoch 1 | Batch 360/388 | Step 120 | loss=0.865632 | lr=0.0003
+2026-10-03 23:45:12 | INFO | Epoch 1 complete | Step 130 | loss=0.728457 | val_loss=0.702089 | val_AUROC=0.633681 | val_AUPRC=0.628457 | val_AUC_0.1=0.547271 | lr=0.0003 next_lr=0.0003 | no_improvement=0/5
+2026-10-03 23:45:12 | INFO | Checkpoint saved | epoch=1 step=130 val_loss=0.702089 path=/NAS/luyq/TMP_prediction/pooling_abc_hitph_es_20261003_v1/B_seed42/lr0.0003_bs3_wd0.0001_ep1_val_best_ep1.pt
+2026-10-03 23:45:18 | INFO | Epoch 2 | Batch 30/388 | Step 140 | loss=0.679185 | lr=0.0003
+2026-10-03 23:45:31 | INFO | Epoch 2 | Batch 90/388 | Step 160 | loss=0.559051 | lr=0.0003
+2026-10-03 23:45:42 | INFO | Epoch 2 | Batch 150/388 | Step 180 | loss=0.690851 | lr=0.0003
+2026-10-03 23:45:51 | INFO | Epoch 2 | Batch 210/388 | Step 200 | loss=1.186454 | lr=0.0003
+2026-10-03 23:46:01 | INFO | Epoch 2 | Batch 270/388 | Step 220 | loss=0.705273 | lr=0.0003
+2026-10-03 23:46:10 | INFO | Epoch 2 | Batch 330/388 | Step 240 | loss=0.667689 | lr=0.0003
+2026-10-03 23:46:20 | INFO | Epoch 2 | Batch 388/388 | Step 260 | loss=0.705120 | lr=0.0003
+2026-10-03 23:46:23 | INFO | Epoch 2 complete | Step 260 | loss=0.717358 | val_loss=0.692104 | val_AUROC=0.683160 | val_AUPRC=0.707024 | val_AUC_0.1=0.590643 | lr=0.0003 next_lr=0.0003 | no_improvement=0/5
+2026-10-03 23:46:23 | INFO | Checkpoint saved | epoch=2 step=260 val_loss=0.692104 path=/NAS/luyq/TMP_prediction/pooling_abc_hitph_es_20261003_v1/B_seed42/lr0.0003_bs3_wd0.0001_ep2_val_best_ep2.pt
+2026-10-03 23:46:31 | INFO | Epoch 3 | Batch 60/388 | Step 280 | loss=0.745098 | lr=0.0003
+2026-10-03 23:46:41 | INFO | Epoch 3 | Batch 120/388 | Step 300 | loss=0.701418 | lr=0.0003
+2026-10-03 23:46:50 | INFO | Epoch 3 | Batch 180/388 | Step 320 | loss=0.832933 | lr=0.0003
+2026-10-03 23:46:59 | INFO | Epoch 3 | Batch 240/388 | Step 340 | loss=0.689138 | lr=0.0003
+2026-10-03 23:47:08 | INFO | Epoch 3 | Batch 300/388 | Step 360 | loss=0.741436 | lr=0.0003
+2026-10-03 23:47:18 | INFO | Epoch 3 | Batch 360/388 | Step 380 | loss=0.702607 | lr=0.0003
+2026-10-03 23:47:26 | INFO | Epoch 3 complete | Step 390 | loss=0.696942 | val_loss=0.690805 | val_AUROC=0.687500 | val_AUPRC=0.656846 | val_AUC_0.1=0.521930 | lr=0.0003 next_lr=0.0003 | no_improvement=0/5
+2026-10-03 23:47:26 | INFO | Checkpoint saved | epoch=3 step=390 val_loss=0.690805 path=/NAS/luyq/TMP_prediction/pooling_abc_hitph_es_20261003_v1/B_seed42/lr0.0003_bs3_wd0.0001_ep3_val_best_ep3.pt
+2026-10-03 23:47:29 | INFO | Epoch 4 | Batch 30/388 | Step 400 | loss=0.804826 | lr=0.0003
+2026-10-03 23:47:38 | INFO | Epoch 4 | Batch 90/388 | Step 420 | loss=0.720007 | lr=0.0003
+2026-10-03 23:47:47 | INFO | Epoch 4 | Batch 150/388 | Step 440 | loss=0.760227 | lr=0.0003
+2026-10-03 23:47:56 | INFO | Epoch 4 | Batch 210/388 | Step 460 | loss=0.707442 | lr=0.0003
+2026-10-03 23:48:05 | INFO | Epoch 4 | Batch 270/388 | Step 480 | loss=0.538503 | lr=0.0003
+2026-10-03 23:48:14 | INFO | Epoch 4 | Batch 330/388 | Step 500 | loss=0.405593 | lr=0.0003
+2026-10-03 23:48:23 | INFO | Epoch 4 | Batch 388/388 | Step 520 | loss=0.641571 | lr=0.0003
+2026-10-03 23:48:27 | INFO | Epoch 4 complete | Step 520 | loss=0.687147 | val_loss=0.743653 | val_AUROC=0.684896 | val_AUPRC=0.653508 | val_AUC_0.1=0.514620 | lr=0.0003 next_lr=0.0003 | no_improvement=1/5
+2026-10-03 23:48:34 | INFO | Epoch 5 | Batch 60/388 | Step 540 | loss=0.234395 | lr=0.0003
+2026-10-03 23:48:43 | INFO | Epoch 5 | Batch 120/388 | Step 560 | loss=1.169162 | lr=0.0003
+2026-10-03 23:48:53 | INFO | Epoch 5 | Batch 180/388 | Step 580 | loss=0.446896 | lr=0.0003
+2026-10-03 23:49:02 | INFO | Epoch 5 | Batch 240/388 | Step 600 | loss=0.632168 | lr=0.0003
+2026-10-03 23:49:11 | INFO | Epoch 5 | Batch 300/388 | Step 620 | loss=0.331273 | lr=0.0003
+2026-10-03 23:49:20 | INFO | Epoch 5 | Batch 360/388 | Step 640 | loss=0.388049 | lr=0.0003
+2026-10-03 23:49:28 | INFO | Epoch 5 complete | Step 650 | loss=0.678860 | val_loss=0.692014 | val_AUROC=0.653646 | val_AUPRC=0.615778 | val_AUC_0.1=0.499269 | lr=0.0003 next_lr=0.0003 | no_improvement=2/5
+2026-10-03 23:49:33 | INFO | Epoch 6 | Batch 30/388 | Step 660 | loss=0.328911 | lr=0.0003
+2026-10-03 23:49:42 | INFO | Epoch 6 | Batch 90/388 | Step 680 | loss=0.381679 | lr=0.0003
+2026-10-03 23:49:52 | INFO | Epoch 6 | Batch 150/388 | Step 700 | loss=0.208573 | lr=0.0003
+2026-10-03 23:50:01 | INFO | Epoch 6 | Batch 210/388 | Step 720 | loss=0.552943 | lr=0.0003
+2026-10-03 23:50:11 | INFO | Epoch 6 | Batch 270/388 | Step 740 | loss=0.390988 | lr=0.0003
+2026-10-03 23:50:20 | INFO | Epoch 6 | Batch 330/388 | Step 760 | loss=0.877803 | lr=0.0003
+2026-10-03 23:50:29 | INFO | Epoch 6 | Batch 388/388 | Step 780 | loss=0.226994 | lr=0.0003
+2026-10-03 23:50:33 | INFO | Epoch 6 complete | Step 780 | loss=0.581398 | val_loss=0.682535 | val_AUROC=0.696181 | val_AUPRC=0.690667 | val_AUC_0.1=0.552266 | lr=0.0003 next_lr=0.0003 | no_improvement=0/5
+2026-10-03 23:50:33 | INFO | Checkpoint saved | epoch=6 step=780 val_loss=0.682535 path=/NAS/luyq/TMP_prediction/pooling_abc_hitph_es_20261003_v1/B_seed42/lr0.0003_bs3_wd0.0001_ep6_val_best_ep6.pt
+2026-10-03 23:50:41 | INFO | Epoch 7 | Batch 60/388 | Step 800 | loss=0.674187 | lr=0.0003
+2026-10-03 23:50:50 | INFO | Epoch 7 | Batch 120/388 | Step 820 | loss=0.460775 | lr=0.0003
+2026-10-03 23:50:59 | INFO | Epoch 7 | Batch 180/388 | Step 840 | loss=0.584833 | lr=0.0003
+2026-10-03 23:51:08 | INFO | Epoch 7 | Batch 240/388 | Step 860 | loss=0.380715 | lr=0.0003
+2026-10-03 23:51:17 | INFO | Epoch 7 | Batch 300/388 | Step 880 | loss=0.242830 | lr=0.0003
+2026-10-03 23:51:26 | INFO | Epoch 7 | Batch 360/388 | Step 900 | loss=0.939888 | lr=0.0003
+2026-10-03 23:51:35 | INFO | Epoch 7 complete | Step 910 | loss=0.582618 | val_loss=0.921949 | val_AUROC=0.667535 | val_AUPRC=0.608998 | val_AUC_0.1=0.498355 | lr=0.0003 next_lr=0.0003 | no_improvement=1/5
+2026-10-03 23:51:39 | INFO | Epoch 8 | Batch 30/388 | Step 920 | loss=0.493928 | lr=0.0003
+2026-10-03 23:51:47 | INFO | Epoch 8 | Batch 90/388 | Step 940 | loss=0.657288 | lr=0.0003
+2026-10-03 23:51:57 | INFO | Epoch 8 | Batch 150/388 | Step 960 | loss=0.551019 | lr=0.0003
+2026-10-03 23:52:06 | INFO | Epoch 8 | Batch 210/388 | Step 980 | loss=0.155934 | lr=0.0003
+2026-10-03 23:52:15 | INFO | Epoch 8 | Batch 270/388 | Step 1000 | loss=0.689350 | lr=0.0003
+2026-10-03 23:52:24 | INFO | Epoch 8 | Batch 330/388 | Step 1020 | loss=0.015787 | lr=0.0003
+2026-10-03 23:52:35 | INFO | Epoch 8 | Batch 388/388 | Step 1040 | loss=3.773246 | lr=0.0003
+2026-10-03 23:52:38 | INFO | Epoch 8 complete | Step 1040 | loss=0.565206 | val_loss=0.964630 | val_AUROC=0.727431 | val_AUPRC=0.677995 | val_AUC_0.1=0.537646 | lr=0.0003 next_lr=0.0003 | no_improvement=2/5
+2026-10-03 23:52:48 | INFO | Epoch 9 | Batch 60/388 | Step 1060 | loss=1.782024 | lr=0.0003
+2026-10-03 23:52:54 | INFO | Epoch 9 | Batch 120/388 | Step 1080 | loss=0.150044 | lr=0.0003
+2026-10-03 23:53:00 | INFO | Epoch 9 | Batch 180/388 | Step 1100 | loss=0.343394 | lr=0.0003
+2026-10-03 23:53:04 | INFO | Epoch 9 | Batch 240/388 | Step 1120 | loss=0.492988 | lr=0.0003
+2026-10-03 23:53:08 | INFO | Epoch 9 | Batch 300/388 | Step 1140 | loss=0.364754 | lr=0.0003
+2026-10-03 23:53:12 | INFO | Epoch 9 | Batch 360/388 | Step 1160 | loss=0.133137 | lr=0.0003
+2026-10-03 23:53:16 | INFO | Epoch 9 complete | Step 1170 | loss=0.567221 | val_loss=0.791760 | val_AUROC=0.717882 | val_AUPRC=0.682727 | val_AUC_0.1=0.533991 | lr=0.0003 next_lr=0.00015 | no_improvement=3/5
+2026-10-03 23:53:19 | INFO | Epoch 10 | Batch 30/388 | Step 1180 | loss=0.015459 | lr=0.00015
+2026-10-03 23:53:23 | INFO | Epoch 10 | Batch 90/388 | Step 1200 | loss=0.050957 | lr=0.00015
+2026-10-03 23:53:27 | INFO | Epoch 10 | Batch 150/388 | Step 1220 | loss=0.000139 | lr=0.00015
+2026-10-03 23:53:31 | INFO | Epoch 10 | Batch 210/388 | Step 1240 | loss=0.142086 | lr=0.00015
+2026-10-03 23:53:35 | INFO | Epoch 10 | Batch 270/388 | Step 1260 | loss=0.018295 | lr=0.00015
+2026-10-03 23:53:39 | INFO | Epoch 10 | Batch 330/388 | Step 1280 | loss=0.029302 | lr=0.00015
+2026-10-03 23:53:43 | INFO | Epoch 10 | Batch 388/388 | Step 1300 | loss=0.001756 | lr=0.00015
+2026-10-03 23:53:45 | INFO | Epoch 10 complete | Step 1300 | loss=0.385116 | val_loss=1.098305 | val_AUROC=0.752604 | val_AUPRC=0.708618 | val_AUC_0.1=0.541301 | lr=0.00015 next_lr=0.00015 | no_improvement=4/5
+2026-10-03 23:53:49 | INFO | Epoch 11 | Batch 60/388 | Step 1320 | loss=0.030828 | lr=0.00015
+2026-10-03 23:53:53 | INFO | Epoch 11 | Batch 120/388 | Step 1340 | loss=0.012203 | lr=0.00015
+2026-10-03 23:53:57 | INFO | Epoch 11 | Batch 180/388 | Step 1360 | loss=0.862406 | lr=0.00015
+2026-10-03 23:54:01 | INFO | Epoch 11 | Batch 240/388 | Step 1380 | loss=1.444155 | lr=0.00015
+2026-10-03 23:54:06 | INFO | Epoch 11 | Batch 300/388 | Step 1400 | loss=1.116973 | lr=0.00015
+2026-10-03 23:54:10 | INFO | Epoch 11 | Batch 360/388 | Step 1420 | loss=1.535618 | lr=0.00015
+2026-10-03 23:54:13 | INFO | Epoch 11 complete | Step 1430 | loss=0.350256 | val_loss=1.671530 | val_AUROC=0.717014 | val_AUPRC=0.703626 | val_AUC_0.1=0.565058 | lr=0.00015 next_lr=0.00015 | no_improvement=5/5
+2026-10-03 23:54:14 | INFO | Early stopping | epoch=11 step=1430 | checkpoint=/NAS/luyq/TMP_prediction/pooling_abc_hitph_es_20261003_v1/B_seed42/lr0.0003_bs3_wd0.0001_ep11_es_ep11.pt
+2026-10-03 23:54:14 | INFO | Testing validation-best checkpoint | epoch=6 step=780
+2026-10-03 23:54:16 | INFO | Test | samples=48 | loss=0.612520 | AUROC=0.725694 | AUPRC=0.658511 | AUC_0.1=0.513889
