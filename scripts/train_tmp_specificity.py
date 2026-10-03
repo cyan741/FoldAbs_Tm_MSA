@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import random
 import socket
+import subprocess
 from collections import deque
 from contextlib import nullcontext
 from pathlib import Path
@@ -25,6 +27,17 @@ from torch.utils.data.distributed import DistributedSampler
 from foldabs_repro.tmp_prediction.dataset import TMPFeatureDataset, examples_from_manifest, single_item
 from foldabs_repro.tmp_prediction.metrics import binary_metrics, macro_pmhc_metrics
 from foldabs_repro.tmp_prediction.model import TMPTrunkSpecificityHead
+from foldabs_repro.tmp_prediction.pooling import POOLING_MODES
+
+
+def git_sha() -> str | None:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[1],
+            text=True, stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
 
 
 def set_seed(seed: int) -> None:
@@ -110,6 +123,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--log-every", type=int, default=20)
     parser.add_argument("--train-loss-window", type=int, default=50)
     parser.add_argument("--pairformer-blocks", type=int, default=4)
+    parser.add_argument(
+        "--pooling-mode", choices=POOLING_MODES, default="A",
+        help="A: all mean; B: single mean/pair attention; C: all attention",
+    )
     parser.add_argument("--hidden-dim", type=int, default=512)
     parser.add_argument("--dropout", type=float, default=0.1)
     parser.add_argument("--auto-pos-weight", action="store_true")
@@ -213,6 +230,7 @@ def run_training(
         pairformer_blocks=args.pairformer_blocks,
         hidden_dim=args.hidden_dim,
         dropout=args.dropout,
+        pooling_mode=args.pooling_mode,
     ).to(device)
     model = (
         DistributedDataParallel(raw_model, device_ids=[rank], output_device=rank)
@@ -235,6 +253,24 @@ def run_training(
     output_dir = Path(args.output_dir)
     if is_main:
         output_dir.mkdir(parents=True, exist_ok=True)
+        run_config = {
+            **vars(args),
+            "git_sha": git_sha(),
+            "manifest_sha256": hashlib.sha256(Path(args.manifest).read_bytes()).hexdigest(),
+            "model_config": raw_model.config,
+            "feature_schema": "protenix_trunk_s_z_pdist_v1",
+            "selection_metric": "validation_bce",
+            "trainable_parameters": sum(
+                parameter.numel() for parameter in raw_model.parameters()
+                if parameter.requires_grad
+            ),
+            "pooling_parameters": sum(
+                parameter.numel() for parameter in raw_model.pooling.parameters()
+            ),
+        }
+        (output_dir / "run_config.json").write_text(
+            json.dumps(run_config, indent=2), encoding="utf-8"
+        )
     if distributed:
         dist.barrier()
     log_path = output_dir / "train.log"
@@ -262,6 +298,9 @@ def run_training(
                         "train_positive": positives,
                         "train_negative": negatives,
                         "pairformer_blocks": args.pairformer_blocks,
+                        "pooling_mode": args.pooling_mode,
+                        "seed": args.seed,
+                        "pooling_parameters": run_config["pooling_parameters"],
                         "learning_rate": args.learning_rate,
                         "weight_decay": args.weight_decay,
                         "gradient_accumulation": args.gradient_accumulation,
@@ -367,6 +406,7 @@ def run_training(
                                 "step": optimizer_step,
                                 "threshold": 0.5,
                                 "feature_schema": "protenix_trunk_s_z_pdist_v1",
+                                "run_config": run_config,
                             },
                             output_dir / "best_model.pt",
                         )
@@ -391,6 +431,8 @@ def run_training(
             raw_model.load_state_dict(checkpoint["model"])
             result_frames = []
             metrics = {
+                "pooling_mode": args.pooling_mode,
+                "seed": args.seed,
                 "best_validation_bce": best_loss,
                 "best_step": checkpoint["step"],
             }
