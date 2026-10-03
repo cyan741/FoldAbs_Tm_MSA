@@ -6,6 +6,16 @@ import torch
 
 
 REQUIRED_ROLES = ("tcra", "tcrb", "peptide", "mhc")
+PAIR_INTERFACES = (
+    ("tcra", "peptide"),
+    ("tcrb", "peptide"),
+    ("tcra", "mhc"),
+    ("tcrb", "mhc"),
+    ("peptide", "mhc"),
+)
+POOL_ORDER = tuple(f"s_{role}" for role in REQUIRED_ROLES) + tuple(
+    f"z_{left}_{right}" for left, right in PAIR_INTERFACES
+)
 
 
 def build_role_masks(token_asym_id: torch.Tensor, roles: Sequence[str]) -> dict[str, torch.Tensor]:
@@ -47,12 +57,6 @@ def interface_pools(
 ) -> dict[str, torch.Tensor]:
     """Parameter-free entity and directed-interface summaries."""
     result = {f"s_{role}": masked_mean_1d(s, masks[role]) for role in REQUIRED_ROLES}
-    for left, right in (
-        ("tcra", "peptide"),
-        ("tcrb", "peptide"),
-        ("tcra", "mhc"),
-        ("tcrb", "mhc"),
-        ("peptide", "mhc"), # add peptide-mhc interface
-    ):
+    for left, right in PAIR_INTERFACES:
         result[f"z_{left}_{right}"] = masked_mean_2d(z, masks[left], masks[right])
     return result

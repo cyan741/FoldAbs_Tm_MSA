@@ -12,7 +12,8 @@ import torch.nn as nn
 
 from protenix.model.modules.pairformer import PairformerBlock
 
-from .interfaces import build_role_masks, interface_pools
+from .interfaces import POOL_ORDER, build_role_masks
+from .pooling import InterfacePooling
 
 
 class ResidualTransition(nn.Module):
@@ -63,6 +64,7 @@ class TMPTrunkSpecificityHead(nn.Module):
         c_hidden_mul: int = 128,
         c_hidden_pair_att: int = 32,
         no_heads_pair: int = 4,
+        pooling_mode: str = "A",
     ):
         super().__init__()
         if pairformer_blocks < 0:
@@ -78,6 +80,7 @@ class TMPTrunkSpecificityHead(nn.Module):
             "c_hidden_mul": c_hidden_mul,
             "c_hidden_pair_att": c_hidden_pair_att,
             "no_heads_pair": no_heads_pair,
+            "pooling_mode": pooling_mode,
         }
         self.pair_condition = PairCondition(c_dist, c_z)
         self.pairformer = nn.ModuleList(
@@ -94,6 +97,10 @@ class TMPTrunkSpecificityHead(nn.Module):
                 for _ in range(pairformer_blocks)
             ]
         )
+        # A introduces no parameters/state keys, preserving legacy checkpoints.
+        # Zero-query B/C construction consumes no RNG, preserving common weight
+        # initialization for comparisons using the same seed.
+        self.pooling = InterfacePooling(c_s, c_z, mode=pooling_mode)
         # Four entity-level s pools plus five biologically distinct interfaces.
         input_dim = 4 * c_s + 5 * c_z
         self.classifier = nn.Sequential(
@@ -131,12 +138,8 @@ class TMPTrunkSpecificityHead(nn.Module):
                 inplace_safe=False,
                 chunk_size=None,
             )
-        pools = interface_pools(s_batch.squeeze(0), z_batch.squeeze(0), masks)
-        order = (
-            "s_tcra", "s_tcrb", "s_peptide", "s_mhc",
-            "z_tcra_peptide", "z_tcrb_peptide", "z_tcra_mhc", "z_tcrb_mhc", "z_peptide_mhc",
-        )
-        latent = torch.cat([pools[name] for name in order], dim=-1)
+        pools = self.pooling(s_batch.squeeze(0), z_batch.squeeze(0), masks)
+        latent = torch.cat([pools[name] for name in POOL_ORDER], dim=-1)
         return latent, pools
 
     def forward(
