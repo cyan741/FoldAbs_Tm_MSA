@@ -39,13 +39,20 @@ def clean_sequence(value: object) -> str:
 
 
 def canonical_hla(value: object) -> str:
-    """Normalize common two-field class-I HLA allele spellings."""
-    allele = str(value).strip().upper().replace("HLA-", "")
-    match = re.fullmatch(r"([A-Z]+)\*?(\d{2}):?(\d{2})", allele)
-    if not match:
+    """Normalize HLA spelling while preserving valid short or annotated alleles."""
+    allele = str(value).strip().upper()
+    if not allele:
+        raise ValueError("HLA allele cannot be empty")
+    if allele.startswith("H-2-"):
+        return allele
+    allele = allele.removeprefix("HLA-")
+    two_field = re.fullmatch(r"([A-Z]+)\*?(\d{2}):?(\d{2})", allele)
+    if two_field:
+        locus, field1, field2 = two_field.groups()
+        return f"HLA-{locus}*{field1}:{field2}"
+    if not re.fullmatch(r"[A-Z]+\*\d{2}(?::\d+)*(?: [A-Z0-9]+)?", allele):
         raise ValueError(f"Unsupported HLA allele notation: {value!r}")
-    locus, field1, field2 = match.groups()
-    return f"HLA-{locus}*{field1}:{field2}"
+    return f"HLA-{allele}"
 
 
 def validate_sequence(sequence: str, field: str, sample_id: str) -> None:

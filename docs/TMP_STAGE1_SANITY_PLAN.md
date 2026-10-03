@@ -48,8 +48,9 @@ train BCE 明显持续下降
 
 ```bash
 python scripts/make_protenix_input/convert_hitph.py \
-  --input-csv data/hitph.csv \
-  --hla-map-json /path/to/Hi-TpH/data/Hi-TpH-hla_allele2seq.json \
+  --input-csv data/human_I_unseen_hitph.csv \
+  --hla-map-json data/Hi-TpH-hla_allele2seq.json \
+  --hla-alias-json data/Hi-TpH-hla_aliases.json \
   --output-csv work/hitph_tmp.csv \
   --seed 42
 ```
@@ -433,6 +434,3 @@ peptide-OOD final split
 IMMREP25 benchmark tuning
 ```
 
-Stage 1 结束条件只有一个：
-
-> **数据转换正确，frozen feature 正确，训练链正确，loss 能下降。**

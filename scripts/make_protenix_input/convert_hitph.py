@@ -43,6 +43,24 @@ def load_hla_clip_map(path: str | Path) -> dict[str, str]:
     return mapping
 
 
+def load_hla_aliases(
+    path: str | Path | None,
+    hla_map: dict[str, str],
+) -> dict[str, str]:
+    """Load explicit input-allele aliases and validate every target."""
+    if path is None:
+        return {}
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    aliases = {
+        canonical_hla(source): canonical_hla(target)
+        for source, target in payload.items()
+    }
+    missing_targets = sorted(set(aliases.values()) - set(hla_map))
+    if missing_targets:
+        raise ValueError(f"HLA alias targets are absent from the clip map: {missing_targets}")
+    return aliases
+
+
 def stratified_split(
     labels: pd.Series,
     *,
@@ -104,7 +122,9 @@ def convert(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     canonical_alleles = source["hla.allele"].map(canonical_hla)
     hla_map = load_hla_clip_map(args.hla_map_json)
-    mapped_mask = canonical_alleles.isin(hla_map)
+    aliases = load_hla_aliases(args.hla_alias_json, hla_map)
+    lookup_alleles = canonical_alleles.map(lambda allele: aliases.get(allele, allele))
+    mapped_mask = lookup_alleles.isin(hla_map)
     unmatched = source.loc[~mapped_mask].copy()
     if not unmatched.empty:
         unmatched.insert(0, "source_row", unmatched.index)
@@ -112,6 +132,7 @@ def convert(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     keep = source.loc[mapped_mask].copy().reset_index(drop=False).rename(columns={"index": "source_row"})
     alleles = canonical_alleles.loc[mapped_mask].reset_index(drop=True)
+    lookup_keep = lookup_alleles.loc[mapped_mask].reset_index(drop=True)
     alpha_keep = pd.Series(alpha, index=source.index).loc[mapped_mask].reset_index(drop=True)
     beta_keep = pd.Series(beta_from_ab, index=source.index).loc[mapped_mask].reset_index(drop=True)
 
@@ -122,7 +143,7 @@ def convert(args: argparse.Namespace) -> tuple[pd.DataFrame, pd.DataFrame]:
             "tcrb": beta_keep,
             "peptide": keep["pep"].map(clean_sequence),
             "hla": alleles,
-            "hla_sequence": alleles.map(hla_map),
+            "hla_sequence": lookup_keep.map(hla_map),
             "label": pd.to_numeric(keep["label"], errors="raise").astype(int),
         }
     )
@@ -145,6 +166,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-csv", required=True)
     parser.add_argument("--hla-map-json", required=True, help="Hi-TpH data/Hi-TpH-hla_allele2seq.json")
+    parser.add_argument(
+        "--hla-alias-json",
+        default=None,
+        help="Optional explicit input-allele to Hi-TpH map-key aliases.",
+    )
     parser.add_argument("--output-csv", required=True)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--train-fraction", type=float, default=0.8)
@@ -164,6 +190,7 @@ def main() -> None:
         "split_counts": {str(k): int(v) for k, v in output["split"].value_counts().items()},
         "hla_source": str(args.hla_map_json),
         "hla_sequence_field": "clip sequence",
+        "hla_aliases": args.hla_alias_json,
         "source_pseudo_sequence_used": False,
     }
     report_path = output_path.with_suffix(output_path.suffix + ".conversion.json")
@@ -171,13 +198,14 @@ def main() -> None:
 
     print(json.dumps(report, indent=2))
     print(f"Wrote mapped TMP CSV: {output_path}")
+    unmatched_path = output_path.with_suffix(output_path.suffix + ".unmatched.csv")
     if not unmatched.empty:
-        unmatched_path = output_path.with_suffix(output_path.suffix + ".unmatched.csv")
         unmatched.to_csv(unmatched_path, index=False)
         raise RuntimeError(
             f"{len(unmatched)} HLA records could not be mapped. "
             f"Mapped records were saved to {output_path}; unmatched rows: {unmatched_path}"
         )
+    unmatched_path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
