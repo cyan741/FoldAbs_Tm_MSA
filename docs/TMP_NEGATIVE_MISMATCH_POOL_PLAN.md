@@ -1,3 +1,5 @@
+> 历史方案：旧负采样入口、TCR 错配路线和有限池代码已清理。当前仅使用 `scripts/negative_sampling/peptide_mismatch.py` 与 `scripts/train_tmp_specificity.py`。当前数据格式、seed 复现和命令见 [交付与使用说明](hitph_dynamic_negative_sampling_implementation_results.md)。
+
 # HiTPH peptide错配与split内天然配对TCR候选池执行规范
 
 日期：2026-10-08。分支：tmp-specificity。本文规定后续实现和统计；没有宣称已生成新负例或改变数据划分。

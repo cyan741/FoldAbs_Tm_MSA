@@ -72,15 +72,13 @@ best_model.pt + predictions.csv + metrics.json
 submission/prediction CSV + optional pooled latent .pt
 ```
 
-如果原始训练数据只有阳性，应在固定 split 后先运行：
-
-```bash
-python scripts/build_tmp_negatives.py \
-  --positives-csv data/tmp_positives_with_split.csv \
-  --output-csv work/tmp_train_binary.csv
-```
-
-该脚本只在各 split 内构造 `same_hla_cross_epitope` 和 `tcr_swap`，并使用全局已知阳性 TCR+peptide 表排除候选。生成标签属于 pseudo-negative，不应描述成实验 non-binder。
+HiTPH Level IV 正例使用当前 peptide mismatch 流程。生成入口为
+`scripts/negative_sampling/peptide_mismatch.py`，训练时动态采样入口为
+`scripts/train_tmp_specificity.py --negative-sampling peptide_mismatch`。
+完整输入、输出、换 seed 与训练命令见
+[动态负采样交付与使用说明](hitph_dynamic_negative_sampling_implementation_results.md)。
+旧 `build_tmp_negatives.py`、TCR 错配和有限负例池入口已删除。
+生成标签属于 pseudo-negative，不应描述成实验 non-binder。
 
 每个复合物的实体顺序固定为：
 

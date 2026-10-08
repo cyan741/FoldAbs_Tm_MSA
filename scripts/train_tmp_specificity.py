@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import random
 import socket
@@ -25,7 +26,6 @@ from torch.utils.data.distributed import DistributedSampler
 
 from foldabs_repro.tmp_prediction.cache_audit import audit_cache
 from foldabs_repro.tmp_prediction.dataset import TMPFeatureDataset, examples_from_manifest, single_item
-from foldabs_repro.tmp_prediction.epoch_sampling import build_epoch_ids, shard_epoch_ids, EpochIndexSampler
 from foldabs_repro.tmp_prediction.metrics import binary_metrics, macro_pmhc_metrics
 from foldabs_repro.tmp_prediction.model import TMPTrunkSpecificityHead
 from foldabs_repro.tmp_prediction.pooling import POOLING_MODES
@@ -203,7 +203,7 @@ def find_free_port() -> int:
 def parse_args() -> argparse.Namespace:
     """Parse training arguments without initializing CUDA."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", help="Required for static/dynamic_pool modes")
+    parser.add_argument("--manifest", help="Required for static mode")
     parser.add_argument("--features-dir", help="Required for training; joint four-chain Protenix cache")
     parser.add_argument("--output-dir", help="Required for training")
     parser.add_argument(
@@ -216,15 +216,12 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--negative-sampling", choices=["static", "dynamic_pool", "peptide_mismatch"], default="static")
+    parser.add_argument("--negative-sampling", choices=["static", "peptide_mismatch"], default="static")
     parser.add_argument("--splits-dir", default="/NAS/luyq/TMP_prediction/data/hitph_l4_v1/splits",
                         help="peptide_mismatch: train/val/test.csv and four NumPy dictionaries")
     parser.add_argument("--sampling-preview-epoch", type=int,
                         help="Print peptide_mismatch epoch audit without CUDA, features or file output")
-    parser.add_argument("--train-negative-pool", help="Candidate manifest; static with a pool fixes epoch-1 negatives")
     parser.add_argument("--negatives-per-positive", type=float, default=2)
-    parser.add_argument("--negative-protocol", choices=["legacy", "mismatch_v2"], default="legacy",
-                        help="mismatch_v2 permits configurable exposure and capped group shortfalls")
     parser.add_argument("--negative-sampling-seed", type=int, default=42)
     parser.add_argument("--resume", help="Resume a complete epoch checkpoint")
     parser.add_argument("--max-steps", type=int, default=4000,
@@ -261,11 +258,38 @@ def parse_args() -> argparse.Namespace:
     elif not args.features_dir or not args.output_dir:
         parser.error("Training requires --features-dir and --output-dir")
     if args.negative_sampling != "peptide_mismatch" and not args.manifest:
-        parser.error("static/dynamic_pool require --manifest")
-    if args.negative_sampling == "peptide_mismatch" and args.train_negative_pool:
-        parser.error("peptide_mismatch uses per-split peptide dictionaries, not --train-negative-pool")
+        parser.error("static requires --manifest")
     return args
 
+
+
+def shard_epoch_ids(ids, world_size=1, rank=0):
+    """Shard one logical epoch; pad only to synchronize DDP optimizer steps."""
+    if not ids or world_size < 1 or not 0 <= rank < world_size:
+        raise ValueError("Invalid epoch plan or distributed rank")
+    total = math.ceil(len(ids) / world_size) * world_size
+    padding = total - len(ids)
+    padded = list(ids) + (list(ids) * math.ceil(padding / len(ids)))[:padding]
+    return padded[rank:total:world_size], padding
+
+
+class EpochIndexSampler:
+    """Index the current immutable epoch dataset using its exact sample IDs."""
+
+    def __init__(self, sample_ids):
+        if len(set(sample_ids)) != len(sample_ids):
+            raise ValueError("Dataset IDs must be unique")
+        self.index = {name: index for index, name in enumerate(sample_ids)}
+        self.indices = []
+
+    def set_ids(self, ids):
+        self.indices = [self.index[name] for name in ids]
+
+    def __iter__(self):
+        return iter(self.indices)
+
+    def __len__(self):
+        return len(self.indices)
 
 
 class PeptideMismatchSampling:
@@ -278,7 +302,7 @@ class PeptideMismatchSampling:
 
     def __init__(self, args):
         import importlib.util
-        module_path = Path(__file__).resolve().parents[1] / "negative_sampling" / "peptide_mismatch.py"
+        module_path = Path(__file__).resolve().parent / "negative_sampling" / "peptide_mismatch.py"
         spec = importlib.util.spec_from_file_location("peptide_mismatch", module_path)
         self.sampling = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.sampling)
@@ -463,42 +487,11 @@ def run_training(
         split: examples_from_manifest(manifest, args.features_dir, split=split, require_label=True)
         for split in ("train", "validation", "test")
     }
-    pool_mode = args.train_negative_pool is not None
-    if args.negative_sampling == "dynamic_pool" and not pool_mode:
-        raise ValueError("dynamic_pool requires --train-negative-pool")
     sampling_state = {"mode": args.negative_sampling, "seed": args.negative_sampling_seed,
-                      "ratio": args.negatives_per_positive, "world_size": world_size, "protocol": args.negative_protocol}
-    positive_ids, positives_by_pmhc, pools = [], {}, {}
-    identity_frames = [manifest]
-    def epoch_plan(epoch):
-        return build_epoch_ids(positive_ids, positives_by_pmhc, pools, args.negative_sampling_seed, epoch,
-            fixed=args.negative_sampling == "static", negatives_per_positive=args.negatives_per_positive,
-            allow_shortfall=args.negative_protocol == "mismatch_v2")
-    if pool_mode:
-        if args.auto_pos_weight or (args.negative_protocol == "legacy" and args.negatives_per_positive != 2):
-            raise ValueError("Pool protocol requires 1:2 sampling and unweighted BCE")
-        if not all(row.label == 1 for row in example_sets["train"]):
-            raise ValueError("Pool training main manifest must contain train positives only")
-        for split in (() if args.negative_protocol == "mismatch_v2" else ("validation", "test")):
-            for pmhc, part in manifest[manifest.split == split].groupby("pmhc_id"):
-                n_positive = int(part.label.eq(1).sum())
-                if not n_positive or int(part.label.eq(0).sum()) != 2 * n_positive:
-                    raise ValueError(f"Fixed {split}/{pmhc} must have ratio 1:2")
-        pool_frame = pd.read_csv(args.train_negative_pool)
-        if not set(pool_frame.get("split", [])) == {"train"} or not pool_frame.label.eq(0).all():
-            raise ValueError("Candidate manifest must contain train negatives only")
-        identity_frames.append(pool_frame)
-        pool_examples = examples_from_manifest(pool_frame, args.features_dir, require_label=True)
-        for row in example_sets["train"]:
-            positive_ids.append(row.sample_id)
-            positives_by_pmhc.setdefault(row.pmhc_id, []).append(row.sample_id)
-        for row in pool_examples:
-            pools.setdefault(row.pmhc_id, []).append(row.sample_id)
-        epoch_plan(1)
-        example_sets["train"] += pool_examples
+                      "ratio": args.negatives_per_positive, "world_size": world_size}
     all_ids = [row.sample_id for rows in example_sets.values() for row in rows]
     if len(all_ids) != len(set(all_ids)):
-        raise ValueError("Manifest and pool IDs must be unique across all splits")
+        raise ValueError("Sample IDs must be unique across all splits")
     if peptide_mode:
         sampling_state["peptide_identity"] = peptide_sampling.state()
     sampling_state["records"] = sorted((row.sample_id, row.pmhc_id, row.label, split)
@@ -516,8 +509,6 @@ def run_training(
         if distributed
         else None
     )
-    if pool_mode:
-        train_sampler = EpochIndexSampler([row.sample_id for row in example_sets["train"]])
     train_loader = DataLoader(
         datasets["train"],
         batch_size=1,
@@ -530,20 +521,6 @@ def run_training(
         for name, dataset in datasets.items()
     }
 
-    if pool_mode:
-        # Check every required file before optimization, including candidates not
-        # selected in epoch one. Stream tensors rather than retaining the pool.
-        sequence_columns = ["tcra", "tcrb", "peptide", "hla_sequence"]
-        identities = pd.concat(identity_frames, ignore_index=True)
-        sequences_by_id = None
-        if set(sequence_columns) <= set(identities):
-            if identities[sequence_columns].isna().any().any():
-                raise ValueError("Incomplete sequence identity in manifests")
-            sequences_by_id = {r.sample_id: [getattr(r, column) for column in sequence_columns]
-                               for r in identities.itertuples(index=False)}
-        report = audit_cache([row for rows in example_sets.values() for row in rows], sequences_by_id)
-        if not report["ready"]:
-            raise ValueError(f"Feature preflight failed: {report['failures'][:5]}")
     if peptide_mode:
         peptide_sampling.audit_features(manifest, [row for rows in example_sets.values() for row in rows])
     first = datasets["train"][0]
@@ -564,8 +541,6 @@ def run_training(
 
     train_labels = np.asarray([row.label for row in example_sets["train"]], dtype=int)
     positives, negatives = int(train_labels.sum()), int((train_labels == 0).sum())
-    if pool_mode:
-        negatives = len(epoch_plan(1)) - positives
     if positives == 0 or negatives == 0:
         raise ValueError("Training split must contain both positive and negative labels")
     pos_weight = (
@@ -586,7 +561,7 @@ def run_training(
             **vars(args),
             "validation_schedule": "every_epoch",
             "negative_pool_size": (epoch_report["unique_negative_capacity"] if peptide_mode
-                                   else sum(map(len, pools.values()))),
+                                   else 0),
             "logical_epoch_samples": positives + negatives,
             "model_config": raw_model.config,
             "feature_schema": "protenix_trunk_s_z_pdist_v1",
@@ -614,7 +589,6 @@ def run_training(
     stopped_early = False
     train_epoch = 0
 
-    seen_negatives, previous_negatives = set(), set()
     rng_states = None
     if args.resume:
         resumed = torch.load(args.resume, map_location=device, weights_only=True)
@@ -648,11 +622,6 @@ def run_training(
             target = output_dir / best_path.name
             shutil.copy2(best_path, target)
             best_path = target
-        if pool_mode:
-            for prior_epoch in range(1, train_epoch + 1):
-                prior = epoch_plan(prior_epoch)
-                previous_negatives = set(prior) - set(positive_ids)
-                seen_negatives.update(previous_negatives)
         restore_rng(resumed["rng_states"][rank])
     log = log_path.open("a" if args.resume else "w", encoding="utf-8") if is_main else None
     try:
@@ -686,20 +655,6 @@ def run_training(
                 if is_main:
                     log_line(log, f"Peptide mismatch epoch={train_epoch} {json.dumps(epoch_report)} "
                              f"logical_samples={len(epoch_ids)} padding={padding}")
-            elif pool_mode:
-                epoch_ids = epoch_plan(train_epoch)
-                local_ids, padding = shard_epoch_ids(epoch_ids, world_size, rank)
-                train_sampler.set_ids(local_ids)
-                selected_negatives = set(epoch_ids) - set(positive_ids)
-                overlap = len(selected_negatives & previous_negatives) / len(selected_negatives)
-                seen_negatives.update(selected_negatives)
-                previous_negatives = selected_negatives
-                if is_main:
-                    log_line(log, f"Sampling epoch={train_epoch} positives={positives} negatives={negatives} "
-                             f"logical_samples={len(epoch_ids)} actual_accesses={len(epoch_ids) + padding} "
-                             f"padding={padding} negative_requested={int(positives * args.negatives_per_positive)} "
-                             f"negative_shortfall={int(positives * args.negatives_per_positive) - negatives} negative_coverage={len(seen_negatives) / sum(map(len, pools.values())):.6f} "
-                             f"adjacent_overlap={overlap:.6f}")
             elif train_sampler is not None:
                 train_sampler.set_epoch(train_epoch - 1)
             epoch_lr = float(optimizer.param_groups[0]["lr"])
