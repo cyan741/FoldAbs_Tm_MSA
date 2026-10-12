@@ -1,11 +1,7 @@
-# Hi-TPH：Protenix mini-ESM 无 MSA 实验准备与代码执行计划
+# Hi-TPH：Protenix mini-ESM 无 MSA执行计划
 
 日期：2026-10-12  
-目标分支：tmp-specificity  
-状态：已确认实验方案；本文是后续代码落地任务清单，不表示新增接口已经实现。
-
 ## 1. 本次实验目标与范围
-
 验证公开 protenix_mini_esm_v0.5.0（ESM2-3B）产生的联合 s/z/p_dist 表示，能否在当前 Hi-TPH unseen-peptide 设置下改善结合预测。
 
 已确认：
@@ -13,74 +9,18 @@
 - 暂不使用 MSA，所有四个组件均关闭 MSA；不生成 query-only A3M，也不启动远程搜索。
 - 非 ESM Protenix 及其下游 4-block Pairformer + attention pooling 的训练方案已经确定，作为当前对照；本计划不重新选择该模型的 head。
 - 新实验仅更换冻结 encoder 为官方 mini-ESM；下游继续使用同一个 4-block Pairformer + attention pooling 和相同训练协议。
-- 不使用作者内部结构微调权重，不对官方 backbone 进行额外微调。
 - 不重新清洗、切分或重建固定 val/test 负例。
 - 保留自然配对 TCRα/β 可变区、peptide、HLA 连续 clip，四链顺序 tcra/tcrb/peptide/mhc。
 - 本轮只提取 trunk 的 s/z/p_dist，不新增 diffusion、geometry、PAE、ipTM。
-- 本轮不展开 F0、pooling ABC、cycles 扫描或额外序列 baseline；这些可后续独立安排。
-
-研究结论的边界：ESM 与非 ESM encoder 的比较同时可能涉及模型大小、版本、内部结构等变化；不能将性能差异全部归因为 ESM。超过当前非 ESM 对照不等于已证明超过纯序列模型，相关论文结论需要后续直接序列对照支持。
 
 ## 2. 固定路径与隔离规则
 
-数据目录：
+训练验证测试数据划分目录：
 
 ~~~text
 /NAS/luyq/TMP_prediction/data/hitph_l4_v1/splits
 ~~~
-
-embedding 根目录（用户指定）：
-
-~~~text
-/NAS/luyq/TMP_prediction/protenix_embeddings/hitph_v1
-~~~
-
-在指定根目录下新增独立 profile，避免覆盖现有非 ESM 缓存：
-
-~~~text
-hitph_v1/
-  mini_esm_v0.5.0_c4_no_msa/
-    esm_chain_cache/
-    prepared/
-      run_spec.json
-      chain_catalog.csv
-      fixed_eval_manifest.csv
-      epoch_manifests/
-      extraction_shards/
-      planned_union_manifest.csv
-    features/
-      <sample_id>.pt
-      index.json
-      extraction_stats.json
-    audit/
-      input_audit.json
-      schedule_audit.json
-      cache_audit.json
-      pilot_budget.json
-~~~
-
---features-dir 指向上述 features 子目录，而不是 hitph_v1 根目录。训练 checkpoint 和日志放入现有训练输出目录体系，单独使用 mini_esm_no_msa 实验名；不与 encoder 特征文件混放。
-
-上述子目录布局是本计划拟新增产物，不表示 NAS 中已经存在。本会话无法访问 NAS，实际文件存在性和资源准备情况由执行端检查。
-
-## 3. 使用最新数据协议，不能回退到旧方案
-
-最新实现说明：[HiTPH peptide mismatch 交付](hitph_dynamic_negative_sampling_implementation_results.md)。
-
-正式 splits 目录包含：
-
-~~~text
-positive_splits.csv
-train.csv
-val.csv
-test.csv
-train_pep2candidates.npy
-val_pep2candidates.npy
-test_pep2candidates.npy
-blacklilst.npy
-~~~
-
-blacklilst.npy 沿用当前实际拼写。可信本地 NPY 以 allow_pickle=True 加载，不接受未知来源文件。
+说明文档：[HiTPH peptide mismatch 交付](hitph_dynamic_negative_sampling_implementation_results.md)。
 
 | 文件/逻辑集 | 正例 | 负例 |
 |---|---:|---:|
@@ -88,14 +28,6 @@ blacklilst.npy 沿用当前实际拼写。可信本地 NPY 以 allow_pickle=True
 | 每个 train epoch | 79,465 | 158,930 |
 | val.csv | 3,951 | 7,902 |
 | test.csv | 1,784 | 3,568 |
-
-数量来自分支交付说明，执行前必须复核实际输入。源字段为：
-
-~~~text
-tcra_v,tcrb_v,peptide,hla_alleles_raw,hla_alleles,hla_clip,label,neg_count
-~~~
-
-positive_splits.csv 还含原始 record_id、split 等身份字段，必须保留它们来恢复正例 feature ID。
 
 当前协议：
 
@@ -108,13 +40,21 @@ positive_splits.csv 还含原始 record_id、split 等身份字段，必须保�
 - val/test 已固定，训练种子变化不重建它们。
 - train epoch 1 中的 neg_count 是规划信息，不能拿它当后续 epoch 固定负例。
 - 不使用旧 train-negative-pool/dynamic_pool 接口，不恢复历史 TCR donor 错配路线。
-
-生产入口仅使用：
-
+- 每轮训练随机打乱正样本
+  
+相关脚本在：
 1. scripts/negative_sampling/peptide_mismatch.py 的现有抽样逻辑；
 2. scripts/train_tmp_specificity.py 的 PeptideMismatchSampling 身份映射、动态训练接入。
 
-本次不运行 peptide_mismatch.py 的固定数据生成入口。
+输出embedding 缓存根目录：
+
+~~~text
+/NAS/luyq/TMP_prediction/protenix_embeddings/hitph_v1
+~~~
+
+在指定根目录下新增独立 profile目录 mini_esm_v0.5.0_c4_no_msa，避免覆盖现有非 ESM 缓存：
+
+--features-dir 指向上述 features 子目录，而不是 hitph_v1 根目录。训练 checkpoint 和日志放入现有训练输出目录体系，单独使用 mini_esm_no_msa 实验名；不与 encoder 特征文件混放。
 
 ## 4. Encoder 配置与资源准备
 
@@ -129,20 +69,19 @@ positive_splits.csv 还含原始 record_id、split 等身份字段，必须保�
 | Diffusion / confidence | 不执行 |
 | 提取计算精度 | BF16，保留敏感操作 FP32 的现有处理 |
 | 联合浮点缓存 | FP16，token 索引整数 |
-| 提取 seed | 101，显式设置实际 RNG，而不只传 runner 参数 |
+| 提取 seed | 42，显式设置实际 RNG，而不只传 runner 参数 |
 | 输出 | s、z、p_dist、token_asym_id、token_residue_index |
 
 官方 mini-ESM 默认 cycles=4、ESM2-3B、use_msa=false。其 trunk 为 mini 配置；不能仅将 base 模型关闭 MSA 就标成 mini-ESM。官方 mini 的 diffusion 默认值与本轮无关，不能把 n_step/n_sample 的占位参数说成已运行结构采样。
 
 必须提前准备：
-
-- 可使用 CUDA/BF16 的 PyTorch、与当前项目兼容的 Protenix 环境；
 - mini-ESM Protenix checkpoint；
-- ESM2-3B checkpoint 及所安装 fair-esm 加载路径要求的附属文件；
-- Protenix common 数据资源、正确的 PROTENIX_ROOT_DIR；
+- ESM2-3B checkpoint 及所安装 fair-esm 加载路径要求的附属文件，所有需要的额外的包安装在foldtmp；
+- esm checkpoint安装路径/NAS/luyq/TMP_prediction/protenix_assets/proteinix/protenix_assets/checkpoint；
+- Protenix common 数据资源、正确的 PROTENIX_ROOT_DIR，当前base版本的protenix路径在/home/luyq/FoldAbS_Tm_MSA/.foldtmp-run/protenix_assets/checkpoint/protenix_base_default_v1.0.0.pt；
 - 检查 get_default_runner 支持 model_name，ESM dataloader/featurizer 能正确准备 token embedding；
 - 检查实际安装源码的 ESM 缓存路径、层号、BOS/EOS 去除规则和维度；
-- 在正式运行前完成权重下载，本地缓存就绪后不触发 MSA 或临时权重下载。
+- 在正式运行前完成权重下载。
 
 用官方模型配置构造结构并严格检查权重 missing/unexpected keys。ESM 权重启用必须从 runner.configs 实际读取；模型名写对而 esm.enable=false 的运行必须拒绝。
 
@@ -156,52 +95,16 @@ positive_splits.csv 还含原始 record_id、split 等身份字段，必须保�
 
 拟修改：
 
-1. 新增 --model-name，保留 base 旧默认兼容；新实验显式 mini-ESM。
-2. 将权重路径检查与实际 model_name 绑定，向 get_default_runner 显式传入 model_name。
-3. 新增 --no-msa，与 --use-msa 互斥；本实验强制 false，并清除/拒绝输入中的 MSA/template 路径，防止隐式搜索。
-4. 显式关闭 template、RNA MSA；ESM 模型下确认 ESM feature 已生成。
-5. 新增 --seed、--dtype、--cache-dtype；示例使用 101/bf16/fp16。
-6. 新增 --esm-cache-dir，接入预计算单链表示；路径与 Protenix featurizer 的实际加载规则一致。
-7. 保持直接 get_pairformer_output(N_cycle=4) 和 distogram_head 路径；不切换到完整结构 inference。
-8. payload 保存 input_sequences、extraction_config、channel_dims，修复现有动态训练身份校验所需信息缺失的问题。
-9. resume 校验 model、ESM 模型及配置、cycles、精度、MSA/template 状态、四链序列、token 数和通道；不能只因为同名 .pt 存在就复用。
-10. 原子写缓存：先写临时文件，再改名；提取失败输出清单，不能产生半文件。
-11. 新增重复 sample_id/组合映射检查；同一 ID 对应不同四链序列直接报错。
-12. 支持 ESM 阶段与 Protenix 阶段分离，避免两套模型常驻 GPU；不能假定 torch.cuda.empty_cache() 会释放仍被引用的模型。
-13. 多 GPU 子进程继承完整提取配置，每个样本只由一个 shard 写入；共享 ESM 链缓存需提前准备或使用互斥锁。
+- 新增 --model-name，保留 base 旧默认兼容；新实验显式 mini-ESM。
+- 新增 --no-msa，与 --use-msa 互斥；本实验强制 false，并清除/拒绝输入中的 MSA/template 路径，防止隐式搜索。
+- 新增 --seed、--dtype、--cache-dtype；示例使用 42/bf16/fp16。
+- 新增 --esm-cache-dir，接入预计算单链表示；路径与 Protenix featurizer 的实际加载规则一致。
+- resume 校验 model、ESM 模型及配置、cycles、精度、MSA/template 状态、四链序列、token 数和通道；不能只因为同名 .pt 存在就复用。
+- 原子写缓存：先写临时文件，再改名；提取失败输出清单，不能产生半文件。
+- 支持 ESM 阶段与 Protenix 阶段分离，避免两套模型常驻 GPU；不能假定 torch.cuda.empty_cache() 会释放仍被引用的模型。
+- 多 GPU 子进程继承完整提取配置，每个样本只由一个 shard 写入；共享 ESM 链缓存需提前准备或使用互斥锁。
 
-建议 payload：
 
-~~~python
-{
-    "sample_name": sample_id,
-    "input_sequences": [tcra, tcrb, peptide, hla_clip],
-    "token_asym_id": ...,
-    "token_residue_index": ...,
-    "s": ...,
-    "z": ...,
-    "p_dist": ...,
-    "channel_dims": {"s": Cs, "z": Cz, "p_dist": Cd},
-    "extraction_config": {
-        "model": "protenix_mini_esm_v0.5.0",
-        "esm_model": "esm2_t36_3B_UR50D",
-        "esm_enabled": True,
-        "cycles": 4,
-        "use_msa": False,
-        "use_template": False,
-        "use_rna_msa": False,
-        "seed": 101,
-        "inference_precision": "bf16",
-        "cache_precision": "fp16",
-        "package_version": "...",
-        "feature_schema_version": 2,
-        "esm_representation_layer": ...,
-        "esm_cache_precision": ...,
-    },
-}
-~~~
-
-Cs/Cz/Cd 根据实际输出读取，不能假定换 encoder 后一定与历史缓存相同。
 
 ### 5.2 单链 ESM 缓存与数据准备新入口
 
@@ -300,19 +203,7 @@ chain_ESM_bytes ≈ Σ_unique_sequence L × 2560 × 每元素字节数
 
 首版优先实现离线计划并集；资源审计不通过时，完成增量模式后再扩大训练。不能把空间不足解释为可以直接训练缺缓存的数据。
 
-## 7. 下游 attention 设置与训练超参数
 
-当前 repo pooling：
-
-- A：全 mean，不属于本次确认的 attention 配置；
-- B：single mean、pair attention；
-- C：single/pair 均 attention。
-
-用户已确认 attention，但本次消息未指定 B 还是 C。实施时从已确定的非 ESM 实验 run_config 或实际启动参数读取并沿用；不重新做 ABC，不擅自更换。若对照未明确记录，先将确切 B/C 固化到 run_spec，不能误用训练器默认 A。
-
-同样沿用非 ESM 对照的 learning rate、weight decay、dropout、hidden dimension、gradient accumulation、scheduler、early_stop、precision 和训练预算，逐项记录。
-
-模型初始化 seed 与 negative_sampling_seed 分开记录；第一轮优先和对照一致。抽样 seed 一致保证每轮看到相同负例组合，缓存 encoder 仍不同。不能复用非 ESM head 权重进行该比较；各组独立初始化训练。
 
 ## 8. 执行顺序与并行安排
 
