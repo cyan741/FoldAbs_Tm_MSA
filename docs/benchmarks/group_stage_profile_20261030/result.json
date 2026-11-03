@@ -1,0 +1,2978 @@
+{
+  "summary": {
+    "encoder_4cycles": {
+      "n": 33,
+      "seconds": {
+        "mean": 0.7037722575619365,
+        "p50": 0.7021727319806814,
+        "p95": 0.757472014054656,
+        "max": 0.7603598274290562
+      },
+      "start_MiB": {
+        "mean": 2077.9396454782195,
+        "p50": 2073.57470703125,
+        "p95": 3162.52197265625,
+        "max": 3283.35107421875
+      },
+      "end_MiB": {
+        "mean": 2121.541681463068,
+        "p50": 2117.04833984375,
+        "p95": 3206.86689453125,
+        "max": 3329.75732421875
+      },
+      "peak_MiB": {
+        "mean": 2675.621818773674,
+        "p50": 2670.052734375,
+        "p95": 3769.7572265625,
+        "max": 3920.0888671875
+      },
+      "extra_peak_MiB": {
+        "mean": 597.6821732954545,
+        "p50": 596.47802734375,
+        "p95": 636.73779296875,
+        "max": 636.73779296875
+      },
+      "reserved_MiB": {
+        "mean": 8132.181818181818,
+        "p50": 7736.0,
+        "p95": 9638.0,
+        "max": 9638.0
+      }
+    },
+    "head_backward": {
+      "n": 11,
+      "seconds": {
+        "mean": 0.5777965150773525,
+        "p50": 0.581969240680337,
+        "p95": 0.6062640016898513,
+        "max": 0.6209612116217613
+      },
+      "start_MiB": {
+        "mean": 3842.2055220170455,
+        "p50": 3837.39306640625,
+        "p95": 3981.244873046875,
+        "max": 4046.89111328125
+      },
+      "end_MiB": {
+        "mean": 762.3397549715909,
+        "p50": 762.216796875,
+        "p95": 763.367919921875,
+        "max": 763.6103515625
+      },
+      "peak_MiB": {
+        "mean": 6732.577281605114,
+        "p50": 6725.20556640625,
+        "p95": 7003.29248046875,
+        "max": 7131.45166015625
+      },
+      "extra_peak_MiB": {
+        "mean": 2890.371759588068,
+        "p50": 2887.8125,
+        "p95": 3022.047607421875,
+        "max": 3084.560546875
+      },
+      "reserved_MiB": {
+        "mean": 8307.818181818182,
+        "p50": 7736.0,
+        "p95": 9759.0,
+        "max": 10096.0
+      }
+    },
+    "head_forward": {
+      "n": 33,
+      "seconds": {
+        "mean": 0.05245483638436505,
+        "p50": 0.05250138230621815,
+        "p95": 0.05605324767529964,
+        "max": 0.056120891124010086
+      },
+      "start_MiB": {
+        "mean": 2142.086055871212,
+        "p50": 2137.56103515625,
+        "p95": 3227.76240234375,
+        "max": 3351.6953125
+      },
+      "end_MiB": {
+        "mean": 3186.7844460227275,
+        "p50": 3181.712890625,
+        "p95": 4287.1583984375,
+        "max": 4464.619140625
+      },
+      "peak_MiB": {
+        "mean": 4104.302186908144,
+        "p50": 4099.01318359375,
+        "p95": 5216.65732421875,
+        "max": 5441.53369140625
+      },
+      "extra_peak_MiB": {
+        "mean": 1962.2161310369318,
+        "p50": 1960.72265625,
+        "p95": 2089.3142578125,
+        "max": 2090.44189453125
+      },
+      "reserved_MiB": {
+        "mean": 8137.454545454545,
+        "p50": 7736.0,
+        "p95": 9638.0,
+        "max": 9638.0
+      }
+    },
+    "host_to_device": {
+      "n": 33,
+      "seconds": {
+        "mean": 0.06864473189819943,
+        "p50": 0.06709750555455685,
+        "p95": 0.07554793357849121,
+        "max": 0.09909471496939659
+      },
+      "start_MiB": {
+        "mean": 1753.2038648200758,
+        "p50": 1750.1943359375,
+        "p95": 2832.7677734375,
+        "max": 2933.9658203125
+      },
+      "end_MiB": {
+        "mean": 1979.730098839962,
+        "p50": 1975.68359375,
+        "p95": 3063.006640625,
+        "max": 3178.8369140625
+      },
+      "peak_MiB": {
+        "mean": 1979.730098839962,
+        "p50": 1975.68359375,
+        "p95": 3063.006640625,
+        "max": 3178.8369140625
+      },
+      "extra_peak_MiB": {
+        "mean": 226.52623401988637,
+        "p50": 225.4892578125,
+        "p95": 242.93857421875,
+        "max": 244.87109375
+      },
+      "reserved_MiB": {
+        "mean": 8119.212121212121,
+        "p50": 7736.0,
+        "p95": 9508.4,
+        "max": 9638.0
+      }
+    },
+    "infer_total": {
+      "n": 33,
+      "seconds": {
+        "mean": 0.775879117236896,
+        "p50": 0.7744215819984674,
+        "p95": 0.8361388210207223,
+        "max": 0.8380700517445803
+      }
+    },
+    "loader_wait": {
+      "n": 33,
+      "seconds": {
+        "mean": 0.021071916728308708,
+        "p50": 0.021012011915445328,
+        "p95": 0.022722478583455087,
+        "max": 0.02298699878156185
+      }
+    },
+    "loss": {
+      "n": 11,
+      "seconds": {
+        "mean": 0.00011898644945838235,
+        "p50": 0.00011844001710414886,
+        "p95": 0.00013302452862262726,
+        "max": 0.00013482384383678436
+      },
+      "start_MiB": {
+        "mean": 3842.2045454545455,
+        "p50": 3837.39208984375,
+        "p95": 3981.243896484375,
+        "max": 4046.89013671875
+      },
+      "end_MiB": {
+        "mean": 3842.2055220170455,
+        "p50": 3837.39306640625,
+        "p95": 3981.244873046875,
+        "max": 4046.89111328125
+      },
+      "peak_MiB": {
+        "mean": 3842.2060102982955,
+        "p50": 3837.3935546875,
+        "p95": 3981.245361328125,
+        "max": 4046.8916015625
+      },
+      "extra_peak_MiB": {
+        "mean": 0.00146484375,
+        "p50": 0.00146484375,
+        "p95": 0.00146484375,
+        "max": 0.00146484375
+      },
+      "reserved_MiB": {
+        "mean": 8148.0,
+        "p50": 7736.0,
+        "p95": 9312.0,
+        "max": 9638.0
+      }
+    },
+    "optimizer": {
+      "n": 11,
+      "seconds": {
+        "mean": 0.0048813569274815645,
+        "p50": 0.004860285669565201,
+        "p95": 0.005188421346247196,
+        "max": 0.005294749513268471
+      },
+      "start_MiB": {
+        "mean": 762.3397549715909,
+        "p50": 762.216796875,
+        "p95": 763.367919921875,
+        "max": 763.6103515625
+      },
+      "end_MiB": {
+        "mean": 762.3397549715909,
+        "p50": 762.216796875,
+        "p95": 763.367919921875,
+        "max": 763.6103515625
+      },
+      "peak_MiB": {
+        "mean": 816.7366388494319,
+        "p50": 816.46044921875,
+        "p95": 818.39599609375,
+        "max": 819.0126953125
+      },
+      "extra_peak_MiB": {
+        "mean": 54.39688387784091,
+        "p50": 54.3125,
+        "p95": 56.0009765625,
+        "max": 57.10888671875
+      },
+      "reserved_MiB": {
+        "mean": 8307.818181818182,
+        "p50": 7736.0,
+        "p95": 9759.0,
+        "max": 10096.0
+      }
+    }
+  },
+  "rows": [
+    {
+      "group": 0,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "loader_wait",
+      "seconds": 10.104408297687769
+    },
+    {
+      "group": 0,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "host_to_device",
+      "seconds": 0.10842123068869114,
+      "start_MiB": 691.85888671875,
+      "end_MiB": 917.28515625,
+      "peak_MiB": 917.28515625,
+      "extra_peak_MiB": 225.42626953125,
+      "reserved_MiB": 1278.0
+    },
+    {
+      "group": 0,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "encoder_4cycles",
+      "seconds": 3.5010224748402834,
+      "start_MiB": 1015.02734375,
+      "end_MiB": 1066.21484375,
+      "peak_MiB": 1613.56201171875,
+      "extra_peak_MiB": 598.53466796875,
+      "reserved_MiB": 2108.0
+    },
+    {
+      "group": 0,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "infer_total",
+      "seconds": 3.6503284107893705
+    },
+    {
+      "group": 0,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "head_forward",
+      "seconds": 0.10092390887439251,
+      "start_MiB": 1086.52783203125,
+      "end_MiB": 2119.60107421875,
+      "peak_MiB": 3028.90576171875,
+      "extra_peak_MiB": 1942.3779296875,
+      "reserved_MiB": 3738.0
+    },
+    {
+      "group": 0,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "loader_wait",
+      "seconds": 0.0217769555747509
+    },
+    {
+      "group": 0,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "host_to_device",
+      "seconds": 0.0663873590528965,
+      "start_MiB": 1733.05712890625,
+      "end_MiB": 1958.6455078125,
+      "peak_MiB": 1958.6455078125,
+      "extra_peak_MiB": 225.58837890625,
+      "reserved_MiB": 3738.0
+    },
+    {
+      "group": 0,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7096808720380068,
+      "start_MiB": 2055.708984375,
+      "end_MiB": 2098.771484375,
+      "peak_MiB": 2646.11865234375,
+      "extra_peak_MiB": 590.40966796875,
+      "reserved_MiB": 4130.0
+    },
+    {
+      "group": 0,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "infer_total",
+      "seconds": 0.7796713300049305
+    },
+    {
+      "group": 0,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "head_forward",
+      "seconds": 0.05261368304491043,
+      "start_MiB": 2119.08447265625,
+      "end_MiB": 3151.68505859375,
+      "peak_MiB": 4061.3349609375,
+      "extra_peak_MiB": 1942.25048828125,
+      "reserved_MiB": 4810.0
+    },
+    {
+      "group": 0,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "loader_wait",
+      "seconds": 0.021751733496785164
+    },
+    {
+      "group": 0,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "host_to_device",
+      "seconds": 0.06550089083611965,
+      "start_MiB": 2765.65771484375,
+      "end_MiB": 2991.45263671875,
+      "peak_MiB": 2991.45263671875,
+      "extra_peak_MiB": 225.794921875,
+      "reserved_MiB": 4810.0
+    },
+    {
+      "group": 0,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7080913204699755,
+      "start_MiB": 3088.66455078125,
+      "end_MiB": 3131.72705078125,
+      "peak_MiB": 3679.07421875,
+      "extra_peak_MiB": 590.40966796875,
+      "reserved_MiB": 4810.0
+    },
+    {
+      "group": 0,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "infer_total",
+      "seconds": 0.77687350474298
+    },
+    {
+      "group": 0,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "head_forward",
+      "seconds": 0.05272185057401657,
+      "start_MiB": 3152.0400390625,
+      "end_MiB": 4185.6181640625,
+      "peak_MiB": 5094.10205078125,
+      "extra_peak_MiB": 1942.06201171875,
+      "reserved_MiB": 5794.0
+    },
+    {
+      "group": 0,
+      "sample": -1,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "loss",
+      "seconds": 0.0075556207448244095,
+      "start_MiB": 3799.236328125,
+      "end_MiB": 3799.2373046875,
+      "peak_MiB": 3799.23779296875,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 5794.0
+    },
+    {
+      "group": 0,
+      "sample": -1,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "head_backward",
+      "seconds": 0.6457354351878166,
+      "start_MiB": 3799.2373046875,
+      "end_MiB": 763.93115234375,
+      "peak_MiB": 6663.86767578125,
+      "extra_peak_MiB": 2864.63037109375,
+      "reserved_MiB": 7526.0
+    },
+    {
+      "group": 0,
+      "sample": -1,
+      "warmup": true,
+      "tokens": 415,
+      "stage": "optimizer",
+      "seconds": 0.07411700300872326,
+      "start_MiB": 763.93115234375,
+      "end_MiB": 763.93115234375,
+      "peak_MiB": 818.3388671875,
+      "extra_peak_MiB": 54.40771484375,
+      "reserved_MiB": 7526.0
+    },
+    {
+      "group": 1,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "loader_wait",
+      "seconds": 0.021973157301545143
+    },
+    {
+      "group": 1,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "host_to_device",
+      "seconds": 0.06584013067185879,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 932.26171875,
+      "peak_MiB": 932.26171875,
+      "extra_peak_MiB": 224.15283203125,
+      "reserved_MiB": 7526.0
+    },
+    {
+      "group": 1,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7166714947670698,
+      "start_MiB": 1030.15283203125,
+      "end_MiB": 1073.62646484375,
+      "peak_MiB": 1626.630859375,
+      "extra_peak_MiB": 596.47802734375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "infer_total",
+      "seconds": 0.7862172797322273
+    },
+    {
+      "group": 1,
+      "sample": 0,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "head_forward",
+      "seconds": 0.05319083109498024,
+      "start_MiB": 1094.13916015625,
+      "end_MiB": 2136.22412109375,
+      "peak_MiB": 3053.9140625,
+      "extra_peak_MiB": 1959.77490234375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "loader_wait",
+      "seconds": 0.02134762331843376
+    },
+    {
+      "group": 1,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "host_to_device",
+      "seconds": 0.06520513817667961,
+      "start_MiB": 1750.19384765625,
+      "end_MiB": 1974.7548828125,
+      "peak_MiB": 1974.7548828125,
+      "extra_peak_MiB": 224.56103515625,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7209588754922152,
+      "start_MiB": 2072.64599609375,
+      "end_MiB": 2116.11962890625,
+      "peak_MiB": 2669.1240234375,
+      "extra_peak_MiB": 596.47802734375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "infer_total",
+      "seconds": 0.7895912695676088
+    },
+    {
+      "group": 1,
+      "sample": 1,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "head_forward",
+      "seconds": 0.05300210602581501,
+      "start_MiB": 2136.63232421875,
+      "end_MiB": 3180.4169921875,
+      "peak_MiB": 4097.65478515625,
+      "extra_peak_MiB": 1961.0224609375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "loader_wait",
+      "seconds": 0.020908169448375702
+    },
+    {
+      "group": 1,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "host_to_device",
+      "seconds": 0.0671203825622797,
+      "start_MiB": 2793.978515625,
+      "end_MiB": 3020.46240234375,
+      "peak_MiB": 3020.46240234375,
+      "extra_peak_MiB": 226.48388671875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7172106951475143,
+      "start_MiB": 3118.353515625,
+      "end_MiB": 3161.8271484375,
+      "peak_MiB": 3714.83154296875,
+      "extra_peak_MiB": 596.47802734375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "infer_total",
+      "seconds": 0.7884976603090763
+    },
+    {
+      "group": 1,
+      "sample": 2,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "head_forward",
+      "seconds": 0.05283566191792488,
+      "start_MiB": 3182.33984375,
+      "end_MiB": 4225.595703125,
+      "peak_MiB": 5142.8759765625,
+      "extra_peak_MiB": 1960.5361328125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": -1,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "loss",
+      "seconds": 0.00011798739433288574,
+      "start_MiB": 3837.23486328125,
+      "end_MiB": 3837.23583984375,
+      "peak_MiB": 3837.236328125,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": -1,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "head_backward",
+      "seconds": 0.5891627389937639,
+      "start_MiB": 3837.23583984375,
+      "end_MiB": 763.609375,
+      "peak_MiB": 6725.5380859375,
+      "extra_peak_MiB": 2888.30224609375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 1,
+      "sample": -1,
+      "warmup": true,
+      "tokens": 417,
+      "stage": "optimizer",
+      "seconds": 0.004777539521455765,
+      "start_MiB": 763.609375,
+      "end_MiB": 763.609375,
+      "peak_MiB": 817.94091796875,
+      "extra_peak_MiB": 54.33154296875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "loader_wait",
+      "seconds": 0.01920469105243683
+    },
+    {
+      "group": 2,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "host_to_device",
+      "seconds": 0.06376802921295166,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 921.9189453125,
+      "peak_MiB": 921.9189453125,
+      "extra_peak_MiB": 213.81005859375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "encoder_4cycles",
+      "seconds": 0.679569048807025,
+      "start_MiB": 1014.47021484375,
+      "end_MiB": 1055.50634765625,
+      "peak_MiB": 1576.8134765625,
+      "extra_peak_MiB": 562.34326171875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "infer_total",
+      "seconds": 0.7466729898005724
+    },
+    {
+      "group": 2,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "head_forward",
+      "seconds": 0.050276003777980804,
+      "start_MiB": 1074.83544921875,
+      "end_MiB": 2059.3857421875,
+      "peak_MiB": 2922.13037109375,
+      "extra_peak_MiB": 1847.294921875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "loader_wait",
+      "seconds": 0.02222234383225441
+    },
+    {
+      "group": 2,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "host_to_device",
+      "seconds": 0.06541254557669163,
+      "start_MiB": 1692.6591796875,
+      "end_MiB": 1905.98779296875,
+      "peak_MiB": 1905.98779296875,
+      "extra_peak_MiB": 213.32861328125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6792238727211952,
+      "start_MiB": 1999.32080078125,
+      "end_MiB": 2040.35693359375,
+      "peak_MiB": 2561.6640625,
+      "extra_peak_MiB": 562.34326171875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "infer_total",
+      "seconds": 0.7480268180370331
+    },
+    {
+      "group": 2,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "head_forward",
+      "seconds": 0.05042471922934055,
+      "start_MiB": 2059.68603515625,
+      "end_MiB": 3043.724609375,
+      "peak_MiB": 3909.61328125,
+      "extra_peak_MiB": 1849.92724609375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "loader_wait",
+      "seconds": 0.019949879497289658
+    },
+    {
+      "group": 2,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "host_to_device",
+      "seconds": 0.06673389114439487,
+      "start_MiB": 2676.69775390625,
+      "end_MiB": 2890.220703125,
+      "peak_MiB": 2890.220703125,
+      "extra_peak_MiB": 213.52294921875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6775108203291893,
+      "start_MiB": 2982.77197265625,
+      "end_MiB": 3023.80810546875,
+      "peak_MiB": 3545.115234375,
+      "extra_peak_MiB": 562.34326171875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "infer_total",
+      "seconds": 0.7474600207060575
+    },
+    {
+      "group": 2,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "head_forward",
+      "seconds": 0.052218761295080185,
+      "start_MiB": 3043.13720703125,
+      "end_MiB": 4027.17578125,
+      "peak_MiB": 4893.23095703125,
+      "extra_peak_MiB": 1850.09375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "loss",
+      "seconds": 0.00013482384383678436,
+      "start_MiB": 3660.73681640625,
+      "end_MiB": 3660.73779296875,
+      "peak_MiB": 3660.73828125,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "head_backward",
+      "seconds": 0.5576365794986486,
+      "start_MiB": 3660.73779296875,
+      "end_MiB": 761.31884765625,
+      "peak_MiB": 6382.1396484375,
+      "extra_peak_MiB": 2721.40185546875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 2,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 405,
+      "stage": "optimizer",
+      "seconds": 0.005294749513268471,
+      "start_MiB": 761.31884765625,
+      "end_MiB": 761.31884765625,
+      "peak_MiB": 815.2451171875,
+      "extra_peak_MiB": 53.92626953125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "loader_wait",
+      "seconds": 0.022452140226960182
+    },
+    {
+      "group": 3,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "host_to_device",
+      "seconds": 0.06964422017335892,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 928.73193359375,
+      "peak_MiB": 928.73193359375,
+      "extra_peak_MiB": 220.623046875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7009832262992859,
+      "start_MiB": 1024.86279296875,
+      "end_MiB": 1067.51611328125,
+      "peak_MiB": 1609.6044921875,
+      "extra_peak_MiB": 584.74169921875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "infer_total",
+      "seconds": 0.7744215819984674
+    },
+    {
+      "group": 3,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "head_forward",
+      "seconds": 0.05170302651822567,
+      "start_MiB": 1087.63037109375,
+      "end_MiB": 2110.505859375,
+      "peak_MiB": 3007.25830078125,
+      "extra_peak_MiB": 1919.6279296875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "loader_wait",
+      "seconds": 0.021552318707108498
+    },
+    {
+      "group": 3,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "host_to_device",
+      "seconds": 0.0650282483547926,
+      "start_MiB": 1730.984375,
+      "end_MiB": 1952.71435546875,
+      "peak_MiB": 1952.71435546875,
+      "extra_peak_MiB": 221.72998046875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6980281602591276,
+      "start_MiB": 2049.173828125,
+      "end_MiB": 2091.8271484375,
+      "peak_MiB": 2633.91552734375,
+      "extra_peak_MiB": 584.74169921875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "infer_total",
+      "seconds": 0.7662935201078653
+    },
+    {
+      "group": 3,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "head_forward",
+      "seconds": 0.05191919021308422,
+      "start_MiB": 2111.94140625,
+      "end_MiB": 3134.7890625,
+      "peak_MiB": 4031.56982421875,
+      "extra_peak_MiB": 1919.62841796875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "loader_wait",
+      "seconds": 0.019826089963316917
+    },
+    {
+      "group": 3,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "host_to_device",
+      "seconds": 0.06478734686970711,
+      "start_MiB": 2753.83203125,
+      "end_MiB": 2975.56396484375,
+      "peak_MiB": 2975.56396484375,
+      "extra_peak_MiB": 221.73193359375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "encoder_4cycles",
+      "seconds": 0.698557747527957,
+      "start_MiB": 3072.0234375,
+      "end_MiB": 3114.6767578125,
+      "peak_MiB": 3656.76513671875,
+      "extra_peak_MiB": 584.74169921875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "infer_total",
+      "seconds": 0.7665408868342638
+    },
+    {
+      "group": 3,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "head_forward",
+      "seconds": 0.051817093044519424,
+      "start_MiB": 3134.791015625,
+      "end_MiB": 4157.3671875,
+      "peak_MiB": 5055.80419921875,
+      "extra_peak_MiB": 1921.01318359375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "loss",
+      "seconds": 0.00010925345122814178,
+      "start_MiB": 3776.40869140625,
+      "end_MiB": 3776.40966796875,
+      "peak_MiB": 3776.41015625,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "head_backward",
+      "seconds": 0.5754425097256899,
+      "start_MiB": 3776.40966796875,
+      "end_MiB": 762.5341796875,
+      "peak_MiB": 6606.61669921875,
+      "extra_peak_MiB": 2830.20703125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 3,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 413,
+      "stage": "optimizer",
+      "seconds": 0.0047764964401721954,
+      "start_MiB": 762.5341796875,
+      "end_MiB": 762.5341796875,
+      "peak_MiB": 816.46044921875,
+      "extra_peak_MiB": 53.92626953125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "loader_wait",
+      "seconds": 0.020705480128526688
+    },
+    {
+      "group": 4,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "host_to_device",
+      "seconds": 0.06630993261933327,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 932.05810546875,
+      "peak_MiB": 932.05810546875,
+      "extra_peak_MiB": 223.94921875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "encoder_4cycles",
+      "seconds": 0.686733789741993,
+      "start_MiB": 1028.68212890625,
+      "end_MiB": 1071.53955078125,
+      "peak_MiB": 1616.25244140625,
+      "extra_peak_MiB": 587.5703125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "infer_total",
+      "seconds": 0.7563599552959204
+    },
+    {
+      "group": 4,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "head_forward",
+      "seconds": 0.05180991441011429,
+      "start_MiB": 1091.75244140625,
+      "end_MiB": 2119.38330078125,
+      "peak_MiB": 3021.814453125,
+      "extra_peak_MiB": 1930.06201171875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "loader_wait",
+      "seconds": 0.022744106128811836
+    },
+    {
+      "group": 4,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "host_to_device",
+      "seconds": 0.06576631590723991,
+      "start_MiB": 1735.73974609375,
+      "end_MiB": 1959.6826171875,
+      "peak_MiB": 1959.6826171875,
+      "extra_peak_MiB": 223.94287109375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6849360316991806,
+      "start_MiB": 2056.306640625,
+      "end_MiB": 2099.1640625,
+      "peak_MiB": 2643.876953125,
+      "extra_peak_MiB": 587.5703125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "infer_total",
+      "seconds": 0.7540283277630806
+    },
+    {
+      "group": 4,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "head_forward",
+      "seconds": 0.05148184485733509,
+      "start_MiB": 2119.376953125,
+      "end_MiB": 3147.296875,
+      "peak_MiB": 4048.89794921875,
+      "extra_peak_MiB": 1929.52099609375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "loader_wait",
+      "seconds": 0.02008734829723835
+    },
+    {
+      "group": 4,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "host_to_device",
+      "seconds": 0.06698255427181721,
+      "start_MiB": 2763.65966796875,
+      "end_MiB": 2988.34521484375,
+      "peak_MiB": 2988.34521484375,
+      "extra_peak_MiB": 224.685546875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6863228343427181,
+      "start_MiB": 3084.96923828125,
+      "end_MiB": 3127.82666015625,
+      "peak_MiB": 3672.53955078125,
+      "extra_peak_MiB": 587.5703125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "infer_total",
+      "seconds": 0.7566644567996264
+    },
+    {
+      "group": 4,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "head_forward",
+      "seconds": 0.05115196108818054,
+      "start_MiB": 3148.03955078125,
+      "end_MiB": 4175.4365234375,
+      "peak_MiB": 5077.0908203125,
+      "extra_peak_MiB": 1929.05126953125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "loss",
+      "seconds": 0.00011270307004451752,
+      "start_MiB": 3791.05712890625,
+      "end_MiB": 3791.05810546875,
+      "peak_MiB": 3791.05859375,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "head_backward",
+      "seconds": 0.5647991374135017,
+      "start_MiB": 3791.05810546875,
+      "end_MiB": 762.216796875,
+      "peak_MiB": 6634.0576171875,
+      "extra_peak_MiB": 2842.99951171875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 4,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 414,
+      "stage": "optimizer",
+      "seconds": 0.004917532205581665,
+      "start_MiB": 762.216796875,
+      "end_MiB": 762.216796875,
+      "peak_MiB": 816.14306640625,
+      "extra_peak_MiB": 53.92626953125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "loader_wait",
+      "seconds": 0.020647859200835228
+    },
+    {
+      "group": 5,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "host_to_device",
+      "seconds": 0.06474178656935692,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 930.55029296875,
+      "peak_MiB": 930.55029296875,
+      "extra_peak_MiB": 222.44140625,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7082074321806431,
+      "start_MiB": 1028.23779296875,
+      "end_MiB": 1071.30029296875,
+      "peak_MiB": 1618.6474609375,
+      "extra_peak_MiB": 590.40966796875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "infer_total",
+      "seconds": 0.7767325788736343
+    },
+    {
+      "group": 5,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "head_forward",
+      "seconds": 0.05254892818629742,
+      "start_MiB": 1091.61328125,
+      "end_MiB": 2123.927734375,
+      "peak_MiB": 3034.68115234375,
+      "extra_peak_MiB": 1943.06787109375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "loader_wait",
+      "seconds": 0.021843256428837776
+    },
+    {
+      "group": 5,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "host_to_device",
+      "seconds": 0.064394136890769,
+      "start_MiB": 1740.42333984375,
+      "end_MiB": 1963.96044921875,
+      "peak_MiB": 1963.96044921875,
+      "extra_peak_MiB": 223.537109375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7060541994869709,
+      "start_MiB": 2060.96923828125,
+      "end_MiB": 2104.03173828125,
+      "peak_MiB": 2651.37890625,
+      "extra_peak_MiB": 590.40966796875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "infer_total",
+      "seconds": 0.7736969161778688
+    },
+    {
+      "group": 5,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "head_forward",
+      "seconds": 0.05252843163907528,
+      "start_MiB": 2124.3447265625,
+      "end_MiB": 3157.78125,
+      "peak_MiB": 4067.22412109375,
+      "extra_peak_MiB": 1942.87939453125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "loader_wait",
+      "seconds": 0.02081008069217205
+    },
+    {
+      "group": 5,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "host_to_device",
+      "seconds": 0.06548171862959862,
+      "start_MiB": 2773.85986328125,
+      "end_MiB": 2997.0146484375,
+      "peak_MiB": 2997.0146484375,
+      "extra_peak_MiB": 223.15478515625,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7084023486822844,
+      "start_MiB": 3094.787109375,
+      "end_MiB": 3137.849609375,
+      "peak_MiB": 3685.19677734375,
+      "extra_peak_MiB": 590.40966796875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "infer_total",
+      "seconds": 0.777203744277358
+    },
+    {
+      "group": 5,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "head_forward",
+      "seconds": 0.05250138230621815,
+      "start_MiB": 3158.16259765625,
+      "end_MiB": 4190.80322265625,
+      "peak_MiB": 5100.130859375,
+      "extra_peak_MiB": 1941.96826171875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "loss",
+      "seconds": 0.00011663511395454407,
+      "start_MiB": 3806.5009765625,
+      "end_MiB": 3806.501953125,
+      "peak_MiB": 3806.50244140625,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "head_backward",
+      "seconds": 0.581969240680337,
+      "start_MiB": 3806.501953125,
+      "end_MiB": 761.66015625,
+      "peak_MiB": 6662.93603515625,
+      "extra_peak_MiB": 2856.43408203125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 5,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 415,
+      "stage": "optimizer",
+      "seconds": 0.0048345718532800674,
+      "start_MiB": 761.66015625,
+      "end_MiB": 761.66015625,
+      "peak_MiB": 816.14306640625,
+      "extra_peak_MiB": 54.48291015625,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "loader_wait",
+      "seconds": 0.021738111972808838
+    },
+    {
+      "group": 6,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "host_to_device",
+      "seconds": 0.06869936734437943,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 932.10986328125,
+      "peak_MiB": 932.10986328125,
+      "extra_peak_MiB": 224.0009765625,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6727226078510284,
+      "start_MiB": 1029.85205078125,
+      "end_MiB": 1073.11962890625,
+      "peak_MiB": 1625.10400390625,
+      "extra_peak_MiB": 595.251953125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "infer_total",
+      "seconds": 0.7453362960368395
+    },
+    {
+      "group": 6,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "head_forward",
+      "seconds": 0.049994004890322685,
+      "start_MiB": 1093.53173828125,
+      "end_MiB": 2132.072265625,
+      "peak_MiB": 3047.94140625,
+      "extra_peak_MiB": 1954.40966796875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "loader_wait",
+      "seconds": 0.020170485600829124
+    },
+    {
+      "group": 6,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "host_to_device",
+      "seconds": 0.06916443444788456,
+      "start_MiB": 1746.6494140625,
+      "end_MiB": 1969.67333984375,
+      "peak_MiB": 1969.67333984375,
+      "extra_peak_MiB": 223.02392578125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6627037953585386,
+      "start_MiB": 2067.17724609375,
+      "end_MiB": 2110.44482421875,
+      "peak_MiB": 2662.42919921875,
+      "extra_peak_MiB": 595.251953125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "infer_total",
+      "seconds": 0.7351275999099016
+    },
+    {
+      "group": 6,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "head_forward",
+      "seconds": 0.049747368320822716,
+      "start_MiB": 2130.85693359375,
+      "end_MiB": 3171.5673828125,
+      "peak_MiB": 4088.5166015625,
+      "extra_peak_MiB": 1957.65966796875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "loader_wait",
+      "seconds": 0.02040848508477211
+    },
+    {
+      "group": 6,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "host_to_device",
+      "seconds": 0.06649851612746716,
+      "start_MiB": 2787.35986328125,
+      "end_MiB": 3012.2431640625,
+      "peak_MiB": 3012.2431640625,
+      "extra_peak_MiB": 224.88330078125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6627695467323065,
+      "start_MiB": 3110.6318359375,
+      "end_MiB": 3153.8994140625,
+      "peak_MiB": 3705.8837890625,
+      "extra_peak_MiB": 595.251953125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "infer_total",
+      "seconds": 0.7325552757829428
+    },
+    {
+      "group": 6,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "head_forward",
+      "seconds": 0.05010068602859974,
+      "start_MiB": 3174.3115234375,
+      "end_MiB": 4215.5791015625,
+      "peak_MiB": 5132.53369140625,
+      "extra_peak_MiB": 1958.22216796875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "loss",
+      "seconds": 0.00010930933058261871,
+      "start_MiB": 3828.6279296875,
+      "end_MiB": 3828.62890625,
+      "peak_MiB": 3828.62939453125,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "head_backward",
+      "seconds": 0.531485578045249,
+      "start_MiB": 3828.62890625,
+      "end_MiB": 761.46923828125,
+      "peak_MiB": 6713.71435546875,
+      "extra_peak_MiB": 2885.08544921875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 6,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 416,
+      "stage": "optimizer",
+      "seconds": 0.004628786817193031,
+      "start_MiB": 761.46923828125,
+      "end_MiB": 761.46923828125,
+      "peak_MiB": 815.8203125,
+      "extra_peak_MiB": 54.35107421875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "loader_wait",
+      "seconds": 0.021012011915445328
+    },
+    {
+      "group": 7,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "host_to_device",
+      "seconds": 0.06744128279387951,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 933.1162109375,
+      "peak_MiB": 933.1162109375,
+      "extra_peak_MiB": 225.00732421875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "encoder_4cycles",
+      "seconds": 0.716399660333991,
+      "start_MiB": 1031.06201171875,
+      "end_MiB": 1074.53564453125,
+      "peak_MiB": 1627.5400390625,
+      "extra_peak_MiB": 596.47802734375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "infer_total",
+      "seconds": 0.7871348224580288
+    },
+    {
+      "group": 7,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "head_forward",
+      "seconds": 0.05312899313867092,
+      "start_MiB": 1095.04833984375,
+      "end_MiB": 2137.1337890625,
+      "peak_MiB": 3054.01806640625,
+      "extra_peak_MiB": 1958.9697265625,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "loader_wait",
+      "seconds": 0.021793369203805923
+    },
+    {
+      "group": 7,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "host_to_device",
+      "seconds": 0.06552422232925892,
+      "start_MiB": 1750.1943359375,
+      "end_MiB": 1975.68359375,
+      "peak_MiB": 1975.68359375,
+      "extra_peak_MiB": 225.4892578125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "encoder_4cycles",
+      "seconds": 0.716219924390316,
+      "start_MiB": 2073.57470703125,
+      "end_MiB": 2117.04833984375,
+      "peak_MiB": 2670.052734375,
+      "extra_peak_MiB": 596.47802734375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "infer_total",
+      "seconds": 0.785015556961298
+    },
+    {
+      "group": 7,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "head_forward",
+      "seconds": 0.0528623815625906,
+      "start_MiB": 2137.56103515625,
+      "end_MiB": 3181.712890625,
+      "peak_MiB": 4099.01318359375,
+      "extra_peak_MiB": 1961.4521484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "loader_wait",
+      "seconds": 0.02270806021988392
+    },
+    {
+      "group": 7,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "host_to_device",
+      "seconds": 0.06650919653475285,
+      "start_MiB": 2794.34619140625,
+      "end_MiB": 3021.36279296875,
+      "peak_MiB": 3021.36279296875,
+      "extra_peak_MiB": 227.0166015625,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "encoder_4cycles",
+      "seconds": 0.714712243527174,
+      "start_MiB": 3119.30859375,
+      "end_MiB": 3162.7822265625,
+      "peak_MiB": 3715.78662109375,
+      "extra_peak_MiB": 596.47802734375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "infer_total",
+      "seconds": 0.7844990789890289
+    },
+    {
+      "group": 7,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "head_forward",
+      "seconds": 0.05333367921411991,
+      "start_MiB": 3183.294921875,
+      "end_MiB": 4226.34033203125,
+      "peak_MiB": 5144.017578125,
+      "extra_peak_MiB": 1960.72265625,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "loss",
+      "seconds": 0.00012615323066711426,
+      "start_MiB": 3837.39208984375,
+      "end_MiB": 3837.39306640625,
+      "peak_MiB": 3837.3935546875,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "head_backward",
+      "seconds": 0.5892845503985882,
+      "start_MiB": 3837.39306640625,
+      "end_MiB": 762.9951171875,
+      "peak_MiB": 6725.20556640625,
+      "extra_peak_MiB": 2887.8125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 7,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 417,
+      "stage": "optimizer",
+      "seconds": 0.005082093179225922,
+      "start_MiB": 762.9951171875,
+      "end_MiB": 762.9951171875,
+      "peak_MiB": 817.3076171875,
+      "extra_peak_MiB": 54.3125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "loader_wait",
+      "seconds": 0.022275421768426895
+    },
+    {
+      "group": 8,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "host_to_device",
+      "seconds": 0.09909471496939659,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 936.5126953125,
+      "peak_MiB": 936.5126953125,
+      "extra_peak_MiB": 228.40380859375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7075374834239483,
+      "start_MiB": 1034.9560546875,
+      "end_MiB": 1078.6357421875,
+      "peak_MiB": 1633.9169921875,
+      "extra_peak_MiB": 598.9609375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "infer_total",
+      "seconds": 0.8109053075313568
+    },
+    {
+      "group": 8,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "head_forward",
+      "seconds": 0.053735705092549324,
+      "start_MiB": 1099.248046875,
+      "end_MiB": 2152.46826171875,
+      "peak_MiB": 3073.63671875,
+      "extra_peak_MiB": 1974.388671875,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "loader_wait",
+      "seconds": 0.022449655458331108
+    },
+    {
+      "group": 8,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "host_to_device",
+      "seconds": 0.06846561096608639,
+      "start_MiB": 1761.3291015625,
+      "end_MiB": 1988.53271484375,
+      "peak_MiB": 1988.53271484375,
+      "extra_peak_MiB": 227.20361328125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6980559434741735,
+      "start_MiB": 2086.97607421875,
+      "end_MiB": 2130.65576171875,
+      "peak_MiB": 2685.93701171875,
+      "extra_peak_MiB": 598.9609375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "infer_total",
+      "seconds": 0.7698571123182774
+    },
+    {
+      "group": 8,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "head_forward",
+      "seconds": 0.051856618374586105,
+      "start_MiB": 2151.26806640625,
+      "end_MiB": 3199.00390625,
+      "peak_MiB": 4119.3828125,
+      "extra_peak_MiB": 1968.11474609375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "loader_wait",
+      "seconds": 0.02298699878156185
+    },
+    {
+      "group": 8,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "host_to_device",
+      "seconds": 0.06709750555455685,
+      "start_MiB": 2809.06494140625,
+      "end_MiB": 3036.90478515625,
+      "peak_MiB": 3036.90478515625,
+      "extra_peak_MiB": 227.83984375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6976257562637329,
+      "start_MiB": 3135.34814453125,
+      "end_MiB": 3179.02783203125,
+      "peak_MiB": 3734.30908203125,
+      "extra_peak_MiB": 598.9609375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "infer_total",
+      "seconds": 0.7680596988648176
+    },
+    {
+      "group": 8,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "head_forward",
+      "seconds": 0.05193540267646313,
+      "start_MiB": 3199.64013671875,
+      "end_MiB": 4247.3896484375,
+      "peak_MiB": 5165.84814453125,
+      "extra_peak_MiB": 1966.2080078125,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "loss",
+      "seconds": 0.00010817684233188629,
+      "start_MiB": 3856.81494140625,
+      "end_MiB": 3856.81591796875,
+      "peak_MiB": 3856.81640625,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 7736.0
+    },
+    {
+      "group": 8,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "head_backward",
+      "seconds": 0.5748565122485161,
+      "start_MiB": 3856.81591796875,
+      "end_MiB": 763.6103515625,
+      "peak_MiB": 6755.140625,
+      "extra_peak_MiB": 2898.32470703125,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 8,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 418,
+      "stage": "optimizer",
+      "seconds": 0.004865515977144241,
+      "start_MiB": 763.6103515625,
+      "end_MiB": 763.6103515625,
+      "peak_MiB": 816.91162109375,
+      "extra_peak_MiB": 53.30126953125,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "loader_wait",
+      "seconds": 0.02009062096476555
+    },
+    {
+      "group": 9,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "host_to_device",
+      "seconds": 0.06706869974732399,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 935.830078125,
+      "peak_MiB": 935.830078125,
+      "extra_peak_MiB": 227.72119140625,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7189519479870796,
+      "start_MiB": 1034.71728515625,
+      "end_MiB": 1078.60400390625,
+      "peak_MiB": 1637.65234375,
+      "extra_peak_MiB": 602.93505859375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "infer_total",
+      "seconds": 0.7897980641573668
+    },
+    {
+      "group": 9,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "head_forward",
+      "seconds": 0.05318194627761841,
+      "start_MiB": 1099.3173828125,
+      "end_MiB": 2154.109375,
+      "peak_MiB": 3079.20703125,
+      "extra_peak_MiB": 1979.8896484375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "loader_wait",
+      "seconds": 0.020656147971749306
+    },
+    {
+      "group": 9,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "host_to_device",
+      "seconds": 0.06662218645215034,
+      "start_MiB": 1762.90087890625,
+      "end_MiB": 1991.7626953125,
+      "peak_MiB": 1991.7626953125,
+      "extra_peak_MiB": 228.86181640625,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7180379871279001,
+      "start_MiB": 2090.64990234375,
+      "end_MiB": 2134.53662109375,
+      "peak_MiB": 2693.5849609375,
+      "extra_peak_MiB": 602.93505859375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "infer_total",
+      "seconds": 0.7879959437996149
+    },
+    {
+      "group": 9,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "head_forward",
+      "seconds": 0.0531720332801342,
+      "start_MiB": 2155.25,
+      "end_MiB": 3207.85009765625,
+      "peak_MiB": 4132.13330078125,
+      "extra_peak_MiB": 1976.88330078125,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "loader_wait",
+      "seconds": 0.0224084984511137
+    },
+    {
+      "group": 9,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "host_to_device",
+      "seconds": 0.06825646758079529,
+      "start_MiB": 2815.5009765625,
+      "end_MiB": 3043.640625,
+      "peak_MiB": 3043.640625,
+      "extra_peak_MiB": 228.1396484375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "encoder_4cycles",
+      "seconds": 0.716878455132246,
+      "start_MiB": 3142.52783203125,
+      "end_MiB": 3186.41455078125,
+      "peak_MiB": 3745.462890625,
+      "extra_peak_MiB": 602.93505859375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "infer_total",
+      "seconds": 0.788534177467227
+    },
+    {
+      "group": 9,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "head_forward",
+      "seconds": 0.05395061336457729,
+      "start_MiB": 3207.1279296875,
+      "end_MiB": 4259.30810546875,
+      "peak_MiB": 5182.8720703125,
+      "extra_peak_MiB": 1975.744140625,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "loss",
+      "seconds": 0.00012046657502651215,
+      "start_MiB": 3867.681640625,
+      "end_MiB": 3867.6826171875,
+      "peak_MiB": 3867.68310546875,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "head_backward",
+      "seconds": 0.5915667917579412,
+      "start_MiB": 3867.6826171875,
+      "end_MiB": 763.12548828125,
+      "peak_MiB": 6781.21435546875,
+      "extra_peak_MiB": 2913.53173828125,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 9,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "optimizer",
+      "seconds": 0.004860285669565201,
+      "start_MiB": 763.12548828125,
+      "end_MiB": 763.12548828125,
+      "peak_MiB": 817.779296875,
+      "extra_peak_MiB": 54.65380859375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 420,
+      "stage": "loader_wait",
+      "seconds": 0.020802682265639305
+    },
+    {
+      "group": 10,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 420,
+      "stage": "host_to_device",
+      "seconds": 0.06834608875215054,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 938.990234375,
+      "peak_MiB": 938.990234375,
+      "extra_peak_MiB": 230.88134765625,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 420,
+      "stage": "encoder_4cycles",
+      "seconds": 0.6848988924175501,
+      "start_MiB": 1038.376953125,
+      "end_MiB": 1083.404296875,
+      "peak_MiB": 1648.67578125,
+      "extra_peak_MiB": 610.298828125,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 420,
+      "stage": "infer_total",
+      "seconds": 0.7572039943188429
+    },
+    {
+      "group": 10,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 420,
+      "stage": "head_forward",
+      "seconds": 0.05135328136384487,
+      "start_MiB": 1104.2177734375,
+      "end_MiB": 2165.12646484375,
+      "peak_MiB": 3094.79638671875,
+      "extra_peak_MiB": 1990.57861328125,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "loader_wait",
+      "seconds": 0.020685814321041107
+    },
+    {
+      "group": 10,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "host_to_device",
+      "seconds": 0.06821834482252598,
+      "start_MiB": 1769.017578125,
+      "end_MiB": 2000.61572265625,
+      "peak_MiB": 2000.61572265625,
+      "extra_peak_MiB": 231.59814453125,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "encoder_4cycles",
+      "seconds": 0.721562173217535,
+      "start_MiB": 2099.6123046875,
+      "end_MiB": 2143.4990234375,
+      "peak_MiB": 2702.54736328125,
+      "extra_peak_MiB": 602.93505859375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "infer_total",
+      "seconds": 0.7930725757032633
+    },
+    {
+      "group": 10,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "head_forward",
+      "seconds": 0.05318917706608772,
+      "start_MiB": 2164.314453125,
+      "end_MiB": 3219.10546875,
+      "peak_MiB": 4144.05078125,
+      "extra_peak_MiB": 1979.736328125,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "loader_wait",
+      "seconds": 0.021207675337791443
+    },
+    {
+      "group": 10,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "host_to_device",
+      "seconds": 0.06900579854846,
+      "start_MiB": 2823.80859375,
+      "end_MiB": 3055.40625,
+      "peak_MiB": 3055.40625,
+      "extra_peak_MiB": 231.59765625,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7184697650372982,
+      "start_MiB": 3154.40283203125,
+      "end_MiB": 3198.28955078125,
+      "peak_MiB": 3757.337890625,
+      "extra_peak_MiB": 602.93505859375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "infer_total",
+      "seconds": 0.7908414658159018
+    },
+    {
+      "group": 10,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "head_forward",
+      "seconds": 0.05318509042263031,
+      "start_MiB": 3219.10498046875,
+      "end_MiB": 4271.837890625,
+      "peak_MiB": 5195.99853515625,
+      "extra_peak_MiB": 1976.8935546875,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "loss",
+      "seconds": 0.00011844001710414886,
+      "start_MiB": 3876.5419921875,
+      "end_MiB": 3876.54296875,
+      "peak_MiB": 3876.54345703125,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 8426.0
+    },
+    {
+      "group": 10,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "head_backward",
+      "seconds": 0.5848511997610331,
+      "start_MiB": 3876.54296875,
+      "end_MiB": 761.90380859375,
+      "peak_MiB": 6790.740234375,
+      "extra_peak_MiB": 2914.197265625,
+      "reserved_MiB": 8600.0
+    },
+    {
+      "group": 10,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 419,
+      "stage": "optimizer",
+      "seconds": 0.004787640646100044,
+      "start_MiB": 761.90380859375,
+      "end_MiB": 761.90380859375,
+      "peak_MiB": 819.0126953125,
+      "extra_peak_MiB": 57.10888671875,
+      "reserved_MiB": 8600.0
+    },
+    {
+      "group": 11,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "loader_wait",
+      "seconds": 0.020938990637660027
+    },
+    {
+      "group": 11,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "host_to_device",
+      "seconds": 0.06859559938311577,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 935.564453125,
+      "peak_MiB": 935.564453125,
+      "extra_peak_MiB": 227.45556640625,
+      "reserved_MiB": 8600.0
+    },
+    {
+      "group": 11,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7028140760958195,
+      "start_MiB": 1035.73486328125,
+      "end_MiB": 1080.76708984375,
+      "peak_MiB": 1649.42041015625,
+      "extra_peak_MiB": 613.685546875,
+      "reserved_MiB": 8812.0
+    },
+    {
+      "group": 11,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "infer_total",
+      "seconds": 0.7747747488319874
+    },
+    {
+      "group": 11,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "head_forward",
+      "seconds": 0.05254561826586723,
+      "start_MiB": 1101.78271484375,
+      "end_MiB": 2171.08642578125,
+      "peak_MiB": 3108.9462890625,
+      "extra_peak_MiB": 2007.16357421875,
+      "reserved_MiB": 8812.0
+    },
+    {
+      "group": 11,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "loader_wait",
+      "seconds": 0.021074527874588966
+    },
+    {
+      "group": 11,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "host_to_device",
+      "seconds": 0.06950383074581623,
+      "start_MiB": 1777.41259765625,
+      "end_MiB": 2007.61328125,
+      "peak_MiB": 2007.61328125,
+      "extra_peak_MiB": 230.20068359375,
+      "reserved_MiB": 8812.0
+    },
+    {
+      "group": 11,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7020042985677719,
+      "start_MiB": 2107.90673828125,
+      "end_MiB": 2152.93896484375,
+      "peak_MiB": 2721.59228515625,
+      "extra_peak_MiB": 613.685546875,
+      "reserved_MiB": 8812.0
+    },
+    {
+      "group": 11,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "infer_total",
+      "seconds": 0.7748562693595886
+    },
+    {
+      "group": 11,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "head_forward",
+      "seconds": 0.05229642800986767,
+      "start_MiB": 2173.95458984375,
+      "end_MiB": 3242.74853515625,
+      "peak_MiB": 4179.77294921875,
+      "extra_peak_MiB": 2005.818359375,
+      "reserved_MiB": 8812.0
+    },
+    {
+      "group": 11,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "loader_wait",
+      "seconds": 0.021175524219870567
+    },
+    {
+      "group": 11,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "host_to_device",
+      "seconds": 0.06806980818510056,
+      "start_MiB": 2846.20654296875,
+      "end_MiB": 3074.4072265625,
+      "peak_MiB": 3074.4072265625,
+      "extra_peak_MiB": 228.20068359375,
+      "reserved_MiB": 8812.0
+    },
+    {
+      "group": 11,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7021727319806814,
+      "start_MiB": 3174.70068359375,
+      "end_MiB": 3219.73291015625,
+      "peak_MiB": 3788.38623046875,
+      "extra_peak_MiB": 613.685546875,
+      "reserved_MiB": 8812.0
+    },
+    {
+      "group": 11,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "infer_total",
+      "seconds": 0.7738660518079996
+    },
+    {
+      "group": 11,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "head_forward",
+      "seconds": 0.052818745374679565,
+      "start_MiB": 3240.74853515625,
+      "end_MiB": 4310.13916015625,
+      "peak_MiB": 5247.6455078125,
+      "extra_peak_MiB": 2006.89697265625,
+      "reserved_MiB": 8986.0
+    },
+    {
+      "group": 11,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "loss",
+      "seconds": 0.00013122521340847015,
+      "start_MiB": 3915.59765625,
+      "end_MiB": 3915.5986328125,
+      "peak_MiB": 3915.59912109375,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 8986.0
+    },
+    {
+      "group": 11,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "head_backward",
+      "seconds": 0.5829083546996117,
+      "start_MiB": 3915.5986328125,
+      "end_MiB": 762.1357421875,
+      "peak_MiB": 6875.13330078125,
+      "extra_peak_MiB": 2959.53466796875,
+      "reserved_MiB": 9422.0
+    },
+    {
+      "group": 11,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 422,
+      "stage": "optimizer",
+      "seconds": 0.004968414083123207,
+      "start_MiB": 762.1357421875,
+      "end_MiB": 762.1357421875,
+      "peak_MiB": 817.02880859375,
+      "extra_peak_MiB": 54.89306640625,
+      "reserved_MiB": 9422.0
+    },
+    {
+      "group": 12,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "loader_wait",
+      "seconds": 0.019440265372395515
+    },
+    {
+      "group": 12,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "host_to_device",
+      "seconds": 0.0760775413364172,
+      "start_MiB": 708.10888671875,
+      "end_MiB": 949.7783203125,
+      "peak_MiB": 949.7783203125,
+      "extra_peak_MiB": 241.66943359375,
+      "reserved_MiB": 9422.0
+    },
+    {
+      "group": 12,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7578135430812836,
+      "start_MiB": 1054.29248046875,
+      "end_MiB": 1100.69873046875,
+      "peak_MiB": 1691.0302734375,
+      "extra_peak_MiB": 636.73779296875,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "infer_total",
+      "seconds": 0.8380700517445803
+    },
+    {
+      "group": 12,
+      "sample": 0,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "head_forward",
+      "seconds": 0.056120891124010086,
+      "start_MiB": 1122.63671875,
+      "end_MiB": 2235.44482421875,
+      "peak_MiB": 3211.6015625,
+      "extra_peak_MiB": 2088.96484375,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "loader_wait",
+      "seconds": 0.021622711792588234
+    },
+    {
+      "group": 12,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "host_to_device",
+      "seconds": 0.0727713480591774,
+      "start_MiB": 1820.9169921875,
+      "end_MiB": 2065.75927734375,
+      "peak_MiB": 2065.75927734375,
+      "extra_peak_MiB": 244.84228515625,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7603598274290562,
+      "start_MiB": 2170.2734375,
+      "end_MiB": 2216.6796875,
+      "peak_MiB": 2807.01123046875,
+      "extra_peak_MiB": 636.73779296875,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "infer_total",
+      "seconds": 0.8365208357572556
+    },
+    {
+      "group": 12,
+      "sample": 1,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "head_forward",
+      "seconds": 0.05609280243515968,
+      "start_MiB": 2238.61767578125,
+      "end_MiB": 3351.66650390625,
+      "peak_MiB": 4329.0595703125,
+      "extra_peak_MiB": 2090.44189453125,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "loader_wait",
+      "seconds": 0.017681598663330078
+    },
+    {
+      "group": 12,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "host_to_device",
+      "seconds": 0.07519486173987389,
+      "start_MiB": 2933.9658203125,
+      "end_MiB": 3178.8369140625,
+      "peak_MiB": 3178.8369140625,
+      "extra_peak_MiB": 244.87109375,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "encoder_4cycles",
+      "seconds": 0.7572443280369043,
+      "start_MiB": 3283.35107421875,
+      "end_MiB": 3329.75732421875,
+      "peak_MiB": 3920.0888671875,
+      "extra_peak_MiB": 636.73779296875,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "infer_total",
+      "seconds": 0.8358841445297003
+    },
+    {
+      "group": 12,
+      "sample": 2,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "head_forward",
+      "seconds": 0.05602687783539295,
+      "start_MiB": 3351.6953125,
+      "end_MiB": 4464.619140625,
+      "peak_MiB": 5441.53369140625,
+      "extra_peak_MiB": 2089.83837890625,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "loss",
+      "seconds": 0.00012166425585746765,
+      "start_MiB": 4046.89013671875,
+      "end_MiB": 4046.89111328125,
+      "peak_MiB": 4046.8916015625,
+      "extra_peak_MiB": 0.00146484375,
+      "reserved_MiB": 9638.0
+    },
+    {
+      "group": 12,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "head_backward",
+      "seconds": 0.6209612116217613,
+      "start_MiB": 4046.89111328125,
+      "end_MiB": 762.767578125,
+      "peak_MiB": 7131.45166015625,
+      "extra_peak_MiB": 3084.560546875,
+      "reserved_MiB": 10096.0
+    },
+    {
+      "group": 12,
+      "sample": -1,
+      "warmup": false,
+      "tokens": 431,
+      "stage": "optimizer",
+      "seconds": 0.004678839817643166,
+      "start_MiB": 762.767578125,
+      "end_MiB": 762.767578125,
+      "peak_MiB": 816.2509765625,
+      "extra_peak_MiB": 53.4833984375,
+      "reserved_MiB": 10096.0
+    }
+  ],
+  "groups": [
+    {
+      "group": 0,
+      "warmup": true,
+      "seconds": 16.292936703190207
+    },
+    {
+      "group": 1,
+      "warmup": true,
+      "seconds": 3.1865640189498663
+    },
+    {
+      "group": 2,
+      "warmup": false,
+      "seconds": 3.025176579132676
+    },
+    {
+      "group": 3,
+      "warmup": false,
+      "seconds": 3.1115571558475494
+    },
+    {
+      "group": 4,
+      "warmup": false,
+      "seconds": 3.0597777608782053
+    },
+    {
+      "group": 5,
+      "warmup": false,
+      "seconds": 3.140030352398753
+    },
+    {
+      "group": 6,
+      "warmup": false,
+      "seconds": 2.966504607349634
+    },
+    {
+      "group": 7,
+      "warmup": false,
+      "seconds": 3.180649556219578
+    },
+    {
+      "group": 8,
+      "warmup": false,
+      "seconds": 3.158502722159028
+    },
+    {
+      "group": 9,
+      "warmup": false,
+      "seconds": 3.191357906907797
+    },
+    {
+      "group": 10,
+      "warmup": false,
+      "seconds": 3.156127216294408
+    },
+    {
+      "group": 11,
+      "warmup": false,
+      "seconds": 3.1371433902531862
+    },
+    {
+      "group": 12,
+      "warmup": false,
+      "seconds": 3.3684173990041018
+    }
+  ],
+  "notes": "Single GPU, no DDP communication; two warmup groups excluded; length-stratified sample, not population weighted; training processes suspended externally."
+}

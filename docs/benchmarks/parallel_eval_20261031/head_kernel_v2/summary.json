@@ -1,0 +1,58 @@
+[
+  {
+    "name": "gpu1_cuequivariance_r0",
+    "encoders_per_gpu": 4,
+    "world_size": 1,
+    "head_kernel": "cuequivariance",
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 48,
+    "nominal_global_batch": 3,
+    "seconds": 112.73369598388672,
+    "samples_per_second": 1.2773465709895846,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 168.0350637435913,
+    "returncode": 0
+  },
+  {
+    "name": "gpu1_torch_r0",
+    "encoders_per_gpu": 4,
+    "world_size": 1,
+    "head_kernel": "torch",
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 48,
+    "nominal_global_batch": 3,
+    "seconds": 134.1483941078186,
+    "samples_per_second": 1.0734381202078602,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 184.0398805141449,
+    "returncode": 0
+  },
+  {
+    "name": "gpu2_cuequivariance_r0",
+    "encoders_per_gpu": 4,
+    "world_size": 2,
+    "head_kernel": "cuequivariance",
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 24,
+    "nominal_global_batch": 6,
+    "seconds": 57.01360034942627,
+    "samples_per_second": 2.525713147695453,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 113.03353524208069,
+    "returncode": 0
+  },
+  {
+    "name": "gpu2_torch_r0",
+    "returncode": 1,
+    "error": "RuntimeError('Nonzero rank exit')"
+  }
+]

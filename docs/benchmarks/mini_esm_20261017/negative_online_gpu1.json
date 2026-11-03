@@ -1,0 +1,209 @@
+{
+  "mode": "online",
+  "hostname": "Tang3",
+  "visible_gpu": "1",
+  "gpu": "NVIDIA A40",
+  "samples": [
+    {
+      "id": "pepneg_train_000000_00050",
+      "warmup": true,
+      "featurize_seconds": 8.728285321965814,
+      "h2d_seconds": 0.06051712483167648,
+      "infer_seconds": 2.3403596244752407,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67743920,
+      "head_forward_seconds": 0.2965684700757265,
+      "route_to_forward_seconds": 11.42886508256197,
+      "backward_step_seconds": 0.9001247454434633,
+      "loss": 0.6765633821487427,
+      "wall_seconds": 12.333807763643563,
+      "peak_allocated_mib": 7397.5341796875,
+      "peak_reserved_mib": 9168.0
+    },
+    {
+      "id": "pepneg_train_000000_00081",
+      "warmup": false,
+      "featurize_seconds": 0.4473678898066282,
+      "h2d_seconds": 0.06100622843950987,
+      "infer_seconds": 1.2033184487372637,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67743920,
+      "head_forward_seconds": 0.24854088388383389,
+      "route_to_forward_seconds": 1.9620210640132427,
+      "backward_step_seconds": 0.843243227340281,
+      "loss": 0.5984906554222107,
+      "wall_seconds": 2.8083693217486143,
+      "peak_allocated_mib": 7505.8876953125,
+      "peak_reserved_mib": 9168.0
+    },
+    {
+      "id": "pepneg_train_000001_00004",
+      "warmup": false,
+      "featurize_seconds": 0.5322068259119987,
+      "h2d_seconds": 0.06312091462314129,
+      "infer_seconds": 1.2142366217449307,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 68390608,
+      "head_forward_seconds": 0.2538328031077981,
+      "route_to_forward_seconds": 2.0651350542902946,
+      "backward_step_seconds": 0.8618904910981655,
+      "loss": 0.5295173525810242,
+      "wall_seconds": 2.9287887858226895,
+      "peak_allocated_mib": 7586.8818359375,
+      "peak_reserved_mib": 12018.0
+    },
+    {
+      "id": "pepneg_train_000001_00088",
+      "warmup": false,
+      "featurize_seconds": 0.48793193977326155,
+      "h2d_seconds": 0.06307152472436428,
+      "infer_seconds": 1.2160239582881331,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 68390608,
+      "head_forward_seconds": 0.25395918544381857,
+      "route_to_forward_seconds": 2.0225301384925842,
+      "backward_step_seconds": 0.8641337510198355,
+      "loss": 0.46239328384399414,
+      "wall_seconds": 2.888540580868721,
+      "peak_allocated_mib": 7586.8818359375,
+      "peak_reserved_mib": 12018.0
+    },
+    {
+      "id": "pepneg_train_000002_00040",
+      "warmup": false,
+      "featurize_seconds": 0.43769924342632294,
+      "h2d_seconds": 0.06344273872673512,
+      "infer_seconds": 1.2103914069011807,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67743920,
+      "head_forward_seconds": 0.249166714027524,
+      "route_to_forward_seconds": 1.962250449694693,
+      "backward_step_seconds": 0.8434827430173755,
+      "loss": 0.4060457944869995,
+      "wall_seconds": 2.8076796140521765,
+      "peak_allocated_mib": 7586.8818359375,
+      "peak_reserved_mib": 12018.0
+    },
+    {
+      "id": "pepneg_train_000002_00091",
+      "warmup": false,
+      "featurize_seconds": 0.45965196285396814,
+      "h2d_seconds": 0.06488100253045559,
+      "infer_seconds": 1.2061209408566356,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67743920,
+      "head_forward_seconds": 0.24916058219969273,
+      "route_to_forward_seconds": 1.981850483454764,
+      "backward_step_seconds": 0.8480090172961354,
+      "loss": 0.35074949264526367,
+      "wall_seconds": 2.831827291287482,
+      "peak_allocated_mib": 7586.8818359375,
+      "peak_reserved_mib": 12018.0
+    }
+  ],
+  "kernel_backend": "cuequivariance/cuequivariance",
+  "precision": {
+    "encoder_autocast": "bf16",
+    "joint_feature": "fp16",
+    "head_parameters": "fp32",
+    "head_autocast": "bf16"
+  },
+  "head_ddp": false,
+  "feature_transfer": "same-device tensors",
+  "peer_access": null,
+  "initial_free_mib": 32739.3125,
+  "startup_seconds": 6.955556536093354,
+  "startup_to_first_forward_seconds": 18.38445576094091,
+  "run_seconds": 33.561519919894636,
+  "summary": {
+    "featurize_seconds": {
+      "count": 5,
+      "mean": 0.473,
+      "median": 0.46,
+      "min": 0.438,
+      "max": 0.532
+    },
+    "read_seconds": {},
+    "h2d_seconds": {
+      "count": 5,
+      "mean": 0.063,
+      "median": 0.063,
+      "min": 0.061,
+      "max": 0.065
+    },
+    "infer_seconds": {
+      "count": 5,
+      "mean": 1.21,
+      "median": 1.21,
+      "min": 1.203,
+      "max": 1.216
+    },
+    "d2h_seconds": {},
+    "save_fsync_seconds": {},
+    "head_forward_seconds": {
+      "count": 5,
+      "mean": 0.251,
+      "median": 0.249,
+      "min": 0.249,
+      "max": 0.254
+    },
+    "backward_step_seconds": {
+      "count": 5,
+      "mean": 0.852,
+      "median": 0.848,
+      "min": 0.843,
+      "max": 0.864
+    },
+    "peer_transfer_seconds": {},
+    "route_to_forward_seconds": {
+      "count": 5,
+      "mean": 1.999,
+      "median": 1.982,
+      "min": 1.962,
+      "max": 2.065
+    },
+    "wall_seconds": {
+      "count": 5,
+      "mean": 2.853,
+      "median": 2.832,
+      "min": 2.808,
+      "max": 2.929
+    }
+  }
+}

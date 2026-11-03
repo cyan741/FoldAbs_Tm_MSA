@@ -1,0 +1,20 @@
+{
+  "offset": {
+    "full_fit_optimistic_bce": 0.7724366834096154,
+    "a": 1.0,
+    "b": 0.7032931601337143,
+    "random_record_heldout_bce": 0.7724772726099924
+  },
+  "temperature": {
+    "full_fit_optimistic_bce": 0.6284122565069595,
+    "a": 0.30932781713379187,
+    "b": 0.0,
+    "random_record_heldout_bce": 0.6284639758911917
+  },
+  "affine": {
+    "full_fit_optimistic_bce": 0.6213808645415305,
+    "a": 0.2098491745417761,
+    "b": -0.34271223098137066,
+    "random_record_heldout_bce": 0.6214731207565357
+  }
+}

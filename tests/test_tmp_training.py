@@ -101,8 +101,12 @@ def test_epoch_validation_and_test_only_outputs(tmp_path, monkeypatch, epochs, e
     restored = pd.read_csv(inferred)
     assert list(restored.sample_id) == list(predictions.sample_id)
     assert list(restored.prediction) == list(predictions.prediction)
-    assert len(list(output.glob("*.pt"))) == 2
-    for path in output.glob("*.pt"):
+    assert len(list(output.glob("*.pt"))) == 2 + expected_epochs
+    for epoch in range(1, expected_epochs + 1):
+        archived = torch.load(output / f"bs3_lr_0.0001sd_42_ep{epoch}.pt", weights_only=True)
+        assert archived["completed_epoch"] == archived["epoch"] == epoch
+        assert archived["step"] == epoch * 2 and archived["optimizer_state"] is not None
+    for path in output.glob("lr*.pt"):
         assert path.name.startswith("lr0.0001_bs3_wd0.01_ep")
         image = path.with_suffix(".png")
         assert image.is_file() and image.read_bytes().startswith(b"\x89PNG")
@@ -189,7 +193,7 @@ def test_early_stop_checkpoint_and_curve_outputs(tmp_path, monkeypatch):
     assert set(path.name for path in output.glob("*.pt")) == {
         "lr0.0001_bs3_wd0.01_ep2_val_best_ep2.pt",
         "lr0.0001_bs3_wd0.01_ep7_es_ep7.pt",
-    }
+    } | {f"bs3_lr_0.0001sd_42_ep{epoch}.pt" for epoch in range(1, 8)}
     history = pd.read_csv(output / "loss_history.csv")
     assert list(history.epoch) == list(range(1, 8))
     assert history.loc[history.epoch == 5, "next_lr"].item() == pytest.approx(0.00005)

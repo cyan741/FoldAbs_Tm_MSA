@@ -1,0 +1,50 @@
+[
+  {
+    "name": "enc1_g48",
+    "encoders_per_gpu": 1,
+    "world_size": 2,
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 24,
+    "nominal_global_batch": 6,
+    "seconds": 70.12204575538635,
+    "samples_per_second": 2.0535624488528104,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 122.04064464569092,
+    "returncode": 0
+  },
+  {
+    "name": "enc4_g48",
+    "encoders_per_gpu": 4,
+    "world_size": 2,
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 24,
+    "nominal_global_batch": 6,
+    "seconds": 56.883909940719604,
+    "samples_per_second": 2.53147155584183,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 114.03660440444946,
+    "returncode": 0
+  },
+  {
+    "name": "enc4_g96",
+    "encoders_per_gpu": 4,
+    "world_size": 2,
+    "activation_checkpoint": false,
+    "global_groups": 96,
+    "samples": 288,
+    "optimizer_updates": 48,
+    "nominal_global_batch": 6,
+    "seconds": 113.17421627044678,
+    "samples_per_second": 2.544749232561777,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "b194afae81cc7a98044cf373148589715d858b80657f571e9765ab6f8d7a9e81",
+    "process_seconds": 169.04206705093384,
+    "returncode": 0
+  }
+]

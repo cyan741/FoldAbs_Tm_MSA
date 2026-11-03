@@ -1,0 +1,62 @@
+[
+  {
+    "name": "baseline_w1_a",
+    "returncode": 0,
+    "wall": 120.4228155463934,
+    "seconds": 71.61508744955063,
+    "samples_per_second": 1.005374741051884,
+    "peak_allocated_MiB": 37594.51806640625,
+    "peak_reserved_MiB": 59572.0,
+    "loader_wait_seconds": 1.4934972450137138
+  },
+  {
+    "name": "timeline",
+    "returncode": 0,
+    "wall": 174.0963583290577,
+    "seconds": 122.31102303229272,
+    "samples_per_second": 0.09811053576775124,
+    "peak_allocated_MiB": 37594.51806640625,
+    "peak_reserved_MiB": 59572.0,
+    "loader_wait_seconds": 0.2786934822797775
+  },
+  {
+    "name": "workers2",
+    "returncode": 0,
+    "wall": 118.302295377478,
+    "seconds": 71.40861557424068,
+    "samples_per_second": 1.008281695717017,
+    "peak_allocated_MiB": 37594.51806640625,
+    "peak_reserved_MiB": 59572.0,
+    "loader_wait_seconds": 1.4623232018202543
+  },
+  {
+    "name": "workers4",
+    "returncode": 0,
+    "wall": 124.36566765792668,
+    "seconds": 71.32184560596943,
+    "samples_per_second": 1.0095083685548065,
+    "peak_allocated_MiB": 37594.51806640625,
+    "peak_reserved_MiB": 59572.0,
+    "loader_wait_seconds": 1.3163215480744839
+  },
+  {
+    "name": "baseline_w1_b",
+    "returncode": 0,
+    "wall": 116.1630464810878,
+    "seconds": 71.72107842564583,
+    "samples_per_second": 1.003888976302041,
+    "peak_allocated_MiB": 37594.51806640625,
+    "peak_reserved_MiB": 59572.0,
+    "loader_wait_seconds": 1.5009632799774408
+  },
+  {
+    "name": "checkpoint_w1",
+    "returncode": 0,
+    "wall": 118.55971499718726,
+    "seconds": 75.31406183727086,
+    "samples_per_second": 0.9559967719649557,
+    "peak_allocated_MiB": 7137.7041015625,
+    "peak_reserved_MiB": 9808.0,
+    "loader_wait_seconds": 1.4186382107436657
+  }
+]

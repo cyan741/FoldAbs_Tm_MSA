@@ -1,0 +1,37 @@
+...........                                                              [100%]
+=============================== warnings summary ===============================
+../../../opt/conda/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /opt/conda/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+  /root/foldabs_immrep25_20261029/env/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'oneOf' deprecated - use 'one_of'
+    prop = Group((name + Suppress("=") + comma_separated(value)) | oneOf(_CONSTANTS))
+
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+  /root/foldabs_immrep25_20261029/env/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:85: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    parse = parser.parseString(pattern)
+
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+  /root/foldabs_immrep25_20261029/env/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+tests/test_tmp_training.py::test_epoch_validation_and_test_only_outputs[fp32-None-2]
+  /root/foldabs_immrep25_20261029/env/lib/python3.11/site-packages/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+11 passed, 15 warnings in 5.54s

@@ -1,0 +1,20 @@
+{
+  "performance": [
+    {
+      "world_size": 1,
+      "torch_time_change_percent": 18.995827234292694,
+      "torch_throughput_change_percent": -15.963439790952949
+    }
+  ],
+  "torch_independent_repeats": [
+    {
+      "world_size": 1,
+      "rank": 0,
+      "updates": 48,
+      "final_parameters_equal": true,
+      "max_logit_difference": 0.0,
+      "max_loss_difference": 0.0,
+      "max_gradient_norm_difference": 0.0
+    }
+  ]
+}

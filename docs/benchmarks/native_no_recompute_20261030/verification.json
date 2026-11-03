@@ -1,0 +1,43 @@
+{
+  "True": {
+    "loss": 1.0720428228378296,
+    "logits": [
+      1.0625,
+      2.078125,
+      -5.625
+    ]
+  },
+  "gradient_max_abs": 0.001953125,
+  "compared_parameters": 261,
+  "elementwise_tolerance_failures": [
+    "pair_condition.transitions.0.net.1.weight",
+    "pair_condition.transitions.0.net.3.weight",
+    "pair_condition.transitions.1.net.1.weight",
+    "pairformer.0.tri_mul_out.linear_z.weight",
+    "pairformer.0.tri_mul_out.layer_norm_in.weight",
+    "pairformer.0.tri_mul_out.linear_a_p.weight",
+    "pairformer.0.tri_mul_out.linear_b_p.weight",
+    "pairformer.0.tri_mul_out.linear_b_g.weight",
+    "pairformer.0.tri_mul_in.linear_g.weight",
+    "pairformer.0.tri_mul_in.linear_a_p.weight",
+    "pairformer.0.pair_transition.linear_no_bias_a.weight",
+    "pairformer.0.pair_transition.linear_no_bias_b.weight",
+    "pairformer.0.pair_transition.linear_no_bias.weight",
+    "pairformer.1.tri_mul_out.linear_b_p.weight",
+    "pairformer.1.tri_mul_in.linear_z.weight",
+    "pairformer.1.tri_att_end.mha.linear_k.weight",
+    "pairformer.1.pair_transition.linear_no_bias_a.weight",
+    "pairformer.2.tri_mul_out.linear_b_p.weight"
+  ],
+  "gradient_relative_l2": 0.0003412275380149962,
+  "gradient_cosine": 0.9999999417848974,
+  "passed": true,
+  "False": {
+    "loss": 1.0720428228378296,
+    "logits": [
+      1.0625,
+      2.078125,
+      -5.625
+    ]
+  }
+}

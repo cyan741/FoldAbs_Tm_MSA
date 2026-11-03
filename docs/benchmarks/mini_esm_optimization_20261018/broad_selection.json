@@ -1,0 +1,8 @@
+{
+  "records": 48,
+  "positive": 16,
+  "negative": 32,
+  "min_tokens": 413,
+  "max_tokens": 434,
+  "includes_longest_positive_and_negative": true
+}

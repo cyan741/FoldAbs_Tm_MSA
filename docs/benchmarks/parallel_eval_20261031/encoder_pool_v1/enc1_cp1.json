@@ -1,0 +1,23 @@
+{
+  "encoders": 1,
+  "activation_checkpoint": true,
+  "groups": 24,
+  "samples": 72,
+  "seconds": 74.94105839543045,
+  "samples_per_second": 0.9607550459200643,
+  "wait_seconds": 54.40268839523196,
+  "head_seconds": 20.477784365415573,
+  "head_peak_allocated_MiB": 6488.53125,
+  "head_peak_reserved_MiB": 6952.0,
+  "global_groups_hash": "b8061b24d5ca9fbf84f9493d30c841e627e22437f28f1e78db90a3708c4133fa",
+  "ipc_warmup_checksums_equal": true,
+  "trainable_heads": 1,
+  "optimizer_updates": 24,
+  "telemetry": {
+    "samples": 74,
+    "max_memory_MiB": 10422,
+    "mean_util": 87.32432432432432,
+    "min_util": 0,
+    "fraction_util_ge95": 0.6351351351351351
+  }
+}

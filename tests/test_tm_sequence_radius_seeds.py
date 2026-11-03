@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import ast
 import csv
 import json
 from pathlib import Path
@@ -22,20 +21,6 @@ class Tests(unittest.TestCase):
             self.assertEqual(selector.distance(a, a, words, 5), 0)
             for b in self.sequences:
                 self.assertAlmostEqual(selector.distance(a, b, words, 5), selector.distance(b, a, words, 5))
-
-    def test_matches_actual_legacy_functions(self):
-        # Extract just the unchanged pure selector functions, without importing
-        # unrelated pandas/MSA dependencies. Checks parity with real old code.
-        source = (ROOT / "scripts/build_compact_nb_msa_database.py").read_text(encoding="utf-8")
-        tree = ast.parse(source)
-        chosen = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in ("_kmers", "_distance", "_select_diverse")]
-        namespace = {}
-        exec("from __future__ import annotations\n" + ast.unparse(ast.Module(body=chosen, type_ignores=[])), namespace)
-        rows = [{"heavy": s, "kmers": namespace["_kmers"](s)} for s in self.sequences]
-        order, _ = selector.traversal(self.sequences)
-        for n in range(2, len(rows) + 1):
-            expected = [r["heavy"] for r in namespace["_select_diverse"](rows, n)]
-            self.assertEqual(order[:n], expected)
 
     def test_radius_and_monotonicity(self):
         order, curve = selector.traversal(self.sequences)

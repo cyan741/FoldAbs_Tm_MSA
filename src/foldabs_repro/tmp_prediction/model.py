@@ -14,6 +14,7 @@ from protenix.model.modules.pairformer import PairformerBlock
 
 from .interfaces import POOL_ORDER, build_role_masks
 from .pooling import InterfacePooling
+from .triangle_attention import install_cueq_all_valid_mask_workaround
 
 
 class ResidualTransition(nn.Module):
@@ -65,10 +66,17 @@ class TMPTrunkSpecificityHead(nn.Module):
         c_hidden_pair_att: int = 32,
         no_heads_pair: int = 4,
         pooling_mode: str = "A",
+        triangle_multiplicative: str = "torch",
+        triangle_attention: str = "torch",
+        activation_checkpoint: bool = False,
     ):
         super().__init__()
         if pairformer_blocks < 0:
             raise ValueError("pairformer_blocks cannot be negative")
+        if triangle_multiplicative not in ('torch', 'cuequivariance') or triangle_attention not in ('torch', 'cuequivariance'):
+            raise ValueError('Unsupported head triangle backend')
+        if triangle_attention == 'cuequivariance':
+            install_cueq_all_valid_mask_workaround()
         self.config = {
             "c_s": c_s,
             "c_z": c_z,
@@ -81,6 +89,9 @@ class TMPTrunkSpecificityHead(nn.Module):
             "c_hidden_pair_att": c_hidden_pair_att,
             "no_heads_pair": no_heads_pair,
             "pooling_mode": pooling_mode,
+            "triangle_multiplicative": triangle_multiplicative,
+            "triangle_attention": triangle_attention,
+            "activation_checkpoint": activation_checkpoint,
         }
         self.pair_condition = PairCondition(c_dist, c_z)
         self.pairformer = nn.ModuleList(
@@ -126,19 +137,27 @@ class TMPTrunkSpecificityHead(nn.Module):
             key: value.to(device=s.device)
             for key, value in build_role_masks(token_asym_id, roles).items()
         }
-        s_batch = s.unsqueeze(0)
-        z_batch = self.pair_condition(z, p_dist).unsqueeze(0)
+        # Protenix 1.0.0's cuEquivariance adapter adds its own batch axis.
+        # Our public interface is one complex, so avoid adding a second axis.
+        unbatched_kernel = 'cuequivariance' in (
+            self.config['triangle_multiplicative'], self.config['triangle_attention'])
+        s_batch = s if unbatched_kernel else s.unsqueeze(0)
+        z_conditioned = self.pair_condition(z, p_dist)
+        z_batch = z_conditioned if unbatched_kernel else z_conditioned.unsqueeze(0)
         for block in self.pairformer:
-            s_batch, z_batch = block(
-                s=s_batch,
-                z=z_batch,
-                pair_mask=None,
-                triangle_multiplicative="torch",
-                triangle_attention="torch",
-                inplace_safe=False,
-                chunk_size=None,
-            )
-        pools = self.pooling(s_batch.squeeze(0), z_batch.squeeze(0), masks)
+            def run_block(s_value, z_value, current_block=block):
+                return current_block(
+                    s=s_value, z=z_value, pair_mask=None,
+                    triangle_multiplicative=self.config['triangle_multiplicative'],
+                    triangle_attention=self.config['triangle_attention'],
+                    inplace_safe=False, chunk_size=None)
+            if self.config['activation_checkpoint'] and self.training and torch.is_grad_enabled():
+                from torch.utils.checkpoint import checkpoint
+                s_batch, z_batch = checkpoint(run_block, s_batch, z_batch, use_reentrant=False)
+            else:
+                s_batch, z_batch = run_block(s_batch, z_batch)
+        pools = self.pooling(s_batch if unbatched_kernel else s_batch.squeeze(0),
+                             z_batch if unbatched_kernel else z_batch.squeeze(0), masks)
         latent = torch.cat([pools[name] for name in POOL_ORDER], dim=-1)
         return latent, pools
 

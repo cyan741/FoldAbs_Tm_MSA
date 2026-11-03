@@ -103,6 +103,46 @@ def peptide_dataset(tmp_path):
     return source, build, peptide_mismatch
 
 
+def test_hitph_protenix_inputs_include_fixed_negatives_and_use_training_ids(peptide_dataset, tmp_path):
+    import json
+    from scripts.make_protenix_input.make_tmp_protenix_input import prepare_hitph_inputs
+
+    pytest.importorskip('torch')
+    pytest.importorskip('protenix')
+    source, build, _ = peptide_dataset
+    splits = build('input_splits')
+    source.to_csv(splits / 'positive_splits.csv', index=False)
+    output = tmp_path / 'baseline.json'
+    report = prepare_hitph_inputs(splits, output)
+    records = json.loads(output.read_text())
+    manifest = pd.read_csv(output.with_suffix('.manifest.csv'))
+    assert report['positive'] == 15 and report['negative'] == 16
+    assert len(records) == 31
+    assert {record['name'] for record in records} == set(manifest.sample_id)
+    assert set(manifest.query('label == 1').sample_id) == set(source.record_id)
+    assert all(name.startswith(('pepneg_val_', 'pepneg_test_'))
+               for name in manifest.query('label == 0').sample_id)
+    assert all(len(record['sequences']) == 4 for record in records)
+    epoch = tmp_path / 'epoch.json'
+    epoch_report = prepare_hitph_inputs(splits, epoch, epoch=1)
+    epoch_records = json.loads(epoch.read_text())
+    assert epoch_report['positive'] == 0 and epoch_report['negative'] == 14
+    assert all(record['name'].startswith('pepneg_train_') for record in epoch_records)
+    assert not set(record['name'] for record in records) & set(record['name'] for record in epoch_records)
+    nomsa = tmp_path / 'baseline_nomsa.json'
+    nomsa_report = prepare_hitph_inputs(splits, nomsa)
+    nomsa_records = json.loads(nomsa.read_text())
+    assert nomsa_report['use_msa'] is False and len(nomsa_records) == 31
+    assert {record['name'] for record in nomsa_records} == set(manifest.sample_id)
+    assert all(len(record['sequences']) == 4 and all(
+        set(chain['proteinChain']) == {'count', 'sequence', 'modifications'}
+        for chain in record['sequences']) for record in nomsa_records)
+    epoch_nomsa = tmp_path / 'epoch_nomsa.json'
+    prepare_hitph_inputs(splits, epoch_nomsa, epoch=1)
+    assert {record['name'] for record in json.loads(epoch_nomsa.read_text())} == {
+        record['name'] for record in epoch_records}
+
+
 def test_peptide_mismatch_cli_seed_replay_and_exact_outputs(peptide_dataset):
     source, build, sampling = peptide_dataset
     first, replay, changed = build('first'), build('replay'), build('changed', seed=43)
@@ -193,9 +233,67 @@ def test_peptide_dynamic_training_exact_resume(peptide_dataset, tmp_path, monkey
         checkpoint = output / metrics['final_checkpoint']
         return torch.load(checkpoint, weights_only=True), checkpoint
 
-    full, _ = run('full', 3)
+    full, _ = run('full', 2)
     _, checkpoint = run('partial', 1)
-    resumed, _ = run('resumed', 3, checkpoint)
+    # Epoch 1 can be reclaimed before the next resumed epoch starts.
+    stale = set(epoch1.query('label == 0').sample_id) - set(epoch2.query('label == 0').sample_id)
+    assert stale
+    for sample_id in stale:
+        (features / f'{sample_id}.pt').unlink()
+    resumed, _ = run('resumed', 2, checkpoint)
     assert full['history'] == resumed['history'] and full['step'] == resumed['step']
     assert all(torch.equal(full['model'][key], resumed['model'][key]) for key in full['model'])
     assert len(pd.read_csv(tmp_path / 'full' / 'predictions.csv')) == 12
+
+
+def test_epoch_cache_cleanup_removes_only_train_negatives(tmp_path):
+    from scripts.run_hitph_cycle4_epochs import remove_epoch_negatives
+
+    features = tmp_path / "features"
+    features.mkdir()
+    for name in ("pepneg_train_000001_00001", "L4_positive", "pepneg_val_000001_00001"):
+        (features / f"{name}.pt").write_bytes(b"feature")
+    manifest = tmp_path / "epoch.manifest.csv"
+    manifest.write_text("sample_id,label\npepneg_train_000001_00001,0\n")
+    assert remove_epoch_negatives(manifest, features) == 1
+    assert not (features / "pepneg_train_000001_00001.pt").exists()
+    assert (features / "L4_positive.pt").exists()
+    assert (features / "pepneg_val_000001_00001.pt").exists()
+    manifest.write_text("sample_id,label\nL4_positive,0\n")
+    with pytest.raises(ValueError, match="Refusing"):
+        remove_epoch_negatives(manifest, features)
+    assert (features / "L4_positive.pt").exists()
+
+
+def test_epoch_cache_cleanup_retains_next_epoch_overlap(tmp_path):
+    from scripts.run_hitph_cycle4_epochs import remove_epoch_negatives
+
+    features = tmp_path / "features"
+    features.mkdir()
+    shared = "pepneg_train_000001_00001"
+    expired = "pepneg_train_000001_00002"
+    for sample_id in (shared, expired):
+        (features / f"{sample_id}.pt").write_bytes(b"feature")
+    manifest = tmp_path / "epoch.manifest.csv"
+    manifest.write_text(f"sample_id,label\n{shared},0\n{expired},0\n")
+
+    assert remove_epoch_negatives(manifest, features, {shared}) == 1
+    assert (features / f"{shared}.pt").exists()
+    assert not (features / f"{expired}.pt").exists()
+
+
+def test_epoch_cache_complete_requires_exact_manifest_ids(tmp_path):
+    import json
+    from scripts.run_hitph_cycle4_epochs import epoch_cache_complete
+
+    features = tmp_path / "features"
+    features.mkdir()
+    manifest = tmp_path / "epoch.manifest.csv"
+    manifest.write_text("sample_id\npepneg_train_1\npepneg_train_2\n")
+    (features / "index.json").write_text(json.dumps([
+        {"sample_id": "pepneg_train_1"}, {"sample_id": "pepneg_train_2"}]))
+    (features / "extraction_stats.json").write_text(json.dumps({
+        "samples_total": 2, "cycles": 4, "use_msa": False}))
+    assert epoch_cache_complete(features, manifest, expected=2)
+    manifest.write_text("sample_id\npepneg_train_1\npepneg_train_3\n")
+    assert not epoch_cache_complete(features, manifest, expected=2)

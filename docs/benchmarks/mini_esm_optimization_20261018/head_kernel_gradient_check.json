@@ -1,0 +1,32 @@
+[
+  {
+    "step": 0,
+    "torch_logit": -0.041259765625,
+    "cueq_logit": -0.041259765625,
+    "logit_abs_difference": 0.0,
+    "gradient_relative_l2": 4.2522733925991983e-07,
+    "all_gradients_finite": true,
+    "matched_gradient_tensors": 261,
+    "nonzero_cueq_gradient_tensors": 61
+  },
+  {
+    "step": 1,
+    "torch_logit": -0.197265625,
+    "cueq_logit": -0.197265625,
+    "logit_abs_difference": 0.0,
+    "gradient_relative_l2": 5.780735977305479e-07,
+    "all_gradients_finite": true,
+    "matched_gradient_tensors": 261,
+    "nonzero_cueq_gradient_tensors": 261
+  },
+  {
+    "step": 2,
+    "torch_logit": -0.177734375,
+    "cueq_logit": -0.177734375,
+    "logit_abs_difference": 0.0,
+    "gradient_relative_l2": 1.1444270935980319e-06,
+    "all_gradients_finite": true,
+    "matched_gradient_tensors": 261,
+    "nonzero_cueq_gradient_tensors": 261
+  }
+]

@@ -1,0 +1,192 @@
+[
+  {
+    "name": "gpu1_cuequivariance_r0",
+    "encoders_per_gpu": 4,
+    "world_size": 1,
+    "head_kernel": "cuequivariance",
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 48,
+    "nominal_global_batch": 3,
+    "seconds": 112.73369598388672,
+    "samples_per_second": 1.2773465709895846,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 168.0350637435913,
+    "returncode": 0,
+    "ranks": [
+      {
+        "rank": 0,
+        "wait_seconds": 34.58067964017391,
+        "head_seconds": 78.02088080346584,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 112,
+          "util_mean": 99.85714285714286,
+          "util_min": 86,
+          "util_p05": 100.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.9910714285714286,
+          "fraction_below50": 0.0,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 49693
+        },
+        "whole_process": {
+          "samples": 167,
+          "util_mean": 72.1437125748503,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.7125748502994012,
+          "fraction_below50": 0.281437125748503,
+          "fraction_zero": 0.2215568862275449,
+          "physical_peak_MiB": 49693
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "8147ac22f7af25c7da826c33c1c897524641f01ca13ec7ffb6140c3d08665191"
+      }
+    ]
+  },
+  {
+    "name": "gpu1_torch_r0",
+    "encoders_per_gpu": 4,
+    "world_size": 1,
+    "head_kernel": "torch",
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 48,
+    "nominal_global_batch": 3,
+    "seconds": 134.1483941078186,
+    "samples_per_second": 1.0734381202078602,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 184.0398805141449,
+    "returncode": 0,
+    "ranks": [
+      {
+        "rank": 0,
+        "wait_seconds": 21.55210660211742,
+        "head_seconds": 112.47633126191795,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 134,
+          "util_mean": 99.93283582089552,
+          "util_min": 95,
+          "util_p05": 100.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 1.0,
+          "fraction_below50": 0.0,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 80841
+        },
+        "whole_process": {
+          "samples": 184,
+          "util_mean": 79.29891304347827,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.782608695652174,
+          "fraction_below50": 0.20652173913043478,
+          "fraction_zero": 0.18478260869565216,
+          "physical_peak_MiB": 80847
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "355e0c9644b4964077a14c3ae8c52face62f61f60f2c682d5dbf998a2134c89b"
+      }
+    ]
+  },
+  {
+    "name": "gpu2_cuequivariance_r0",
+    "encoders_per_gpu": 4,
+    "world_size": 2,
+    "head_kernel": "cuequivariance",
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 24,
+    "nominal_global_batch": 6,
+    "seconds": 57.01360034942627,
+    "samples_per_second": 2.525713147695453,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 113.03353524208069,
+    "returncode": 0,
+    "ranks": [
+      {
+        "rank": 0,
+        "wait_seconds": 18.927596013993025,
+        "head_seconds": 38.02955744229257,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 57,
+          "util_mean": 98.9298245614035,
+          "util_min": 65,
+          "util_p05": 98.2,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.9473684210526315,
+          "fraction_below50": 0.0,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 50235
+        },
+        "whole_process": {
+          "samples": 113,
+          "util_mean": 60.69911504424779,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.5663716814159292,
+          "fraction_below50": 0.39823008849557523,
+          "fraction_zero": 0.34513274336283184,
+          "physical_peak_MiB": 50235
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "9ddb70bf44d5607bfe45fd93f9c3be982f7f83350471100cf7de0b20042be1ef"
+      },
+      {
+        "rank": 1,
+        "wait_seconds": 17.893148850649595,
+        "head_seconds": 39.06093812920153,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 57,
+          "util_mean": 99.70175438596492,
+          "util_min": 91,
+          "util_p05": 99.6,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.9649122807017544,
+          "fraction_below50": 0.0,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 50235
+        },
+        "whole_process": {
+          "samples": 113,
+          "util_mean": 58.30088495575221,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.5575221238938053,
+          "fraction_below50": 0.4247787610619469,
+          "fraction_zero": 0.35398230088495575,
+          "physical_peak_MiB": 50235
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "9ddb70bf44d5607bfe45fd93f9c3be982f7f83350471100cf7de0b20042be1ef"
+      }
+    ]
+  },
+  {
+    "name": "gpu2_torch_r0",
+    "returncode": 1,
+    "error": "RuntimeError('Nonzero rank exit')"
+  }
+]

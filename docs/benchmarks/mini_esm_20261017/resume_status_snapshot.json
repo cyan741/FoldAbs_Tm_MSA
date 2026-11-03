@@ -1,0 +1,15 @@
+{
+  "status": "running",
+  "total": 96670,
+  "completed": 0,
+  "gpu_ids": "0,1,2,3,4,5,6,7",
+  "kernel_backend": "cuequivariance/cuequivariance",
+  "training_negatives": "online_not_cached",
+  "features_dir": "/NAS/luyq/TMP_prediction/protenix_embeddings/hitph_v1/mini_esm_v0.5.0_c4_no_msa/features_cueq",
+  "started_at": "2026-10-17 00:49:31",
+  "chunk_offset": 0,
+  "phase": "extracting",
+  "snapshot_at": "2026-10-17T00:53:23",
+  "published_feature_files": 136,
+  "verified_example": "L4_0000001: validate_joint passed; BF16 inference / FP16 features / INT64 indexes / cuequivariance backend"
+}

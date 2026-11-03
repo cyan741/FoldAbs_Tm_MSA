@@ -1,0 +1,11 @@
+{
+  "continuous_step": 8,
+  "resumed_step": 8,
+  "continuous_cursor": 24,
+  "resumed_cursor": 24,
+  "model_max_abs_difference": 0.0006071305833756924,
+  "model_relative_l2_difference": 0.000122821169599278,
+  "continuous_loss": 0.6630517020821571,
+  "resumed_loss": 0.663056510190169,
+  "note": "Independent accelerated runs are not bitwise deterministic; this checks recovery, not exact equivalence."
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "gpu1_cuequivariance_r0",
+    "encoders_per_gpu": 4,
+    "world_size": 1,
+    "head_kernel": "cuequivariance",
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 48,
+    "nominal_global_batch": 3,
+    "seconds": 112.80884909629822,
+    "samples_per_second": 1.27649560432157,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 171.0432186126709,
+    "returncode": 0
+  },
+  {
+    "name": "gpu1_torch_r0",
+    "returncode": 1,
+    "error": "RuntimeError('Nonzero rank exit')"
+  }
+]

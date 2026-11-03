@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-18",
+  "status": "benchmark_complete_not_full_training",
+  "offline_feature_writes": "stopped_by_user",
+  "recommended": "broad_optimized",
+  "architecture_candidate": "broad_c1h1",
+  "epoch_records": 238395,
+  "actual_ddp_test": false,
+  "quality_evaluation_complete": false,
+  "broad": [
+    {
+      "name": "broad_baseline",
+      "samples": 48,
+      "warmup": 3,
+      "mean_seconds": 2.796,
+      "peak_reserved_gib": 26.05078125,
+      "ideal_8gpu_epoch_hours": 23.14418125,
+      "gradients": {
+        "all_finite": true,
+        "nonzero_tensors": 261,
+        "gradient_tensors": 261
+      }
+    },
+    {
+      "name": "broad_optimized",
+      "samples": 48,
+      "warmup": 3,
+      "mean_seconds": 1.702,
+      "peak_reserved_gib": 23.529296875,
+      "ideal_8gpu_epoch_hours": 14.088482291666667,
+      "gradients": {
+        "all_finite": true,
+        "nonzero_tensors": 261,
+        "gradient_tensors": 261
+      }
+    },
+    {
+      "name": "broad_c1h1",
+      "samples": 48,
+      "warmup": 3,
+      "mean_seconds": 0.601,
+      "peak_reserved_gib": 7.720703125,
+      "ideal_8gpu_epoch_hours": 4.974840104166666,
+      "gradients": {
+        "all_finite": true,
+        "nonzero_tensors": 90,
+        "gradient_tensors": 90
+      }
+    }
+  ]
+}

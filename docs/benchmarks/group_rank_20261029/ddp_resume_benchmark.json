@@ -1,0 +1,21 @@
+{
+  "event": "train",
+  "rank": 0,
+  "epoch": 1,
+  "step": 4,
+  "group_round": 4,
+  "train_group_loss": 1.307148888707161,
+  "mean_score_gap": 0.008453369140625,
+  "pairwise_accuracy": 0.6875,
+  "num_groups": 8,
+  "skipped_anchors": 0,
+  "lr": 0.0001,
+  "gradient_norm": 1.9924589395523071,
+  "ddp_checksum_equal": true,
+  "encoder_has_grad": false,
+  "peak_reserved_mib": 9488.0,
+  "peak_allocated_mib": 7168.94677734375,
+  "seconds_per_group_per_rank": 19.34607612155378,
+  "samples_per_second_per_rank": 0.15507020551095893,
+  "elapsed_seconds": 38.69215224310756
+}

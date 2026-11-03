@@ -1,0 +1,23 @@
+{
+  "original": "B_dual_enc3",
+  "repeated": "E_repeat_B_dual_enc3",
+  "passed": true,
+  "ranks": [
+    {
+      "rank": 0,
+      "updates": 24,
+      "final_parameters_equal": true,
+      "max_logit_difference": 0.0,
+      "max_loss_difference": 0.0,
+      "max_gradient_norm_difference": 0.0
+    },
+    {
+      "rank": 1,
+      "updates": 24,
+      "final_parameters_equal": true,
+      "max_logit_difference": 0.0,
+      "max_loss_difference": 0.0,
+      "max_gradient_norm_difference": 0.0
+    }
+  ]
+}

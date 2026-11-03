@@ -1,0 +1,40 @@
+{
+  "rank": 2,
+  "peak_allocated_MiB": 1671.798828125,
+  "peak_reserved_MiB": 2394.0,
+  "encoder_has_grad": false,
+  "records": [
+    {
+      "index": 2,
+      "produce_seconds": 5.608279000967741
+    },
+    {
+      "index": 5,
+      "produce_seconds": 6.246567310765386
+    },
+    {
+      "index": 8,
+      "produce_seconds": 6.369237571954727
+    },
+    {
+      "index": 11,
+      "produce_seconds": 6.270592490211129
+    },
+    {
+      "index": 14,
+      "produce_seconds": 6.314223049208522
+    },
+    {
+      "index": 17,
+      "produce_seconds": 6.561092710122466
+    },
+    {
+      "index": 20,
+      "produce_seconds": 6.3770814668387175
+    },
+    {
+      "index": 23,
+      "produce_seconds": 5.988913936540484
+    }
+  ]
+}

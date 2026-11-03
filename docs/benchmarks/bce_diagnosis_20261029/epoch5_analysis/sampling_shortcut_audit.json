@@ -1,0 +1,66 @@
+{
+  "top2": [
+    {
+      "pmhc_id": "pepmhc_001198",
+      "peptide": "VLDFAPPGA",
+      "hla_context": "HLA-A*02",
+      "n": 904,
+      "positives": 876,
+      "bce": 2.832032066448468,
+      "mean_probability": 0.09049204812401782,
+      "mean_logit": -2.832744767180586,
+      "negatives": 28,
+      "positive_fraction": 0.9690265486725663,
+      "loss_contribution": 0.33089789169825706
+    },
+    {
+      "pmhc_id": "pepmhc_001286",
+      "peptide": "YLQPRTFLL",
+      "hla_context": "HLA-A*02",
+      "n": 657,
+      "positives": 628,
+      "bce": 1.7233485615326027,
+      "mean_probability": 0.23312379919641477,
+      "mean_logit": -1.4968874508931758,
+      "negatives": 29,
+      "positive_fraction": 0.9558599695585996,
+      "loss_contribution": 0.14634095966484684
+    }
+  ],
+  "top2_total_loss_fraction": 0.5912309057572007,
+  "without_top2_bce": 0.4133538869963573,
+  "top2_positive_fraction_of_all_positives": 0.583171772004653,
+  "hla_stats": [
+    {
+      "hla_context": "HLA-A*02",
+      "n": 7689,
+      "positives": 2531,
+      "bce": 0.8007853637926793,
+      "mean_probability": 0.23740104401043813
+    },
+    {
+      "hla_context": "HLA-B*40:01",
+      "n": 48,
+      "positives": 48,
+      "bce": 1.8339986850817998,
+      "mean_probability": 0.20089271763524633
+    }
+  ],
+  "train_unique_peptides": 1111,
+  "val_unique_peptides": 138,
+  "train_val_peptide_intersection": 0,
+  "peptide_only_tcr_disjoint_crossfit": {
+    "train_epoch6": {
+      "bce": 0.5379891711210404,
+      "auroc": 0.7431780961400885,
+      "constant_prevalence_bce": 0.6365141682948128,
+      "warning": "Within-split diagnostic with disjoint TCR folds; does not evaluate unseen-peptide transfer."
+    },
+    "validation_internal_diagnostic": {
+      "bce": 0.2570318295295851,
+      "auroc": 0.9273354776950646,
+      "constant_prevalence_bce": 0.6365141682948128,
+      "warning": "Within-split diagnostic with disjoint TCR folds; does not evaluate unseen-peptide transfer."
+    }
+  }
+}

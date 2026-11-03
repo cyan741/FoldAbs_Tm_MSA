@@ -1,0 +1,14 @@
+{
+  "early": {
+    "saved_epoch": 2,
+    "step": 2480,
+    "cursor": 0,
+    "last_completed_epoch": 1
+  },
+  "late": {
+    "saved_epoch": 6,
+    "step": 14800,
+    "cursor": 7200,
+    "last_completed_epoch": 5
+  }
+}

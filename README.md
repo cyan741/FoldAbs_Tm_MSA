@@ -1,3 +1,5 @@
+> 2026-11-03 更新：MSA 建库、搜索和缓存代码已退役。统一提取入口为 `scripts/extract_protenix_embeddings.py`，支持 Protenix-base（默认 seed=101）和 Mini-ESM（默认 seed=42），均禁用 MSA；缓存审计入口为 `scripts/audit_tmp_feature_cache.py`。下文抗体 MSA 小库内容为历史项目背景，不再提供相应运行流程。
+
 # FoldAbS Tm 公开重建与抗体 MSA 小库技术分享包
 
 ## 这是什么

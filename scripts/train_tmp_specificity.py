@@ -24,6 +24,7 @@ from torch.nn.parallel import DistributedDataParallel
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 
+from foldabs_repro.tmp_prediction.checkpoints import archive_epoch, epoch_checkpoint_name
 from foldabs_repro.tmp_prediction.cache_audit import audit_cache
 from foldabs_repro.tmp_prediction.dataset import TMPFeatureDataset, examples_from_manifest, single_item
 from foldabs_repro.tmp_prediction.metrics import binary_metrics, macro_pmhc_metrics
@@ -103,9 +104,9 @@ def save_loss_curves(history: list[dict], output_dir: Path, stems: list[str]) ->
 
 def save_checkpoint(path, model, run_config, epoch, step, validation_metrics,
                     stopper, scheduler, current_lr, *, optimizer=None, sampling_state=None,
-                    rng_states=None, history=None, best_checkpoint=None) -> None:
-    """Save weights and epoch metadata without retaining an epoch-by-epoch archive."""
-    torch.save({
+                    rng_states=None, history=None, best_checkpoint=None) -> dict | None:
+    """Save weights and complete epoch-boundary resume state."""
+    payload = {
         "model": model.state_dict(), "model_config": model.config,
         "run_config": run_config, "epoch": epoch, "step": step,
         "threshold": 0.5, "feature_schema": "protenix_trunk_s_z_pdist_v1",
@@ -116,7 +117,12 @@ def save_checkpoint(path, model, run_config, epoch, step, validation_metrics,
         "optimizer_state": None if optimizer is None else optimizer.state_dict(),
         "sampling_state": sampling_state, "rng_states": rng_states,
         "history": history, "best_checkpoint": best_checkpoint,
-    }, path)
+    }
+    if path is None:
+        return payload
+    temporary = Path(path).with_name(Path(path).name + ".tmp")
+    torch.save(payload, temporary)
+    os.replace(temporary, path)
 
 
 def set_seed(seed: int) -> None:
@@ -235,6 +241,10 @@ def parse_args() -> argparse.Namespace:
                         help="Deprecated compatibility option; validation always runs once per epoch")
     parser.add_argument("--log-every", type=int, default=20)
     parser.add_argument("--pairformer-blocks", type=int, default=4)
+    parser.add_argument('--head-kernel', choices=['auto', 'torch', 'cuequivariance'], default='auto',
+                        help='auto uses cuEquivariance on CUDA and torch on CPU')
+    parser.add_argument('--activation-checkpoint', action='store_true',
+                        help='Trade extra head computation for lower activation memory')
     parser.add_argument(
         "--pooling-mode", choices=POOLING_MODES, default="A",
         help="A: all mean; B: single mean/pair attention; C: all attention",
@@ -350,7 +360,14 @@ class PeptideMismatchSampling:
                 raise ValueError("train.csv must contain positives only")
             if split != "train" and int(frame.label.eq(0).sum()) != 2 * len(positive):
                 raise ValueError(f"Fixed {split}.csv must have global ratio 1:2")
-        if self.blacklist != self.sampling.build_blacklist(source):
+        blacklist_source = source
+        known_path = root / "known_positives.csv"
+        if known_path.exists():
+            known = pd.read_csv(known_path, keep_default_na=False)
+            if list(known.columns) != ["tcra_v", "tcrb_v", "peptide"] or known.eq("").any().any():
+                raise ValueError("Invalid additional known-positive blacklist source")
+            blacklist_source = pd.concat([source, known], ignore_index=True)
+        if self.blacklist != self.sampling.build_blacklist(blacklist_source):
             raise ValueError("Blacklist must contain all positive TCR/peptide pairs across splits")
         self.fixed_negative_inputs = set()
         for split, frame in self.frames.items():
@@ -475,7 +492,10 @@ def run_training(
     peptide_mode = args.negative_sampling == "peptide_mismatch"
     peptide_sampling = PeptideMismatchSampling(args) if peptide_mode else None
     if peptide_mode:
-        epoch_frame, epoch_report = peptide_sampling.epoch(1)
+        # A resumed run only needs the upcoming epoch's feature files. The
+        # previous epoch's negatives may already have been reclaimed.
+        initial_epoch = int(torch.load(args.resume, map_location="cpu", weights_only=True)["epoch"]) + 1 if args.resume else 1
+        epoch_frame, epoch_report = peptide_sampling.epoch(initial_epoch)
         manifest = pd.concat([epoch_frame] + [peptide_sampling.manifest(peptide_sampling.frames[split], split)
                                              for split in ("val", "test")], ignore_index=True)
     else:
@@ -494,8 +514,14 @@ def run_training(
         raise ValueError("Sample IDs must be unique across all splits")
     if peptide_mode:
         sampling_state["peptide_identity"] = peptide_sampling.state()
-    sampling_state["records"] = sorted((row.sample_id, row.pmhc_id, row.label, split)
-                                       for split, rows in example_sets.items() for row in rows)
+    if peptide_mode:
+        stable = pd.concat([peptide_sampling.manifest(peptide_sampling.frames[split], split)
+                            for split in ("train", "val", "test")], ignore_index=True)
+        sampling_state["records"] = sorted((row.sample_id, row.pmhc_id, row.label, row.split)
+                                           for row in stable.itertuples(index=False))
+    else:
+        sampling_state["records"] = sorted((row.sample_id, row.pmhc_id, row.label, split)
+                                           for split, rows in example_sets.items() for row in rows)
     datasets = {name: TMPFeatureDataset(rows) for name, rows in example_sets.items()}
     train_sampler = (
         DistributedSampler(
@@ -532,6 +558,9 @@ def run_training(
         hidden_dim=args.hidden_dim,
         dropout=args.dropout,
         pooling_mode=args.pooling_mode,
+        triangle_multiplicative=('cuequivariance' if device.type == 'cuda' else 'torch') if args.head_kernel == 'auto' else args.head_kernel,
+        triangle_attention=('cuequivariance' if device.type == 'cuda' else 'torch') if args.head_kernel == 'auto' else args.head_kernel,
+        activation_checkpoint=args.activation_checkpoint,
     ).to(device)
     model = (
         DistributedDataParallel(raw_model, device_ids=[rank], output_device=rank)
@@ -560,6 +589,7 @@ def run_training(
         run_config = {
             **vars(args),
             "validation_schedule": "every_epoch",
+            "checkpoint_policy": "retain_every_epoch",
             "negative_pool_size": (epoch_report["unique_negative_capacity"] if peptide_mode
                                    else 0),
             "logical_epoch_samples": positives + negatives,
@@ -616,7 +646,11 @@ def run_training(
         history = resumed["history"]
         best_path = Path(resumed["best_checkpoint"])
         if not best_path.is_file():
-            raise FileNotFoundError(f"Resume needs retained validation-best checkpoint: {best_path}")
+            archived_best = Path(args.resume).parent / epoch_checkpoint_name(
+                world_size * args.gradient_accumulation, args.learning_rate, args.seed, resumed["best_epoch"])
+            if not archived_best.is_file():
+                raise FileNotFoundError(f"Resume needs retained validation-best checkpoint: {best_path}")
+            best_path = archived_best
         if is_main and best_path.parent.resolve() != output_dir.resolve():
             import shutil
             target = output_dir / best_path.name
@@ -774,13 +808,22 @@ def run_training(
                     )
                     # Delete only the previous best created by this run; keep
                     # exactly one validation-best checkpoint at any time.
-                    if best_path is not None and best_path != new_path:
+                    if (best_path is not None and best_path != new_path
+                            and best_path.name.startswith("lr") and "_val_best_ep" in best_path.name):
                         best_path.unlink()
                     best_path = new_path
                     log_line(
                         log, f"Checkpoint saved | epoch={train_epoch} "
                         f"step={optimizer_step} val_loss={stopper.best_loss:.6f} path={best_path}",
                     )
+                archive_epoch(
+                    save_checkpoint(None, raw_model, run_config, train_epoch, optimizer_step,
+                                    validation_metrics, stopper, scheduler, next_lr,
+                                    optimizer=optimizer, sampling_state=sampling_state, rng_states=rng_states,
+                                    history=history, best_checkpoint=str(best_path.resolve())),
+                    output_dir, batch_size=world_size * args.gradient_accumulation,
+                    learning_rate=args.learning_rate, seed=args.seed, epoch=train_epoch,
+                )
                 stop_tensor.fill_(int(stopper.should_stop))
             if distributed:
                 dist.broadcast(stop_tensor, src=0)

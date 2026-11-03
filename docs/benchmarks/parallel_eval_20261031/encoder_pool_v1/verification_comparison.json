@@ -1,0 +1,178 @@
+{
+  "same_group_order": true,
+  "max_logit_diff": 0.6474609375,
+  "max_loss_diff": 0.20287954807281494,
+  "first_logits": [
+    [
+      0.640625,
+      -7.28125,
+      -11.0
+    ],
+    [
+      0.578125,
+      -7.0,
+      -11.25
+    ]
+  ],
+  "first_features": [
+    {
+      "sample": 0,
+      "tensor": "single",
+      "shape": [
+        405,
+        384
+      ],
+      "dtype": "torch.bfloat16",
+      "equal": false,
+      "max_abs": 16.0,
+      "rms_diff": 0.7486216425895691,
+      "rms_reference": 208.53990173339844
+    },
+    {
+      "sample": 0,
+      "tensor": "pair",
+      "shape": [
+        405,
+        405,
+        128
+      ],
+      "dtype": "torch.bfloat16",
+      "equal": false,
+      "max_abs": 24.0,
+      "rms_diff": 0.5749379992485046,
+      "rms_reference": 28.934524536132812
+    },
+    {
+      "sample": 0,
+      "tensor": "probability",
+      "shape": [
+        405,
+        405,
+        64
+      ],
+      "dtype": "torch.float32",
+      "equal": false,
+      "max_abs": 0.45840367674827576,
+      "rms_diff": 0.005002645310014486,
+      "rms_reference": 0.1088777706027031
+    },
+    {
+      "sample": 0,
+      "tensor": "asym",
+      "shape": [
+        405
+      ],
+      "dtype": "torch.int64",
+      "equal": true,
+      "max_abs": 0.0,
+      "rms_diff": 0.0,
+      "rms_reference": 2.098794460296631
+    },
+    {
+      "sample": 1,
+      "tensor": "single",
+      "shape": [
+        405,
+        384
+      ],
+      "dtype": "torch.bfloat16",
+      "equal": false,
+      "max_abs": 16.0,
+      "rms_diff": 0.7815991044044495,
+      "rms_reference": 208.06057739257812
+    },
+    {
+      "sample": 1,
+      "tensor": "pair",
+      "shape": [
+        405,
+        405,
+        128
+      ],
+      "dtype": "torch.bfloat16",
+      "equal": false,
+      "max_abs": 26.0,
+      "rms_diff": 0.5983376502990723,
+      "rms_reference": 28.658184051513672
+    },
+    {
+      "sample": 1,
+      "tensor": "probability",
+      "shape": [
+        405,
+        405,
+        64
+      ],
+      "dtype": "torch.float32",
+      "equal": false,
+      "max_abs": 0.4589056372642517,
+      "rms_diff": 0.004939249251037836,
+      "rms_reference": 0.10836697369813919
+    },
+    {
+      "sample": 1,
+      "tensor": "asym",
+      "shape": [
+        405
+      ],
+      "dtype": "torch.int64",
+      "equal": true,
+      "max_abs": 0.0,
+      "rms_diff": 0.0,
+      "rms_reference": 2.098794460296631
+    },
+    {
+      "sample": 2,
+      "tensor": "single",
+      "shape": [
+        405,
+        384
+      ],
+      "dtype": "torch.bfloat16",
+      "equal": false,
+      "max_abs": 16.0,
+      "rms_diff": 0.7361150979995728,
+      "rms_reference": 206.3626251220703
+    },
+    {
+      "sample": 2,
+      "tensor": "pair",
+      "shape": [
+        405,
+        405,
+        128
+      ],
+      "dtype": "torch.bfloat16",
+      "equal": false,
+      "max_abs": 30.0,
+      "rms_diff": 0.5561313033103943,
+      "rms_reference": 28.794506072998047
+    },
+    {
+      "sample": 2,
+      "tensor": "probability",
+      "shape": [
+        405,
+        405,
+        64
+      ],
+      "dtype": "torch.float32",
+      "equal": false,
+      "max_abs": 0.5197815299034119,
+      "rms_diff": 0.004954594187438488,
+      "rms_reference": 0.10852397978305817
+    },
+    {
+      "sample": 2,
+      "tensor": "asym",
+      "shape": [
+        405
+      ],
+      "dtype": "torch.int64",
+      "equal": true,
+      "max_abs": 0.0,
+      "rms_diff": 0.0,
+      "rms_reference": 2.098794460296631
+    }
+  ]
+}

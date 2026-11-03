@@ -1,0 +1,248 @@
+[
+  {
+    "name": "enc1_g48",
+    "encoders_per_gpu": 1,
+    "world_size": 2,
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 24,
+    "nominal_global_batch": 6,
+    "seconds": 70.12204575538635,
+    "samples_per_second": 2.0535624488528104,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 122.04064464569092,
+    "returncode": 0,
+    "ranks": [
+      {
+        "rank": 0,
+        "wait_seconds": 55.341652339324355,
+        "head_seconds": 14.71286198310554,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 70,
+          "util_mean": 89.6,
+          "util_min": 36,
+          "util_p05": 64.0,
+          "util_p50": 97.5,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.6,
+          "fraction_below50": 0.02857142857142857,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 41520
+        },
+        "whole_process": {
+          "samples": 122,
+          "util_mean": 53.622950819672134,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 72.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.3524590163934426,
+          "fraction_below50": 0.4180327868852459,
+          "fraction_zero": 0.38524590163934425,
+          "physical_peak_MiB": 41520
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "a30b4f4f27eb4181cd30878cb8c2a4a8775f851f703c0fe33d22a8805c3ef883"
+      },
+      {
+        "rank": 1,
+        "wait_seconds": 54.69570707902312,
+        "head_seconds": 15.358084009960294,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 70,
+          "util_mean": 91.55714285714286,
+          "util_min": 48,
+          "util_p05": 64.9,
+          "util_p50": 98.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.6714285714285714,
+          "fraction_below50": 0.02857142857142857,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 41520
+        },
+        "whole_process": {
+          "samples": 122,
+          "util_mean": 54.877049180327866,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 71.5,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.4016393442622951,
+          "fraction_below50": 0.4262295081967213,
+          "fraction_zero": 0.36065573770491804,
+          "physical_peak_MiB": 41520
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "a30b4f4f27eb4181cd30878cb8c2a4a8775f851f703c0fe33d22a8805c3ef883"
+      }
+    ]
+  },
+  {
+    "name": "enc4_g48",
+    "encoders_per_gpu": 4,
+    "world_size": 2,
+    "activation_checkpoint": false,
+    "global_groups": 48,
+    "samples": 144,
+    "optimizer_updates": 24,
+    "nominal_global_batch": 6,
+    "seconds": 56.883909940719604,
+    "samples_per_second": 2.53147155584183,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "8672d97fb00f179028dfc26273ea7bfc5d818c4b438af01778ab25f06a703735",
+    "process_seconds": 114.03660440444946,
+    "returncode": 0,
+    "ranks": [
+      {
+        "rank": 0,
+        "wait_seconds": 18.678422510623932,
+        "head_seconds": 38.144861890003085,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 57,
+          "util_mean": 99.15789473684211,
+          "util_min": 60,
+          "util_p05": 100.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.9649122807017544,
+          "fraction_below50": 0.0,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 50235
+        },
+        "whole_process": {
+          "samples": 114,
+          "util_mean": 58.09649122807018,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.5614035087719298,
+          "fraction_below50": 0.42105263157894735,
+          "fraction_zero": 0.35964912280701755,
+          "physical_peak_MiB": 50235
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "f3855e6197386b8f00d12612a6aae4c4c2f1331bc35b045fd607e730af0361b9"
+      },
+      {
+        "rank": 1,
+        "wait_seconds": 17.41130238957703,
+        "head_seconds": 39.42697675898671,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 57,
+          "util_mean": 99.78947368421052,
+          "util_min": 88,
+          "util_p05": 100.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.9824561403508771,
+          "fraction_below50": 0.0,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 50235
+        },
+        "whole_process": {
+          "samples": 114,
+          "util_mean": 60.666666666666664,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.5877192982456141,
+          "fraction_below50": 0.39473684210526316,
+          "fraction_zero": 0.3508771929824561,
+          "physical_peak_MiB": 50235
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "f3855e6197386b8f00d12612a6aae4c4c2f1331bc35b045fd607e730af0361b9"
+      }
+    ]
+  },
+  {
+    "name": "enc4_g96",
+    "encoders_per_gpu": 4,
+    "world_size": 2,
+    "activation_checkpoint": false,
+    "global_groups": 96,
+    "samples": 288,
+    "optimizer_updates": 48,
+    "nominal_global_batch": 6,
+    "seconds": 113.17421627044678,
+    "samples_per_second": 2.544749232561777,
+    "parameter_checksums_equal": true,
+    "global_groups_hash": "b194afae81cc7a98044cf373148589715d858b80657f571e9765ab6f8d7a9e81",
+    "process_seconds": 169.04206705093384,
+    "returncode": 0,
+    "ranks": [
+      {
+        "rank": 0,
+        "wait_seconds": 32.67113743908703,
+        "head_seconds": 80.37256832234561,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 113,
+          "util_mean": 99.22123893805309,
+          "util_min": 14,
+          "util_p05": 100.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.9911504424778761,
+          "fraction_below50": 0.008849557522123894,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 50445
+        },
+        "whole_process": {
+          "samples": 169,
+          "util_mean": 74.03550295857988,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.727810650887574,
+          "fraction_below50": 0.2603550295857988,
+          "fraction_zero": 0.22485207100591717,
+          "physical_peak_MiB": 50445
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "ab095e572e001271b3173bc457c6baa3068244caa1d7004144a491a22834b360"
+      },
+      {
+        "rank": 1,
+        "wait_seconds": 30.580641513690352,
+        "head_seconds": 82.46628009527922,
+        "mean_gradient_sync_ms": null,
+        "training": {
+          "samples": 113,
+          "util_mean": 99.16814159292035,
+          "util_min": 6,
+          "util_p05": 100.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.9911504424778761,
+          "fraction_below50": 0.008849557522123894,
+          "fraction_zero": 0.0,
+          "physical_peak_MiB": 50445
+        },
+        "whole_process": {
+          "samples": 169,
+          "util_mean": 73.06508875739645,
+          "util_min": 0,
+          "util_p05": 0.0,
+          "util_p50": 100.0,
+          "util_p95": 100.0,
+          "fraction_ge95": 0.7218934911242604,
+          "fraction_below50": 0.27218934911242604,
+          "fraction_zero": 0.22485207100591717,
+          "physical_peak_MiB": 50445
+        },
+        "encoder_has_grad": false,
+        "head_parameter_sha256": "ab095e572e001271b3173bc457c6baa3068244caa1d7004144a491a22834b360"
+      }
+    ]
+  }
+]

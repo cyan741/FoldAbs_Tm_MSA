@@ -1,0 +1,48 @@
+{
+  "A_vs_B": [
+    {
+      "rank": 0,
+      "updates": 24,
+      "final_parameters_equal": true,
+      "max_logit_difference": 0.0,
+      "max_loss_difference": 0.0,
+      "max_gradient_norm_difference": 0.0
+    },
+    {
+      "rank": 1,
+      "updates": 24,
+      "final_parameters_equal": true,
+      "max_logit_difference": 0.0,
+      "max_loss_difference": 0.0,
+      "max_gradient_norm_difference": 0.0
+    }
+  ],
+  "B_vs_C": [
+    {
+      "rank": 0,
+      "updates": 24,
+      "final_parameters_equal": true,
+      "max_logit_difference": 0.0,
+      "max_loss_difference": 0.0,
+      "max_gradient_norm_difference": 0.0
+    },
+    {
+      "rank": 1,
+      "updates": 24,
+      "final_parameters_equal": true,
+      "max_logit_difference": 0.0,
+      "max_loss_difference": 0.0,
+      "max_gradient_norm_difference": 0.0
+    }
+  ],
+  "single_cp_vs_no_cp": [
+    {
+      "rank": 0,
+      "updates": 48,
+      "final_parameters_equal": true,
+      "max_logit_difference": 0.0,
+      "max_loss_difference": 0.0,
+      "max_gradient_norm_difference": 0.0
+    }
+  ]
+}

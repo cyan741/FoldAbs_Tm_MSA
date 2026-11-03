@@ -1,0 +1,18 @@
+{
+  "step2480_before_after": [
+    {
+      "step": 2480,
+      "train_group_loss": 1.0285895129586222,
+      "mean_score_gap": 1.0303150221224755,
+      "pairwise_accuracy": 0.6913306451612903,
+      "gradient_norm": 4.330106735229492
+    },
+    {
+      "step": 2480,
+      "train_group_loss": 1.0287735058357668,
+      "mean_score_gap": 1.0297191564113863,
+      "pairwise_accuracy": 0.6912298387096775,
+      "gradient_norm": 4.197400093078613
+    }
+  ]
+}

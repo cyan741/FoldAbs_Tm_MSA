@@ -1,0 +1,221 @@
+{
+  "mode": "online",
+  "hostname": "Tang3",
+  "visible_gpu": "1,4",
+  "gpu": "NVIDIA A40",
+  "samples": [
+    {
+      "id": "pepneg_train_000000_00050",
+      "warmup": true,
+      "featurize_seconds": 8.479373142123222,
+      "h2d_seconds": 0.06491711921989918,
+      "infer_seconds": 2.3471337342634797,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67743920,
+      "peer_transfer_seconds": 0.011922045610845089,
+      "head_forward_seconds": 0.4082233738154173,
+      "route_to_forward_seconds": 11.314713014289737,
+      "backward_step_seconds": 0.9651129227131605,
+      "loss": 0.6889142394065857,
+      "wall_seconds": 12.285243824124336,
+      "peak_allocated_mib": 6867.03662109375,
+      "peak_reserved_mib": 8096.0
+    },
+    {
+      "id": "pepneg_train_000000_00081",
+      "warmup": false,
+      "featurize_seconds": 0.4386191889643669,
+      "h2d_seconds": 0.06126169115304947,
+      "infer_seconds": 1.2023214614018798,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67743920,
+      "peer_transfer_seconds": 0.009256293065845966,
+      "head_forward_seconds": 0.2487816885113716,
+      "route_to_forward_seconds": 1.961995018646121,
+      "backward_step_seconds": 0.8444858742877841,
+      "loss": 0.6095595955848694,
+      "wall_seconds": 2.8084530234336853,
+      "peak_allocated_mib": 6976.51416015625,
+      "peak_reserved_mib": 8098.0
+    },
+    {
+      "id": "pepneg_train_000001_00004",
+      "warmup": false,
+      "featurize_seconds": 0.4540348583832383,
+      "h2d_seconds": 0.06380962394177914,
+      "infer_seconds": 1.2110539404675364,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 68390608,
+      "peer_transfer_seconds": 0.008562209084630013,
+      "head_forward_seconds": 0.25382454227656126,
+      "route_to_forward_seconds": 1.992799990810454,
+      "backward_step_seconds": 0.8636349067091942,
+      "loss": 0.536781370639801,
+      "wall_seconds": 2.8583232378587127,
+      "peak_allocated_mib": 7056.85107421875,
+      "peak_reserved_mib": 10948.0
+    },
+    {
+      "id": "pepneg_train_000001_00088",
+      "warmup": false,
+      "featurize_seconds": 0.43913717195391655,
+      "h2d_seconds": 0.06499705649912357,
+      "infer_seconds": 1.2107941852882504,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 68390608,
+      "peer_transfer_seconds": 0.008535374887287617,
+      "head_forward_seconds": 0.2530641686171293,
+      "route_to_forward_seconds": 1.9781401306390762,
+      "backward_step_seconds": 0.8640688629820943,
+      "loss": 0.468206524848938,
+      "wall_seconds": 2.8441922944039106,
+      "peak_allocated_mib": 7056.85107421875,
+      "peak_reserved_mib": 10948.0
+    },
+    {
+      "id": "pepneg_train_000002_00040",
+      "warmup": false,
+      "featurize_seconds": 0.44871855713427067,
+      "h2d_seconds": 0.06979751493781805,
+      "infer_seconds": 1.204368233680725,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67743920,
+      "peer_transfer_seconds": 0.01051345095038414,
+      "head_forward_seconds": 0.24919482693076134,
+      "route_to_forward_seconds": 1.9842239245772362,
+      "backward_step_seconds": 0.844215895049274,
+      "loss": 0.40997183322906494,
+      "wall_seconds": 2.830403408035636,
+      "peak_allocated_mib": 7056.85107421875,
+      "peak_reserved_mib": 10948.0
+    },
+    {
+      "id": "pepneg_train_000002_00091",
+      "warmup": false,
+      "featurize_seconds": 0.438368733972311,
+      "h2d_seconds": 0.0706349266692996,
+      "infer_seconds": 1.2030948186293244,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67743920,
+      "peer_transfer_seconds": 0.008623882196843624,
+      "head_forward_seconds": 0.24893122632056475,
+      "route_to_forward_seconds": 1.9714221805334091,
+      "backward_step_seconds": 0.8465972617268562,
+      "loss": 0.35306715965270996,
+      "wall_seconds": 2.8199317110702395,
+      "peak_allocated_mib": 7056.85107421875,
+      "peak_reserved_mib": 10948.0
+    }
+  ],
+  "kernel_backend": "cuequivariance/cuequivariance",
+  "precision": {
+    "encoder_autocast": "bf16",
+    "joint_feature": "fp16",
+    "head_parameters": "fp32",
+    "head_autocast": "bf16"
+  },
+  "head_ddp": false,
+  "feature_transfer": "cross-GPU copy",
+  "peer_access": true,
+  "initial_free_mib": 32739.3125,
+  "startup_seconds": 7.625247061252594,
+  "startup_to_first_forward_seconds": 18.939999013207853,
+  "run_seconds": 34.07832508068532,
+  "summary": {
+    "featurize_seconds": {
+      "count": 5,
+      "mean": 0.444,
+      "median": 0.439,
+      "min": 0.438,
+      "max": 0.454
+    },
+    "read_seconds": {},
+    "h2d_seconds": {
+      "count": 5,
+      "mean": 0.066,
+      "median": 0.065,
+      "min": 0.061,
+      "max": 0.071
+    },
+    "infer_seconds": {
+      "count": 5,
+      "mean": 1.206,
+      "median": 1.204,
+      "min": 1.202,
+      "max": 1.211
+    },
+    "d2h_seconds": {},
+    "save_fsync_seconds": {},
+    "head_forward_seconds": {
+      "count": 5,
+      "mean": 0.251,
+      "median": 0.249,
+      "min": 0.249,
+      "max": 0.254
+    },
+    "backward_step_seconds": {
+      "count": 5,
+      "mean": 0.853,
+      "median": 0.847,
+      "min": 0.844,
+      "max": 0.864
+    },
+    "peer_transfer_seconds": {
+      "count": 5,
+      "mean": 0.009,
+      "median": 0.009,
+      "min": 0.009,
+      "max": 0.011
+    },
+    "route_to_forward_seconds": {
+      "count": 5,
+      "mean": 1.978,
+      "median": 1.978,
+      "min": 1.962,
+      "max": 1.993
+    },
+    "wall_seconds": {
+      "count": 5,
+      "mean": 2.832,
+      "median": 2.83,
+      "min": 2.808,
+      "max": 2.858
+    }
+  }
+}

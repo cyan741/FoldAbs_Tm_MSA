@@ -1,0 +1,194 @@
+{
+  "mode": "write",
+  "hostname": "Tang3",
+  "visible_gpu": "1",
+  "gpu": "NVIDIA A40",
+  "samples": [
+    {
+      "id": "L4_0000001",
+      "warmup": true,
+      "featurize_seconds": 9.62701285071671,
+      "h2d_seconds": 0.06537671387195587,
+      "infer_seconds": 2.4497053856030107,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67100304,
+      "d2h_seconds": 0.062280746176838875,
+      "save_fsync_seconds": 1.1133381025865674,
+      "file_bytes": 67103166,
+      "wall_seconds": 13.327246975153685,
+      "peak_allocated_mib": 1483.462890625,
+      "peak_reserved_mib": 2112.0
+    },
+    {
+      "id": "L4_0000002",
+      "warmup": false,
+      "featurize_seconds": 0.5054975412786007,
+      "h2d_seconds": 0.0706776911392808,
+      "infer_seconds": 1.1947648786008358,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67100304,
+      "d2h_seconds": 0.05099509283900261,
+      "save_fsync_seconds": 2.0005494644865394,
+      "file_bytes": 67103166,
+      "wall_seconds": 3.8247330393642187,
+      "peak_allocated_mib": 1484.8720703125,
+      "peak_reserved_mib": 2322.0
+    },
+    {
+      "id": "L4_0000003",
+      "warmup": false,
+      "featurize_seconds": 0.5448119677603245,
+      "h2d_seconds": 0.07312479335814714,
+      "infer_seconds": 1.1913652820512652,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67100304,
+      "d2h_seconds": 0.04804248549044132,
+      "save_fsync_seconds": 0.869443180039525,
+      "file_bytes": 67103166,
+      "wall_seconds": 2.729664711281657,
+      "peak_allocated_mib": 1484.8720703125,
+      "peak_reserved_mib": 2322.0
+    },
+    {
+      "id": "L4_0000004",
+      "warmup": false,
+      "featurize_seconds": 0.50881443079561,
+      "h2d_seconds": 0.04645812418311834,
+      "infer_seconds": 1.1724816979840398,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 66779648,
+      "d2h_seconds": 0.06127277109771967,
+      "save_fsync_seconds": 1.2413766281679273,
+      "file_bytes": 66782526,
+      "wall_seconds": 3.0445679500699043,
+      "peak_allocated_mib": 1484.8720703125,
+      "peak_reserved_mib": 2322.0
+    },
+    {
+      "id": "L4_0000005",
+      "warmup": false,
+      "featurize_seconds": 0.5207401439547539,
+      "h2d_seconds": 0.09218450356274843,
+      "infer_seconds": 1.164530179463327,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 66779648,
+      "d2h_seconds": 0.04643031116575003,
+      "save_fsync_seconds": 1.0644334042444825,
+      "file_bytes": 66782526,
+      "wall_seconds": 2.9010927621275187,
+      "peak_allocated_mib": 1484.8720703125,
+      "peak_reserved_mib": 2322.0
+    },
+    {
+      "id": "L4_0000006",
+      "warmup": false,
+      "featurize_seconds": 0.5291943205520511,
+      "h2d_seconds": 0.07334743347018957,
+      "infer_seconds": 1.1933701802045107,
+      "feature_dtypes": {
+        "s": "torch.float16",
+        "z": "torch.float16",
+        "p_dist": "torch.float16",
+        "token_asym_id": "torch.int64",
+        "token_residue_index": "torch.int64"
+      },
+      "feature_bytes": 67100304,
+      "d2h_seconds": 0.04770814720541239,
+      "save_fsync_seconds": 0.89356729388237,
+      "file_bytes": 67103166,
+      "wall_seconds": 2.740302768535912,
+      "peak_allocated_mib": 1484.8720703125,
+      "peak_reserved_mib": 2322.0
+    }
+  ],
+  "kernel_backend": "cuequivariance/cuequivariance",
+  "precision": {
+    "encoder_autocast": "bf16",
+    "joint_feature": "fp16",
+    "head_parameters": "fp32",
+    "head_autocast": "bf16"
+  },
+  "head_ddp": false,
+  "feature_transfer": "same-device tensors",
+  "initial_free_mib": 32739.3125,
+  "startup_seconds": 4.7129216799512506,
+  "run_seconds": 33.29260971862823,
+  "summary": {
+    "featurize_seconds": {
+      "count": 5,
+      "mean": 0.522,
+      "median": 0.521,
+      "min": 0.505,
+      "max": 0.545
+    },
+    "read_seconds": {},
+    "h2d_seconds": {
+      "count": 5,
+      "mean": 0.071,
+      "median": 0.073,
+      "min": 0.046,
+      "max": 0.092
+    },
+    "infer_seconds": {
+      "count": 5,
+      "mean": 1.183,
+      "median": 1.191,
+      "min": 1.165,
+      "max": 1.195
+    },
+    "d2h_seconds": {
+      "count": 5,
+      "mean": 0.051,
+      "median": 0.048,
+      "min": 0.046,
+      "max": 0.061
+    },
+    "save_fsync_seconds": {
+      "count": 5,
+      "mean": 1.214,
+      "median": 1.064,
+      "min": 0.869,
+      "max": 2.001
+    },
+    "head_forward_seconds": {},
+    "backward_step_seconds": {},
+    "route_to_forward_seconds": {},
+    "wall_seconds": {
+      "count": 5,
+      "mean": 3.048,
+      "median": 2.901,
+      "min": 2.73,
+      "max": 3.825
+    }
+  }
+}

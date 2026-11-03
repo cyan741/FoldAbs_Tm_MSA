@@ -1,0 +1,29 @@
+{
+  "resume": "/NAS/luyq/foldabs_group_rank_20261029/lr_0.0001_bs_2_wd_0.01_drop_0.1_group_rank_k_2/resume_before_parallel_eval_step21400.pt",
+  "epoch": 9,
+  "cursor": 1560,
+  "step": 21400,
+  "old_benchmark": {
+    "event": "train",
+    "rank": 0,
+    "epoch": 9,
+    "step": 21420,
+    "group_round": 1580,
+    "train_group_loss": 0.28790214563680744,
+    "mean_score_gap": 6.846917011768003,
+    "pairwise_accuracy": 0.9310126582278481,
+    "num_groups": 3160,
+    "skipped_anchors": 0,
+    "lr": 0.0001,
+    "gradient_norm": 11.479888916015625,
+    "ddp_checksum_equal": true,
+    "encoder_has_grad": false,
+    "peak_reserved_mib": 73340.0,
+    "peak_allocated_mib": 37232.03515625,
+    "seconds_per_group_per_rank": 3.1285434110532897,
+    "samples_per_second_per_rank": 0.9589126970080901,
+    "elapsed_seconds": 3816.8229614850134
+  },
+  "time": "2026-10-31 01:08:55",
+  "sha256": "620fd980aa1350802daeaf50bddc8f55356c314701a8ffc908ccf934868f10e0"
+}
