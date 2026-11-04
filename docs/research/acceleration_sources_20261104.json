@@ -1,0 +1,241 @@
+{
+  "retrieved_date": "2026-11-04",
+  "scope": "GitHub API/source static reads only; no model execution or benchmarks",
+  "target": {
+    "repo": "cyan741/FoldAbs_Tm_MSA",
+    "ref": "tmp-specificity",
+    "sha": "2536d49dd0231bfcb06aabcb17ffd0e18125c3a9"
+  },
+  "projects": [
+    {
+      "repo": "modelscope/ms-swift",
+      "url": "https://github.com/modelscope/ms-swift",
+      "archived": false,
+      "pushed_at": "2026-11-04T09:54:08Z",
+      "default_branch_last_commit": {
+        "sha": "9853e4672d014e35e2b6ba1bfd26d8204100adbb",
+        "committed_at": "2026-11-04T09:54:07Z",
+        "url": "https://github.com/modelscope/ms-swift/commit/9853e4672d014e35e2b6ba1bfd26d8204100adbb"
+      },
+      "license_api": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "license_source_url": "https://github.com/modelscope/ms-swift/blob/main/LICENSE",
+      "license_text_verified": true
+    },
+    {
+      "repo": "deepspeedai/DeepSpeed",
+      "url": "https://github.com/deepspeedai/DeepSpeed",
+      "archived": false,
+      "pushed_at": "2026-11-04T07:41:31Z",
+      "default_branch_last_commit": {
+        "sha": "d8241a9ba266405e1a58fadf19e24b2370f6d7fa",
+        "committed_at": "2026-11-04T06:42:56Z",
+        "url": "https://github.com/deepspeedai/DeepSpeed/commit/d8241a9ba266405e1a58fadf19e24b2370f6d7fa"
+      },
+      "license_api": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "license_source_url": "https://github.com/deepspeedai/DeepSpeed/blob/master/LICENSE",
+      "license_text_verified": true
+    },
+    {
+      "repo": "NVIDIA/Megatron-LM",
+      "url": "https://github.com/NVIDIA/Megatron-LM",
+      "archived": false,
+      "pushed_at": "2026-11-04T09:23:43Z",
+      "default_branch_last_commit": {
+        "sha": "77bcb7fe27ce33cc61be8314b3deaf574edaa9a8",
+        "committed_at": "2026-11-04T09:06:35Z",
+        "url": "https://github.com/NVIDIA/Megatron-LM/commit/77bcb7fe27ce33cc61be8314b3deaf574edaa9a8"
+      },
+      "license_api": {
+        "key": "other",
+        "name": "Other",
+        "spdx_id": "NOASSERTION",
+        "url": null,
+        "node_id": "MDc6TGljZW5zZTA="
+      },
+      "license_source_url": "https://github.com/NVIDIA/Megatron-LM/blob/main/LICENSE",
+      "license_text_verified": true
+    },
+    {
+      "repo": "aqlaboratory/openfold",
+      "url": "https://github.com/aqlaboratory/openfold",
+      "archived": false,
+      "pushed_at": "2025-12-16T09:41:53Z",
+      "default_branch_last_commit": {
+        "sha": "be2ec1841f16c966c65ae0e7599ebbadc725757d",
+        "committed_at": "2025-12-16T09:41:53Z",
+        "url": "https://github.com/aqlaboratory/openfold/commit/be2ec1841f16c966c65ae0e7599ebbadc725757d"
+      },
+      "license_api": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "license_source_url": "https://github.com/aqlaboratory/openfold/blob/main/LICENSE",
+      "license_text_verified": true
+    },
+    {
+      "repo": "sgl-project/sglang",
+      "url": "https://github.com/sgl-project/sglang",
+      "archived": false,
+      "pushed_at": "2026-11-04T09:49:35Z",
+      "default_branch_last_commit": {
+        "sha": "27aedf7f93cc7ac3bff43e7150e42a3c0baa6957",
+        "committed_at": "2026-11-04T09:49:32Z",
+        "url": "https://github.com/sgl-project/sglang/commit/27aedf7f93cc7ac3bff43e7150e42a3c0baa6957"
+      },
+      "license_api": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "license_source_url": null,
+      "license_text_verified": false
+    },
+    {
+      "repo": "hpcaitech/FastFold",
+      "url": "https://github.com/hpcaitech/FastFold",
+      "archived": false,
+      "pushed_at": "2024-07-16T06:14:42Z",
+      "default_branch_last_commit": {
+        "sha": "eba496808a91bbcd9661cf832349a418b197015f",
+        "committed_at": "2023-07-11T10:09:59Z",
+        "url": "https://github.com/hpcaitech/FastFold/commit/eba496808a91bbcd9661cf832349a418b197015f"
+      },
+      "license_api": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "license_source_url": "https://github.com/hpcaitech/FastFold/blob/main/LICENSE",
+      "license_text_verified": true
+    },
+    {
+      "repo": "jwohlwend/boltz",
+      "url": "https://github.com/jwohlwend/boltz",
+      "archived": false,
+      "pushed_at": "2026-05-29T08:20:25Z",
+      "default_branch_last_commit": {
+        "sha": "b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc",
+        "committed_at": "2026-05-29T08:20:25Z",
+        "url": "https://github.com/jwohlwend/boltz/commit/b1ebfc46ecf57f5414e0d1a6f9027bbb122c53bc"
+      },
+      "license_api": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "license_source_url": "https://github.com/jwohlwend/boltz/blob/main/LICENSE",
+      "license_text_verified": true
+    },
+    {
+      "repo": "bytedance/Protenix",
+      "url": "https://github.com/bytedance/Protenix",
+      "archived": false,
+      "pushed_at": "2026-09-21T07:04:06Z",
+      "default_branch_last_commit": {
+        "sha": "85767b811c40ed46e73a9b39519cf6bfca8701ba",
+        "committed_at": "2026-09-21T06:53:56Z",
+        "url": "https://github.com/bytedance/Protenix/commit/85767b811c40ed46e73a9b39519cf6bfca8701ba"
+      },
+      "license_api": {
+        "key": "apache-2.0",
+        "name": "Apache License 2.0",
+        "spdx_id": "Apache-2.0",
+        "url": "https://api.github.com/licenses/apache-2.0",
+        "node_id": "MDc6TGljZW5zZTI="
+      },
+      "license_source_url": "https://github.com/bytedance/Protenix/blob/main/LICENSE",
+      "license_text_verified": true
+    },
+    {
+      "repo": "NVIDIA/cuEquivariance",
+      "url": "https://github.com/NVIDIA/cuEquivariance",
+      "archived": false,
+      "pushed_at": "2026-11-03T18:06:06Z",
+      "default_branch_last_commit": {
+        "sha": "f5c9ada7ca688ad062f3b7d5125a1fbd0b71cd40",
+        "committed_at": "2026-10-30T16:36:58Z",
+        "url": "https://github.com/NVIDIA/cuEquivariance/commit/f5c9ada7ca688ad062f3b7d5125a1fbd0b71cd40"
+      },
+      "license_api": null,
+      "license_readme_statement": "All files hosted in this repository are subject to the Apache 2.0 license.",
+      "caveat": "External kernel wheel terms not independently verified."
+    }
+  ],
+  "design_evidence": [
+    {
+      "claim": "Protenix code and weight license distinctions; shared-variable cache is diffusion-specific",
+      "url": "https://github.com/bytedance/Protenix/blob/85767b811c40ed46e73a9b39519cf6bfca8701ba/README.md"
+    },
+    {
+      "claim": "Protenix dependency pins",
+      "url": "https://github.com/bytedance/Protenix/blob/85767b811c40ed46e73a9b39519cf6bfca8701ba/requirements.txt"
+    },
+    {
+      "claim": "Protenix query prescaling and SDPA scale=1.0",
+      "url": "https://github.com/bytedance/Protenix/blob/85767b811c40ed46e73a9b39519cf6bfca8701ba/protenix/model/modules/primitives.py"
+    },
+    {
+      "claim": "DS4Sci CUDA, architecture and CUTLASS builder constraints",
+      "url": "https://github.com/deepspeedai/DeepSpeed/blob/d8241a9ba266405e1a58fadf19e24b2370f6d7fa/op_builder/evoformer_attn.py"
+    },
+    {
+      "claim": "DS4Sci input, bias, length and backward head-dimension constraints",
+      "url": "https://github.com/deepspeedai/DeepSpeed/blob/d8241a9ba266405e1a58fadf19e24b2370f6d7fa/deepspeed/ops/deepspeed4science/evoformer_attn.py"
+    },
+    {
+      "claim": "Protenix v1.0.0 to_device changes device without changing dtype",
+      "url": "https://github.com/bytedance/Protenix/blob/v1.0.0/protenix/utils/torch_utils.py"
+    },
+    {
+      "claim": "PyTorch DDP pre-forward moves tensor arguments for configured device_ids",
+      "url": "https://github.com/pytorch/pytorch/blob/v2.7.1/torch/nn/parallel/distributed.py"
+    }
+  ],
+  "issues": [
+    {
+      "repo": "aqlaboratory/openfold",
+      "number": 560,
+      "kind": "merged PR",
+      "finding": "Fixed cuEquivariance fallback and scaling"
+    },
+    {
+      "repo": "aqlaboratory/openfold",
+      "number": 582,
+      "kind": "open user report",
+      "finding": "accumulate_grad_batches may be filtered out"
+    },
+    {
+      "repo": "hpcaitech/FastFold",
+      "number": 194,
+      "kind": "open user report",
+      "finding": "old conda package availability"
+    },
+    {
+      "repo": "jwohlwend/boltz",
+      "number": 638,
+      "kind": "closed historical report",
+      "finding": "trifast/torch/CUDA version incompatibility"
+    }
+  ]
+}

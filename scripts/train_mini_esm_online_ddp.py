@@ -223,8 +223,11 @@ class OnlineFeatures:
         data, _, error = batch[0]
         if error or data["sample_name"] != expected_id:
             raise RuntimeError(f"Featurization failed for {expected_id}: {error}")
+        # The loader owns CPU metadata; reading it after to_device would force
+        # a device-to-host synchronization before each encoder invocation.
+        token_count = int(data["N_token"].item())
         data = to_device(data, self.device)
-        self.runner.update_model_configs(update_inference_configs(self.runner.configs, int(data["N_token"].item())))
+        self.runner.update_model_configs(update_inference_configs(self.runner.configs, token_count))
         with torch.random.fork_rng(devices=[self.device.index]):
             torch.random.default_generator.manual_seed(42)
             with torch.cuda.device(self.device):

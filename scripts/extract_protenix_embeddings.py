@@ -456,6 +456,11 @@ def main() -> None:
     parser.add_argument('--work-dir', help='Local preprocessing directory, separate from the feature mount')
     parser.add_argument('--esm-cache-dir', help='Precomputed cache from extract_protenix_esm_chains.py')
     parser.add_argument(
+        '--reuse-cuda-cache', action='store_true',
+        help=('Keep unused CUDA allocator blocks between samples instead of calling '
+              'empty_cache; may reduce allocation overhead but retains more reserved VRAM.'),
+    )
+    parser.add_argument(
         "--gpu-ids",
         default=None,
         help=(
@@ -648,18 +653,19 @@ def main() -> None:
 
             output_path = output_dir / f"{sample_name}.pt"
             sample_start = time.perf_counter()
-            data = to_device(data, runner.device)
+            # Read loader metadata and verify cached ESM identity on CPU before
+            # transferring inputs. Neither check needs GPU computation.
             token_count = int(data["N_token"].item())
-            runner.update_model_configs(update_inference_configs(configs, token_count))
-            features = data["input_feature_dict"]
-
             seqs = _record_sequences(record, is_mini)
             if is_mini:
-                expected = torch.cat([load_chain(args.esm_cache_dir, seq, actual_esm_spec) for seq in seqs]).to(runner.device)
-                actual = features['esm_token_embedding']
+                expected = torch.cat([load_chain(args.esm_cache_dir, seq, actual_esm_spec) for seq in seqs])
+                actual = data['input_feature_dict']['esm_token_embedding']
                 if actual.shape != expected.shape or not torch.equal(actual.float(), expected):
                     raise ValueError('Featurizer ESM tokens differ from validated chain cache')
                 del expected, actual
+            data = to_device(data, runner.device)
+            runner.update_model_configs(update_inference_configs(configs, token_count))
+            features = data["input_feature_dict"]
             # A sample's RNG is independent of shard count and resume position.
             if is_mini:
                 seed_rng(args.seed)
@@ -718,7 +724,8 @@ def main() -> None:
                 }
             )
             del _s_inputs, s, z, p_dist, features, data
-            torch.cuda.empty_cache()
+            if not args.reuse_cuda_cache:
+                torch.cuda.empty_cache()
             print(
                 f"[{input_index + 1}] saved {output_path.name} "
                 f"({elapsed:.2f}s, {output_path.stat().st_size / 1024**2:.2f} MiB)",

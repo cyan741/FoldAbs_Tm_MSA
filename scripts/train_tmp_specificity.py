@@ -167,7 +167,8 @@ def evaluate(model, loader, device, loss_pos_weight=None, precision="fp32"):
                             enabled=precision == "bf16"):
             logit = model(
                 batch["s"].to(device), batch["z"].to(device), batch["p_dist"].to(device),
-                batch["token_asym_id"].to(device), batch["roles"],
+                # The head maps chain IDs on CPU, then moves masks to s.device.
+                batch["token_asym_id"], batch["roles"],
             ).float()
         target = batch["label"].to(device)
         losses.append(float(F.binary_cross_entropy_with_logits(logit, target, pos_weight=loss_pos_weight).item()))
@@ -711,7 +712,7 @@ def run_training(
                                         enabled=args.precision == "bf16"):
                         logit = model(
                             batch["s"].to(device), batch["z"].to(device),
-                            batch["p_dist"].to(device), batch["token_asym_id"].to(device),
+                            batch["p_dist"].to(device), batch["token_asym_id"],
                             batch["roles"],
                         ).float()
                     target = batch["label"].to(device)

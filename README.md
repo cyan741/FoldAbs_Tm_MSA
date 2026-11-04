@@ -1,5 +1,7 @@
 # TCR–pMHC 特异性预测：无 MSA Protenix / Mini-ESM
 
+> `feat/accelerate` 的静态优化范围和未验证事项见 [训练加速分析](docs/deliverys/TRAINING_ACCELERATION_STATIC_20261104.md)。本分支基线不含下文引用的 `group_encoder_pool.py` / `launch_group_pool_training.py`，当前在线训练统一 CLI 也未声明对应编码器池参数；历史池基准不能视为主线已经接入。
+
 本仓库当前用于 **MHC-I 配对 TCRαβ 与 peptide–HLA 的特异性预测**：复用 ESM 单链表征，由冻结的 Protenix encoder 生成四链联合特征，再训练分类或组内排序头。主要数据流程围绕 HiTPH 固定划分、动态肽错配负样本和 IMMREP2025 相关子集展开。
 
 仓库名 `FoldAbS_Tm_MSA` 和 Python 包名 `foldabs_repro` 沿用早期抗体 Tm 重建项目。**当前主线不需要 MSA 建库、搜索或缓存**；相关实现及 `data/tmp_msa` 链接已移除。项目是基于公开方法的工程研究实现，不是 FoldAbS 官方代码，也不声称完整复现其结构特异性模型。
