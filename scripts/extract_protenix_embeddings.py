@@ -23,6 +23,9 @@ from protenix_embedding_profile import (DTYPES, atomic_save, cached_esm_dataload
     esm_spec, load_chain, reject_msa_templates, seed_rng, sequences, stabilize_esm_paths, validate_joint, versions)
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from foldabs_repro.tmp_prediction.geometry import sample_d_geomt
+
 DEFAULT_PROTENIX_ROOT = Path(__file__).resolve().parents[1] / ".foldtmp-run" / "protenix_assets"
 os.environ.setdefault("PROTENIX_ROOT_DIR", str(DEFAULT_PROTENIX_ROOT))
 os.environ.setdefault("LAYERNORM_TYPE", "torch")
@@ -117,12 +120,17 @@ def _same_profile(left, right):
 
 
 def _base_spec(args, checkpoint):
-    # Preserve the legacy on-disk schema so completed base caches remain reusable.
-    return {'model': 'protenix-v1', 'package_version': version('protenix'),
+    # Preserve the legacy on-disk schema for existing trunk-only caches.
+    spec = {'model': 'protenix-v1', 'package_version': version('protenix'),
             'cycles': args.cycles, 'use_msa': False, 'seed': args.seed,
             'sampling_policy': 'fixed_per_record', 'deterministic_algorithms': True,
             'inference_precision': args.dtype, 'cache_precision': args.cache_dtype,
             'checkpoint': str(checkpoint), 'checkpoint_bytes': checkpoint.stat().st_size}
+    if args.use_d_geomt:
+        spec['diffusion_geometry'] = {'feature': 'd_geomt', 'steps': args.diffusion_steps,
+                                     'samples': args.diffusion_samples, 'bins': 64,
+                                     'max_angstrom': 22.0, 'atom': 'CA'}
+    return spec
 
 
 def _record_sequences(record, mini):
@@ -132,9 +140,26 @@ def _record_sequences(record, mini):
     return [chain['proteinChain']['sequence'] for chain in record['sequences']]
 
 
+def _validate_geometry(payload, spec):
+    geometry_expected = bool(spec.get('diffusion_geometry', {}).get('feature') == 'd_geomt')
+    if not geometry_expected:
+        return
+    value = payload.get('d_geomt')
+    n = payload['s'].shape[0]
+    if (not isinstance(value, torch.Tensor) or value.shape != (n, n, 64)
+            or value.dtype != DTYPES[spec['cache_precision']]):
+        raise ValueError('Diffusion d_geomt missing or invalid shape/dtype')
+    probs = value.float()
+    if (not torch.isfinite(probs).all() or (probs < 0).any()
+            or (probs > 1).any()
+            or not torch.allclose(probs.sum(-1), torch.ones((n, n)), atol=0.003, rtol=0)):
+        raise ValueError('Invalid diffusion geometry probabilities')
+
+
 def _validate_payload(payload, record, spec):
     if spec.get('model') != 'protenix-v1':
         validate_joint(payload, record, spec)
+        _validate_geometry(payload, spec)
         return
     if payload.get('sample_name') != record['name'] or payload.get('input_sequences') != _record_sequences(record, False):
         raise ValueError('Sample or sequence identity mismatch')
@@ -150,6 +175,7 @@ def _validate_payload(payload, record, spec):
     # Legacy base caches store token indices as FP16. Do not rewrite them on resume.
     if any(payload[k].dtype != DTYPES[spec['cache_precision']] for k in ('s', 'z', 'p_dist')):
         raise ValueError('Base cache precision mismatch')
+    _validate_geometry(payload, spec)
 
 
 def _cached_index_row(
@@ -177,6 +203,7 @@ def _cached_index_row(
         "s_shape": list(existing["s"].shape),
         "z_shape": list(existing["z"].shape),
         "p_dist_shape": list(existing["p_dist"].shape),
+        **({"d_geomt_shape": list(existing["d_geomt"].shape)} if "d_geomt" in existing else {}),
     }
 
 
@@ -451,6 +478,10 @@ def main() -> None:
     parser.add_argument('--seed', type=int, help='Default: base=101, Mini-ESM=42')
     parser.add_argument('--dtype', choices=DTYPES, default='bf16')
     parser.add_argument('--cache-dtype', choices=DTYPES, default='fp16')
+    parser.add_argument('--use-d-geomt', action='store_true',
+                        help='Run frozen diffusion and cache 64-bin CA geometry per pair')
+    parser.add_argument('--diffusion-steps', type=int, default=20)
+    parser.add_argument('--diffusion-samples', type=int, default=1)
     parser.add_argument('--trimul-kernel', choices=['torch', 'cuequivariance'], default='cuequivariance')
     parser.add_argument('--triatt-kernel', choices=['torch', 'cuequivariance', 'triattention'], default='cuequivariance')
     parser.add_argument('--work-dir', help='Local preprocessing directory, separate from the feature mount')
@@ -499,6 +530,8 @@ def main() -> None:
         import cuequivariance_torch  # Fail before writing output if acceleration is unavailable.
     if args.cycles < 1:
         raise ValueError("--cycles must be at least 1")
+    if args.diffusion_steps < 1 or args.diffusion_samples < 1:
+        raise ValueError("Diffusion steps/samples must be positive")
     if args.limit < 0:
         raise ValueError("--limit must be non-negative")
     if args.num_shards < 1 or not 0 <= args.shard_index < args.num_shards:
@@ -539,8 +572,12 @@ def main() -> None:
                     'esm_enable': args.model_name == 'protenix_mini_esm_v0.5.0',
                     'esm_model': 'esm2-3b' if args.model_name == 'protenix_mini_esm_v0.5.0' else None,
                     'esm_config': actual_esm_spec, 'channels': {'s':384,'z':128,'p_dist':64},
-                    'diffusion_executed': False, 'confidence_executed': False,
+                    'diffusion_executed': args.use_d_geomt, 'confidence_executed': False,
                     'kernel_backend': f'{args.trimul_kernel}/{args.triatt_kernel}'}
+        if args.use_d_geomt:
+            run_spec['diffusion_geometry'] = {'feature': 'd_geomt', 'steps': args.diffusion_steps,
+                                              'samples': args.diffusion_samples, 'bins': 64,
+                                              'max_angstrom': 22.0, 'atom': 'CA'}
     else:
         run_spec = _base_spec(args, checkpoint)
     print(f"PROTENIX_ROOT_DIR={protenix_root}", flush=True)
@@ -675,6 +712,10 @@ def main() -> None:
                 p_dist = autocasting_disable_decorator(True)(torch.softmax)(
                     runner.model.distogram_head(z), dim=-1
                 )
+                d_geomt = (sample_d_geomt(
+                    runner.model, features, _s_inputs, s, z,
+                    steps=args.diffusion_steps, samples=args.diffusion_samples,
+                ) if args.use_d_geomt else None)
 
             payload = {
                 'kernel_backend': f'{args.trimul_kernel}/{args.triatt_kernel}',
@@ -686,6 +727,8 @@ def main() -> None:
                 'z': _cpu_tensor(z, DTYPES[args.cache_dtype]),
                 'p_dist': _cpu_tensor(p_dist, DTYPES[args.cache_dtype]),
             }
+            if d_geomt is not None:
+                payload['d_geomt'] = _cpu_tensor(d_geomt, DTYPES[args.cache_dtype])
             _validate_payload(payload, record, run_spec)
             atomic_save(payload, output_path)
             del payload
@@ -715,9 +758,10 @@ def main() -> None:
                     "s_shape": list(s.shape),
                     "z_shape": list(z.shape),
                     "p_dist_shape": list(p_dist.shape),
+                    **({"d_geomt_shape": list(d_geomt.shape)} if d_geomt is not None else {}),
                 }
             )
-            del _s_inputs, s, z, p_dist, features, data
+            del _s_inputs, s, z, p_dist, d_geomt, features, data
             torch.cuda.empty_cache()
             print(
                 f"[{input_index + 1}] saved {output_path.name} "
