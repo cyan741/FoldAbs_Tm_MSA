@@ -80,7 +80,7 @@ def test_specificity_head_requires_and_fuses_iptm():
     d_geom = torch.full((4, 4, 64), 1 / 64)
     p_pae = torch.full((4, 4, 64), 1 / 64)
     asym = torch.tensor([0, 1, 2, 3])
-    roles = ("tcra", "tcrb", "peptide", "hla")
+    roles = ("tcra", "tcrb", "peptide", "mhc")
     with pytest.raises(ValueError, match="requires the Protenix ipTM"):
         model(s, z, p_dist, asym, roles, d_geom=d_geom, p_pae=p_pae)
     logit = model(s, z, p_dist, asym, roles, d_geom=d_geom, p_pae=p_pae,
