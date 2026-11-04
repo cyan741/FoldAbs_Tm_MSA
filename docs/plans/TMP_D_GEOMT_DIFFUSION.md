@@ -1,4 +1,4 @@
-# FoldTMP: optional frozen diffusion geometry `d_geomt` (2026-11-04)
+# FoldTMP: optional frozen diffusion geometry `d_geom` (2026-11-04)
 
 ## Contract
 
@@ -8,9 +8,9 @@ diffusion sampler consumes the *same* `s_inputs, s, z` and input-feature
 dictionary used by the trunk. No new structure or ESM checkpoint is trained.
 
 - `p_dist [N,N,64]`: softmax of the **trunk distogram head**; unchanged.
-- `d_geomt [N,N,64]`: Cα pair-distance bins from **sampled diffusion
+- `d_geom [N,N,64]`: Cα pair-distance bins from **sampled diffusion
   coordinates**, averaged over `diffusion_samples`. This branch calls
-  the feature `d_geomt` as requested; it corresponds to the geometry
+  the feature `d_geom` as requested; it corresponds to the geometry
   feature denoted `d_geom` in the FoldAbS audit.
 - Bin implementation: 64 categorical bins with 63 thresholds equally
   spaced from >0 to 22 Å; final bin contains distances >22 Å. The
@@ -23,7 +23,7 @@ dictionary used by the trunk. No new structure or ESM checkpoint is trained.
 - Multiple independent structures are summarized as a probability
   histogram, not by averaging 3D coordinates across unaligned samples.
 - The model condition is
-  `z + Linear(LN(p_dist)) + Linear(LN(d_geomt))`, followed by the
+  `z + Linear(LN(p_dist)) + Linear(LN(d_geom))`, followed by the
   same two residual transitions and 4-block Pairformer. The new
   projection is trainable; Protenix trunk and diffusion remain frozen.
 
@@ -77,27 +77,27 @@ python scripts/train_tmp_specificity.py \
   --use-d-geomt
 ```
 
-Geometry caches include `d_geomt` and a `diffusion_geometry`
+Geometry caches include `d_geom` and a `diffusion_geometry`
 configuration fingerprint. The `--resume` path validates all tensors
 and rejects caches with mismatched geometry settings. Default trunk-only
 cache files and their extraction profiles remain unchanged.
 
 Offline inference automatically reads the checkpoint's
-`model_config.use_d_geomt` flag. Prediction from a geometry head
-requires feature files with `d_geomt`.
+`model_config.use_d_geom` flag. Prediction from a geometry head
+requires feature files with `d_geom`.
 
 ## Verification
 
 CPU/shape checks:
 ```bash
-python -m pytest -q tests/test_tmp_d_geomt.py
+python -m pytest -q tests/test_tmp_d_geom.py
 python -m pytest -q tests/test_protenix_extraction_resume.py tests/test_tmp_prediction.py
 ```
 
 GPU checks still required on the target Protenix environment:
 
 1. Run the online BCE smoke (one update) and confirm finite loss and
-   `d_geomt` is `[N,N,64]`, symmetric and normalized.
+   `d_geom` is `[N,N,64]`, symmetric and normalized.
 2. Repeat the same geometry input twice with the same seed; compare
    outputs and the logit. Verify no accidental global RNG reset.
 3. Compare enabled versus disabled GPU memory, extraction throughput,
