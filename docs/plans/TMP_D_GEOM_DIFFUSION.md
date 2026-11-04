@@ -25,7 +25,7 @@ The paper's Appendix A.2 specifies 64 geometry bins, 64 PAE bins, 22.0 Å maximu
 
 ## Online BCE / Group
 
-The flag is --use-d-geom (not --use-d-geomt). Defaults when enabled match the paper's mini-rollout: 32 samples × 20 denoising steps.
+The feature flag is --use-d-geom. Defaults when enabled match the paper's mini-rollout: 32 samples × 20 denoising steps.
 
     CUDA_VISIBLE_DEVICES=0,1 python -m torch.distributed.run \
       --standalone --nproc-per-node=2 scripts/train_mini_esm_online_ddp.py \
