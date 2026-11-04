@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Extract frozen Protenix-base or Mini-ESM representations without MSA.
+"""Extract frozen Protenix representations without MSA.
 
-This intentionally stops after the Pairformer trunk. It does not run diffusion
-structure sampling. Stage 1 caches only the tensors consumed by the TMP head:
-s, z, p_dist, token_asym_id and token_residue_index. s_inputs is deliberately
-not stored because the current/follow-up TMP experiments do not consume it.
+By default extraction stops after the Pairformer trunk and caches s, z and
+p_dist. With --use-d-geom it additionally runs the frozen diffusion and
+confidence heads, caching d_geom, p_pae and iptm for FoldAbS-aligned TMP
+specificity experiments. s_inputs is not persisted.
 """
 
 from __future__ import annotations
