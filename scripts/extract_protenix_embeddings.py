@@ -128,8 +128,11 @@ def _base_spec(args, checkpoint):
             'checkpoint': str(checkpoint), 'checkpoint_bytes': checkpoint.stat().st_size}
     if args.use_d_geom:
         spec['diffusion_geometry'] = {'feature': 'd_geom', 'steps': args.diffusion_steps,
-                                     'samples': args.diffusion_samples, 'bins': 64,
-                                     'max_angstrom': 22.0, 'atom': 'CA'}
+                                     'samples': args.diffusion_samples, 'geometry_bins': 64,
+                                     'max_angstrom': 22.0,
+                                     'representative_atom_mask': 'distogram_rep_atom_mask',
+                                     'pae_bins': 64, 'iptm': True,
+                                     'ensemble_reduction': 'mean_probability_and_score'}
     return spec
 
 
