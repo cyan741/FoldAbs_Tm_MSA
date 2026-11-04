@@ -143,6 +143,10 @@ def sample_foldabs_specificity_features(
     if pae_prob_samples.shape[-1] != PAE_BINS:
         raise ValueError(f"Expected {PAE_BINS} PAE bins, got {pae_prob_samples.shape[-1]}")
     p_pae = pae_prob_samples.mean(dim=0)
+    n_tokens = s.shape[-2]
+    if (p_pae.shape != (n_tokens, n_tokens, PAE_BINS)
+            or not torch.allclose(p_pae.sum(-1), torch.ones_like(p_pae[..., 0]), atol=1e-5)):
+        raise ValueError("Invalid Protenix PAE probability tensor")
 
     iptm_samples = calculate_iptm(
         pae_prob_samples,
