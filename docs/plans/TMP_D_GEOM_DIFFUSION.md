@@ -1,110 +1,68 @@
-# FoldTMP: optional frozen diffusion geometry `d_geom` (2026-11-04)
+# FoldTMP: FoldAbS-aligned specificity features (2026-11-04)
 
-## Contract
+## Paper-derived specificity architecture
 
-This branch adds an **optional ablation** on top of the existing
-`s / z / p_dist` trunk-only model. The frozen Protenix-v1.0.0
-diffusion sampler consumes the *same* `s_inputs, s, z` and input-feature
-dictionary used by the trunk. No new structure or ESM checkpoint is trained.
+The uploaded FoldAbS paper defines the specificity inputs as {s, z, d_geom, p_PAE} (main text §3.2–3.3; Appendix A.2; Algorithm S1). The geometry map is computed from predicted coordinates, d_geom = Dist(X_hat), by discretizing distances between representative atoms into 64 bins with a maximum distance of 22.0 Å.
 
-- `p_dist [N,N,64]`: softmax of the **trunk distogram head**; unchanged.
-- `d_geom [N,N,64]`: Cα pair-distance bins from **sampled diffusion
-  coordinates**, averaged over `diffusion_samples`. This branch calls
-  the feature `d_geom` as requested; it corresponds to the geometry
-  feature denoted `d_geom` in the FoldAbS audit.
-- Bin implementation: 64 categorical bins with 63 thresholds equally
-  spaced from >0 to 22 Å; final bin contains distances >22 Å. The
-  atom choice (Cα), edges, and ensemble averaging are **TMP
-  implementation choices**, not values independently confirmed from
-  the unpublished FoldAbS code.
-- All four chains must be proteins, every token must have exactly one
-  Cα atom, and geometry must be finite and normalized. Missing features
-  raise an exception; there is **no zero filling**.
-- Multiple independent structures are summarized as a probability
-  histogram, not by averaging 3D coordinates across unaligned samples.
-- The model condition is
-  `z + Linear(LN(p_dist)) + Linear(LN(d_geom))`, followed by the
-  same two residual transitions and 4-block Pairformer. The new
-  projection is trainable; Protenix trunk and diffusion remain frozen.
+For each token pair, the two pairwise signals are concatenated first:
 
-**This is a geometry-only ablation, not a full FoldAbS specificity
-reproduction**. It does not implement PAE probabilities, ipTM, confidence
-head, or the paper's complete sample-selection protocol. The earlier
-audit lists those missing items in `docs/plans/TMP_SPECIFICITY_PAPER_ALIGNMENT.md`.
+    c_spec = concat(d_geom, p_pae)       # [N_token, N_token, 128]
+    z_cond = z + PairCond(z, c_spec)
 
-## Online BCE / Group (no pair embedding disk cache)
+PairCond uses layer normalization, linear projection and two residual transition blocks. The conditioned z and single representation s are refined by a 4-block task-specific Pairformer. Cross-chain pair features and antibody/antigen single features are pooled. The scalar Protenix iPTM is embedded into 32 dimensions and concatenated with the pooled structural summary before the final classification MLP.
 
-Use the existing unified CLI. The original default is unchanged
-(`--use-d-geomt` is **off**). Use a **new output directory**:
+The paper's Appendix A.2 specifies 64 geometry bins, 64 PAE bins, 22.0 Å maximum geometry distance, 32 diffusion samples and 20 denoising steps, plus two PairCond transitions and four Pairformer blocks.
 
-```bash
-CUDA_VISIBLE_DEVICES=0,1 python -m torch.distributed.run \
-  --standalone --nproc-per-node=2 scripts/train_mini_esm_online_ddp.py \
-  --splits-dir /path/to/splits \
-  --esm-cache-dir /path/to/esm_cache \
-  --local-esm-cache /path/to/local_esm_cache \
-  --output-dir /path/to/geometry_bce_smoke \
-  --loss-type bce --use-d-geomt --diffusion-steps 20 \
-  --diffusion-samples 1 --smoke-samples 12 --max-steps 1
-```
+## Implementation mapping
 
-For Group replace `--loss-type bce` with
-`--loss-type group_rank --group-negatives 2`, and choose a new directory.
-The feature is computed by `OnlineFeatures.infer`, then passed to
-the head in both BCE and Group mode.
+- d_geom [N,N,64]: sampled coordinates → Protenix representative atoms (the pae_rep_atom_mask / token-centre representative-atom mask) → pairwise Euclidean distances → 64 bins up to 22 Å. This avoids assuming a hard-coded atom name. The exact atom-selection rule is delegated to Protenix's own mask.
+- p_pae [N,N,64]: Protenix confidence head PAE logits → softmax over bins → mean probability distribution over diffusion samples.
+- iptm []: official Protenix calculate_iptm applied to each sample's PAE probabilities, then averaged over samples.
+- d_geom is an ensemble histogram (mean of one-hot distance bins); p_pae and iptm are also averaged over the 32-sample mini-rollout. The paper specifies 32 samples but does not detail the ensemble reduction; mean aggregation is an explicit TMP implementation choice.
+- Protenix trunk, diffusion denoiser and confidence head remain frozen. Only PairCond, Pairformer, pooling, the 32-D iPTM embedding and classifier are trained.
+- The old trunk-only baseline remains available when --use-d-geom is off: it conditions on p_dist. When enabled, the specificity branch instead conditions on concatenated d_geom + p_pae and fuses iptm after pooling, matching the paper's feature topology.
+- The paper says "representative atoms" but does not name the atom-selection mask in the described text. Using Protenix's own pae_rep_atom_mask is an implementation alignment to the upstream model, not a claim that the paper explicitly names this key.
 
-`--diffusion-samples 32 --diffusion-steps 20` is much more expensive
-than `1 × 20`. Benchmark **speed and peak GPU memory first**,
-especially when running on multiple encoder processes. Lower-budget
-experiments must report their sample/step counts.
+## Online BCE / Group
 
-Resume is only allowed for matching geometry enablement, steps, and
-samples; different feature configurations must not reuse a checkpoint.
+The flag is --use-d-geom (not --use-d-geomt). Defaults when enabled match the paper's mini-rollout: 32 samples × 20 denoising steps.
+
+    CUDA_VISIBLE_DEVICES=0,1 python -m torch.distributed.run \
+      --standalone --nproc-per-node=2 scripts/train_mini_esm_online_ddp.py \
+      --splits-dir /path/to/splits \
+      --esm-cache-dir /path/to/esm_cache \
+      --local-esm-cache /path/to/local_esm_cache \
+      --output-dir /path/to/foldabs_aligned_bce \
+      --loss-type bce --use-d-geom --diffusion-steps 20 \
+      --diffusion-samples 32 --smoke-samples 12 --max-steps 1
+
+For Group ranking, use --loss-type group_rank --group-negatives 2. Always use a new output directory when changing feature topology or diffusion configuration. Resume checks the feature flag, sample count and step count.
 
 ## Offline extraction / training / prediction
 
-```bash
-python scripts/extract_protenix_embeddings.py \
-  --model-name protenix_mini_esm_v0.5.0 --cycles 4 \
-  --input-json /path/to/input.json --esm-cache-dir /path/to/esm_cache \
-  --output-dir /path/to/geometry_features --limit 1 \
-  --use-d-geomt --diffusion-steps 20 --diffusion-samples 1
+    python scripts/extract_protenix_embeddings.py \
+      --model-name protenix_mini_esm_v0.5.0 --cycles 4 \
+      --input-json /path/to/input.json --esm-cache-dir /path/to/esm_cache \
+      --output-dir /path/to/foldabs_aligned_features --limit 1 \
+      --use-d-geom --diffusion-steps 20 --diffusion-samples 32
 
-python scripts/train_tmp_specificity.py \
-  --manifest /path/to/manifest.csv \
-  --features-dir /path/to/geometry_features \
-  --output-dir /path/to/geometry_offline_train \
-  --use-d-geomt
-```
+    python scripts/train_tmp_specificity.py \
+      --manifest /path/to/manifest.csv \
+      --features-dir /path/to/foldabs_aligned_features \
+      --output-dir /path/to/foldabs_aligned_offline_train \
+      --use-d-geom
 
-Geometry caches include `d_geom` and a `diffusion_geometry`
-configuration fingerprint. The `--resume` path validates all tensors
-and rejects caches with mismatched geometry settings. Default trunk-only
-cache files and their extraction profiles remain unchanged.
+The feature cache stores d_geom, p_pae and scalar iptm, along with a configuration fingerprint. Geometry-mode training and prediction reject incomplete feature files. Trunk-only caches remain valid for the trunk-only baseline but cannot be used with a FoldAbS-aligned checkpoint.
 
-Offline inference automatically reads the checkpoint's
-`model_config.use_d_geom` flag. Prediction from a geometry head
-requires feature files with `d_geom`.
+## Validation
 
-## Verification
-
-CPU/shape checks:
-```bash
-python -m pytest -q tests/test_tmp_d_geom.py
-python -m pytest -q tests/test_protenix_extraction_resume.py tests/test_tmp_prediction.py
-```
+    python -m pytest -q tests/test_tmp_d_geom.py
+    python -m pytest -q tests/test_protenix_extraction_resume.py tests/test_tmp_prediction.py
 
 GPU checks still required on the target Protenix environment:
+1. One-step online BCE and Group smoke tests with the 32×20 mini-rollout.
+2. Offline extraction smoke test; verify d_geom and p_pae are [N,N,64], normalized and finite, and iptm is a finite scalar.
+3. Verify the representative-atom mapping and confidence-head outputs for the actual four-chain TMP inputs.
+4. Compare runtime, peak GPU memory and fixed-split validation metrics against the trunk-only p_dist baseline.
 
-1. Run the online BCE smoke (one update) and confirm finite loss and
-   `d_geom` is `[N,N,64]`, symmetric and normalized.
-2. Repeat the same geometry input twice with the same seed; compare
-   outputs and the logit. Verify no accidental global RNG reset.
-3. Compare enabled versus disabled GPU memory, extraction throughput,
-   and validation behavior on **the same fixed inputs**.
-4. Test Group smoke, checkpoint/resume and offline geometry extraction
-   with the installed Protenix-1.0.0 checkpoint.
-
-No real GPU diffusion experiment or full training run was executed
-while preparing this branch. Do not report model performance gains
-until the GPU/regression checks and fixed-split comparisons pass.
+No GPU execution or predictive-performance gain is claimed by this code change. The FoldAbS paper also reports the geometry and PAE ablations; those should be reproduced separately if assessing feature contribution.
