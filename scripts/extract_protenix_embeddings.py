@@ -127,6 +127,7 @@ def _base_spec(args, checkpoint):
             'inference_precision': args.dtype, 'cache_precision': args.cache_dtype,
             'checkpoint': str(checkpoint), 'checkpoint_bytes': checkpoint.stat().st_size}
     if args.use_d_geom:
+        spec['confidence_executed'] = True
         spec['diffusion_geometry'] = {'feature': 'd_geom', 'steps': args.diffusion_steps,
                                      'samples': args.diffusion_samples, 'geometry_bins': 64,
                                      'max_angstrom': 22.0,
