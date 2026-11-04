@@ -24,7 +24,7 @@ from protenix_embedding_profile import (DTYPES, atomic_save, cached_esm_dataload
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from foldabs_repro.tmp_prediction.geometry import sample_d_geom
+from foldabs_repro.tmp_prediction.geometry import sample_foldabs_specificity_features
 
 DEFAULT_PROTENIX_ROOT = Path(__file__).resolve().parents[1] / ".foldtmp-run" / "protenix_assets"
 os.environ.setdefault("PROTENIX_ROOT_DIR", str(DEFAULT_PROTENIX_ROOT))
@@ -145,15 +145,22 @@ def _validate_geometry(payload, spec):
     if not geometry_expected:
         return
     value = payload.get('d_geom')
+    pae = payload.get('p_pae')
+    iptm = payload.get('iptm')
     n = payload['s'].shape[0]
-    if (not isinstance(value, torch.Tensor) or value.shape != (n, n, 64)
-            or value.dtype != DTYPES[spec['cache_precision']]):
-        raise ValueError('Diffusion d_geom missing or invalid shape/dtype')
-    probs = value.float()
-    if (not torch.isfinite(probs).all() or (probs < 0).any()
-            or (probs > 1).any()
-            or not torch.allclose(probs.sum(-1), torch.ones((n, n)), atol=0.003, rtol=0)):
-        raise ValueError('Invalid diffusion geometry probabilities')
+    expected_dtype = DTYPES[spec['cache_precision']]
+    for name, tensor in (('d_geom', value), ('p_pae', pae)):
+        if (not isinstance(tensor, torch.Tensor) or tensor.shape != (n, n, 64)
+                or tensor.dtype != expected_dtype):
+            raise ValueError(f'Diffusion specificity feature {name} missing or invalid')
+        probs = tensor.float()
+        if (not torch.isfinite(probs).all() or (probs < 0).any()
+                or (probs > 1).any()
+                or not torch.allclose(probs.sum(-1), torch.ones((n, n)), atol=0.003, rtol=0)):
+            raise ValueError(f'Invalid {name} probabilities')
+    if (not isinstance(iptm, torch.Tensor) or iptm.numel() != 1
+            or iptm.dtype != expected_dtype or not torch.isfinite(iptm.float()).all()):
+        raise ValueError('Diffusion specificity iptm missing or invalid')
 
 
 def _validate_payload(payload, record, spec):
@@ -203,7 +210,9 @@ def _cached_index_row(
         "s_shape": list(existing["s"].shape),
         "z_shape": list(existing["z"].shape),
         "p_dist_shape": list(existing["p_dist"].shape),
-        **({"d_geom_shape": list(existing["d_geom"].shape)} if "d_geom" in existing else {}),
+        **({"d_geom_shape": list(existing["d_geom"].shape),
+         "p_pae_shape": list(existing["p_pae"].shape),
+         "iptm_shape": list(existing["iptm"].shape)} if "d_geom" in existing else {}),
     }
 
 
@@ -478,10 +487,10 @@ def main() -> None:
     parser.add_argument('--seed', type=int, help='Default: base=101, Mini-ESM=42')
     parser.add_argument('--dtype', choices=DTYPES, default='bf16')
     parser.add_argument('--cache-dtype', choices=DTYPES, default='fp16')
-    parser.add_argument('--use-d-geomt', action='store_true',
-                        help='Run frozen diffusion and cache 64-bin CA geometry per pair')
+    parser.add_argument('--use-d-geom', action='store_true',
+                        help='Run frozen diffusion + confidence head; cache d_geom, PAE probabilities and ipTM')
     parser.add_argument('--diffusion-steps', type=int, default=20)
-    parser.add_argument('--diffusion-samples', type=int, default=1)
+    parser.add_argument('--diffusion-samples', type=int, default=32)
     parser.add_argument('--trimul-kernel', choices=['torch', 'cuequivariance'], default='cuequivariance')
     parser.add_argument('--triatt-kernel', choices=['torch', 'cuequivariance', 'triattention'], default='cuequivariance')
     parser.add_argument('--work-dir', help='Local preprocessing directory, separate from the feature mount')
@@ -572,12 +581,15 @@ def main() -> None:
                     'esm_enable': args.model_name == 'protenix_mini_esm_v0.5.0',
                     'esm_model': 'esm2-3b' if args.model_name == 'protenix_mini_esm_v0.5.0' else None,
                     'esm_config': actual_esm_spec, 'channels': {'s':384,'z':128,'p_dist':64},
-                    'diffusion_executed': args.use_d_geom, 'confidence_executed': False,
+                    'diffusion_executed': args.use_d_geom, 'confidence_executed': args.use_d_geom,
                     'kernel_backend': f'{args.trimul_kernel}/{args.triatt_kernel}'}
         if args.use_d_geom:
             run_spec['diffusion_geometry'] = {'feature': 'd_geom', 'steps': args.diffusion_steps,
-                                              'samples': args.diffusion_samples, 'bins': 64,
-                                              'max_angstrom': 22.0, 'atom': 'CA'}
+                                              'samples': args.diffusion_samples, 'geometry_bins': 64,
+                                              'max_angstrom': 22.0,
+                                              'representative_atom_mask': 'pae_rep_atom_mask',
+                                              'pae_bins': 64, 'iptm': True,
+                                              'ensemble_reduction': 'mean_probability_and_score'}
     else:
         run_spec = _base_spec(args, checkpoint)
     print(f"PROTENIX_ROOT_DIR={protenix_root}", flush=True)
@@ -712,10 +724,11 @@ def main() -> None:
                 p_dist = autocasting_disable_decorator(True)(torch.softmax)(
                     runner.model.distogram_head(z), dim=-1
                 )
-                d_geom = (sample_d_geom(
+                specificity_features = (sample_foldabs_specificity_features(
                     runner.model, features, _s_inputs, s, z,
                     steps=args.diffusion_steps, samples=args.diffusion_samples,
                 ) if args.use_d_geom else None)
+                d_geom, p_pae, iptm = specificity_features if specificity_features is not None else (None, None, None)
 
             payload = {
                 'kernel_backend': f'{args.trimul_kernel}/{args.triatt_kernel}',
@@ -729,6 +742,8 @@ def main() -> None:
             }
             if d_geom is not None:
                 payload['d_geom'] = _cpu_tensor(d_geom, DTYPES[args.cache_dtype])
+                payload['p_pae'] = _cpu_tensor(p_pae, DTYPES[args.cache_dtype])
+                payload['iptm'] = _cpu_tensor(iptm, DTYPES[args.cache_dtype])
             _validate_payload(payload, record, run_spec)
             atomic_save(payload, output_path)
             del payload
@@ -758,10 +773,11 @@ def main() -> None:
                     "s_shape": list(s.shape),
                     "z_shape": list(z.shape),
                     "p_dist_shape": list(p_dist.shape),
-                    **({"d_geom_shape": list(d_geom.shape)} if d_geom is not None else {}),
+                    **({"d_geom_shape": list(d_geom.shape), "p_pae_shape": list(p_pae.shape),
+                        "iptm_shape": list(iptm.shape)} if d_geom is not None else {}),
                 }
             )
-            del _s_inputs, s, z, p_dist, d_geom, features, data
+            del _s_inputs, s, z, p_dist, d_geom, p_pae, iptm, specificity_features, features, data
             torch.cuda.empty_cache()
             print(
                 f"[{input_index + 1}] saved {output_path.name} "
