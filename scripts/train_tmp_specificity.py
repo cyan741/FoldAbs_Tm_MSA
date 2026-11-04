@@ -168,6 +168,8 @@ def evaluate(model, loader, device, loss_pos_weight=None, precision="fp32"):
             logit = model(
                 batch["s"].to(device), batch["z"].to(device), batch["p_dist"].to(device),
                 batch["token_asym_id"].to(device), batch["roles"],
+                d_geomt=(batch["d_geomt"].to(device)
+                         if model.config["use_d_geomt"] and batch["d_geomt"] is not None else None),
             ).float()
         target = batch["label"].to(device)
         losses.append(float(F.binary_cross_entropy_with_logits(logit, target, pos_weight=loss_pos_weight).item()))
@@ -241,6 +243,8 @@ def parse_args() -> argparse.Namespace:
                         help="Deprecated compatibility option; validation always runs once per epoch")
     parser.add_argument("--log-every", type=int, default=20)
     parser.add_argument("--pairformer-blocks", type=int, default=4)
+    parser.add_argument("--use-d-geomt", action="store_true",
+                        help="Require diffusion geometry in offline features and condition the head on it")
     parser.add_argument('--head-kernel', choices=['auto', 'torch', 'cuequivariance'], default='auto',
                         help='auto uses cuEquivariance on CUDA and torch on CPU')
     parser.add_argument('--activation-checkpoint', action='store_true',
@@ -550,6 +554,8 @@ def run_training(
     if peptide_mode:
         peptide_sampling.audit_features(manifest, [row for rows in example_sets.values() for row in rows])
     first = datasets["train"][0]
+    if args.use_d_geomt and first["d_geomt"] is None:
+        raise ValueError("--use-d-geomt requires new diffusion feature caches")
     raw_model = TMPTrunkSpecificityHead(
         c_s=int(first["s"].shape[-1]),
         c_z=int(first["z"].shape[-1]),
@@ -561,6 +567,7 @@ def run_training(
         triangle_multiplicative=('cuequivariance' if device.type == 'cuda' else 'torch') if args.head_kernel == 'auto' else args.head_kernel,
         triangle_attention=('cuequivariance' if device.type == 'cuda' else 'torch') if args.head_kernel == 'auto' else args.head_kernel,
         activation_checkpoint=args.activation_checkpoint,
+        use_d_geomt=args.use_d_geomt,
     ).to(device)
     model = (
         DistributedDataParallel(raw_model, device_ids=[rank], output_device=rank)
@@ -594,7 +601,8 @@ def run_training(
                                    else 0),
             "logical_epoch_samples": positives + negatives,
             "model_config": raw_model.config,
-            "feature_schema": "protenix_trunk_s_z_pdist_v1",
+            "feature_schema": ("protenix_trunk_s_z_pdist_d_geomt_v1" if args.use_d_geomt
+                               else "protenix_trunk_s_z_pdist_v1"),
             "selection_metric": "validation_bce",
             "effective_batch_size": world_size * args.gradient_accumulation,
             "trainable_parameters": sum(
@@ -629,7 +637,9 @@ def run_training(
                     "lr_scheduler_patience", "min_lr", "auto_pos_weight"):
             if resumed["run_config"].get(key) != getattr(args, key):
                 raise ValueError(f"Resume configuration differs: {key}")
-        if resumed["model_config"] != raw_model.config:
+        resumed_model_config = dict(resumed["model_config"])
+        resumed_model_config.setdefault("use_d_geomt", False)  # Legacy checkpoints.
+        if resumed_model_config != raw_model.config:
             raise ValueError("Resume model configuration differs")
         if resumed.get("optimizer_state") is None or not resumed.get("rng_states"):
             raise ValueError("Checkpoint lacks epoch-boundary resume state")
@@ -713,6 +723,8 @@ def run_training(
                             batch["s"].to(device), batch["z"].to(device),
                             batch["p_dist"].to(device), batch["token_asym_id"].to(device),
                             batch["roles"],
+                            d_geomt=(batch["d_geomt"].to(device)
+                                     if args.use_d_geomt and batch["d_geomt"] is not None else None),
                         ).float()
                     target = batch["label"].to(device)
                     loss = F.binary_cross_entropy_with_logits(
