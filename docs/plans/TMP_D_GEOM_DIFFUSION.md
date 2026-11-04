@@ -15,13 +15,13 @@ The paper's Appendix A.2 specifies 64 geometry bins, 64 PAE bins, 22.0 Å maximu
 
 ## Implementation mapping
 
-- d_geom [N,N,64]: sampled coordinates → Protenix representative atoms (the distogram_rep_atom_mask) → pairwise Euclidean distances → 64 bins up to 22 Å. This avoids assuming a hard-coded atom name. The exact atom-selection rule is delegated to Protenix's own mask.
+- d_geom [N,N,64]: sampled coordinates → Protenix representative atoms (the distogram_rep_atom_mask) → pairwise Euclidean distances → 64 bins up to 22 Å. For standard protein residues Protenix selects Cβ (Cα for glycine), matching the representative-atom convention used by its distogram/confidence path.
 - p_pae [N,N,64]: Protenix confidence head PAE logits → softmax over bins → mean probability distribution over diffusion samples.
 - iptm []: official Protenix calculate_iptm applied to each sample's PAE probabilities, then averaged over samples.
 - d_geom is an ensemble histogram (mean of one-hot distance bins); p_pae and iptm are also averaged over the 32-sample mini-rollout. The paper specifies 32 samples but does not detail the ensemble reduction; mean aggregation is an explicit TMP implementation choice.
 - Protenix trunk, diffusion denoiser and confidence head remain frozen. Only PairCond, Pairformer, pooling, the 32-D iPTM embedding and classifier are trained.
 - The old trunk-only baseline remains available when --use-d-geom is off: it conditions on p_dist. When enabled, the specificity branch instead conditions on concatenated d_geom + p_pae and fuses iptm after pooling, matching the paper's feature topology.
-- The paper says "representative atoms" but does not name the atom-selection mask in the described text. Using Protenix's own distogram_rep_atom_mask is an implementation alignment to the upstream model, not a claim that the paper explicitly names this key.
+- The paper says "representative atoms" but does not name the atom-selection mask in the described text. Using Protenix's own distogram_rep_atom_mask is an implementation alignment to the upstream model, not a claim that the paper explicitly names this key or specifies Cβ/Cα.
 
 ## Online BCE / Group
 
