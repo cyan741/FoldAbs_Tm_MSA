@@ -76,6 +76,12 @@ class TMPFeatureDataset(Dataset):
         missing = required - set(payload)
         if missing:
             raise ValueError(f"Incomplete Protenix feature {example.feature_path}: {sorted(missing)}")
+        geometry = payload.get("d_geomt")
+        if geometry is not None:
+            n = payload["s"].shape[0]
+            if (not isinstance(geometry, torch.Tensor) or geometry.shape != (n, n, 64)
+                    or not torch.isfinite(geometry.float()).all()):
+                raise ValueError(f"Invalid d_geomt in {example.feature_path}")
         return {
             "sample_id": example.sample_id,
             "original_id": example.original_id,
@@ -85,6 +91,7 @@ class TMPFeatureDataset(Dataset):
             "s": payload["s"].float(),
             "z": payload["z"].float(),
             "p_dist": payload["p_dist"].float(),
+            "d_geomt": None if geometry is None else geometry.float(),
             "label": None if example.label is None else torch.tensor(example.label, dtype=torch.float32),
         }
 
