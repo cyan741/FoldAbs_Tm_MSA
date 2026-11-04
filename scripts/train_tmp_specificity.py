@@ -643,6 +643,10 @@ def run_training(
                 raise ValueError(f"Resume configuration differs: {key}")
         resumed_model_config = dict(resumed["model_config"])
         resumed_model_config.setdefault("use_d_geom", False)  # Legacy checkpoints.
+        resumed_model_config.setdefault(
+            "specificity_feature_version",
+            "legacy_d_geom_only_v0" if resumed_model_config["use_d_geom"] else "trunk_p_dist_v1",
+        )
         if resumed_model_config != raw_model.config:
             raise ValueError("Resume model configuration differs")
         if resumed.get("optimizer_state") is None or not resumed.get("rng_states"):
