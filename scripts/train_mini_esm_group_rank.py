@@ -167,6 +167,8 @@ def train(args):
             for key, default in (('use_d_geom', False), ('diffusion_steps', 20), ('diffusion_samples', 32)):
                 if saved['run_config'].get(key, default) != config[key]:
                     raise ValueError(f'Resume diffusion configuration mismatch: {key}')
+            if saved['run_config'].get('specificity_feature_version', 'trunk_p_dist_v1') != config['specificity_feature_version']:
+                raise ValueError('Resume specificity feature topology mismatch')
             head.load_state_dict(saved['model'])
             optimizer.load_state_dict(saved['optimizer'])
             scheduler.load_state_dict(saved['scheduler'])
