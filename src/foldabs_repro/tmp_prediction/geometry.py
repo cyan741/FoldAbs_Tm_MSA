@@ -1,6 +1,6 @@
-"""Frozen Protenix diffusion geometry for the optional TMP d_geomt ablation.
+"""Frozen Protenix diffusion geometry for the optional TMP d_geom ablation.
 
-The public name `d_geomt` denotes a 64-channel distribution of binned
+The public name `d_geom` denotes a 64-channel distribution of binned
 C-alpha distances measured from sampled coordinates. It is *not* the trunk
 distogram `p_dist` and is not a native Protenix output tensor.
 
@@ -43,7 +43,7 @@ def ca_atom_indices(features: dict, n_tokens: int) -> torch.Tensor:
     return indices
 
 
-def d_geomt_from_coordinates(
+def d_geom_from_coordinates(
     coordinates: torch.Tensor, features: dict, n_tokens: int,
     *, bins: int = GEOMETRY_BINS, max_distance: float = GEOMETRY_MAX_DISTANCE,
 ) -> torch.Tensor:
@@ -68,20 +68,20 @@ def d_geomt_from_coordinates(
     assignments = torch.bucketize(distances.contiguous(), boundaries)
     # Accumulate each sample without materializing [samples,N,N,64], which
     # becomes prohibitively large for the 32-sample diffusion ablation.
-    d_geomt = torch.zeros((n_tokens, n_tokens, bins),
+    d_geom = torch.zeros((n_tokens, n_tokens, bins),
                           device=distances.device, dtype=torch.float32)
     weights = torch.ones((n_tokens, n_tokens, 1),
                          device=distances.device, dtype=torch.float32)
     for sample_bins in assignments:
-        d_geomt.scatter_add_(-1, sample_bins.long().unsqueeze(-1), weights)
-    d_geomt.div_(coordinates.shape[0])
-    if d_geomt.shape != (n_tokens, n_tokens, bins) or not torch.isfinite(d_geomt).all():
-        raise ValueError("Invalid d_geomt geometry")
-    return d_geomt
+        d_geom.scatter_add_(-1, sample_bins.long().unsqueeze(-1), weights)
+    d_geom.div_(coordinates.shape[0])
+    if d_geom.shape != (n_tokens, n_tokens, bins) or not torch.isfinite(d_geom).all():
+        raise ValueError("Invalid d_geom geometry")
+    return d_geom
 
 
 @torch.no_grad()
-def sample_d_geomt(
+def sample_d_geom(
     model, features: dict, s_inputs: torch.Tensor, s: torch.Tensor, z: torch.Tensor,
     *, steps: int = 20, samples: int = 1,
 ) -> torch.Tensor:
@@ -128,4 +128,4 @@ def sample_d_geomt(
         inplace_safe=False,
         enable_efficient_fusion=model.enable_efficient_fusion,
     )
-    return d_geomt_from_coordinates(coords, features, n_tokens=s.shape[-2])
+    return d_geom_from_coordinates(coords, features, n_tokens=s.shape[-2])
