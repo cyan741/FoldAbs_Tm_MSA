@@ -64,6 +64,10 @@ def main() -> None:
                     batch["token_asym_id"].to(device), batch["roles"],
                     d_geom=(batch["d_geom"].to(device)
                              if model.config["use_d_geom"] and batch["d_geom"] is not None else None),
+                    p_pae=(batch["p_pae"].to(device)
+                           if model.config["use_d_geom"] and batch["p_pae"] is not None else None),
+                    iptm=(batch["iptm"].to(device)
+                          if model.config["use_d_geom"] and batch["iptm"] is not None else None),
                     return_latent=True,
                 )
             row = {
