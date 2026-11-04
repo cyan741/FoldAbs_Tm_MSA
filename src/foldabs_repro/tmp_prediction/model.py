@@ -36,10 +36,14 @@ class PairCondition(nn.Module):
     def __init__(self, c_dist: int, c_z: int, c_geom: int | None = None,
                  c_pae: int | None = None):
         super().__init__()
-        self.trunk_project = nn.Sequential(nn.LayerNorm(c_dist), nn.Linear(c_dist, c_z))
         self.specificity_project = (
             nn.Sequential(nn.LayerNorm(c_geom + c_pae), nn.Linear(c_geom + c_pae, c_z))
             if c_geom is not None and c_pae is not None else None
+        )
+        # Keep the historical "project" key for trunk-only checkpoint compatibility.
+        self.project = (
+            nn.Sequential(nn.LayerNorm(c_dist), nn.Linear(c_dist, c_z))
+            if self.specificity_project is None else None
         )
         self.transitions = nn.ModuleList([ResidualTransition(c_z), ResidualTransition(c_z)])
 
@@ -59,7 +63,9 @@ class PairCondition(nn.Module):
                 raise ValueError("Trunk-only PairCondition requires p_dist")
             if d_geom is not None or p_pae is not None:
                 raise ValueError("d_geom/p_pae require use_d_geom=True")
-            value = z + self.trunk_project(p_dist)
+            if self.project is None:
+                raise RuntimeError("Trunk distogram projection is not initialized")
+            value = z + self.project(p_dist)
         for transition in self.transitions:
             value = transition(value)
         return value
