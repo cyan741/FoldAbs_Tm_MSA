@@ -587,7 +587,7 @@ def main() -> None:
             run_spec['diffusion_geometry'] = {'feature': 'd_geom', 'steps': args.diffusion_steps,
                                               'samples': args.diffusion_samples, 'geometry_bins': 64,
                                               'max_angstrom': 22.0,
-                                              'representative_atom_mask': 'pae_rep_atom_mask',
+                                              'representative_atom_mask': 'distogram_rep_atom_mask',
                                               'pae_bins': 64, 'iptm': True,
                                               'ensemble_reduction': 'mean_probability_and_score'}
     else:
