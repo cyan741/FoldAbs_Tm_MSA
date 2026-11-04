@@ -32,14 +32,25 @@ class ResidualTransition(nn.Module):
 
 
 class PairCondition(nn.Module):
-    """Condition frozen Protenix z on its distogram probabilities."""
-    def __init__(self, c_dist: int, c_z: int):
+    """Condition z on trunk distogram and, optionally, diffusion-derived geometry."""
+    def __init__(self, c_dist: int, c_z: int, c_geom: int | None = None):
         super().__init__()
         self.project = nn.Sequential(nn.LayerNorm(c_dist), nn.Linear(c_dist, c_z))
+        self.geom_project = (nn.Sequential(nn.LayerNorm(c_geom), nn.Linear(c_geom, c_z))
+                             if c_geom is not None else None)
         self.transitions = nn.ModuleList([ResidualTransition(c_z), ResidualTransition(c_z)])
 
-    def forward(self, z: torch.Tensor, p_dist: torch.Tensor) -> torch.Tensor:
+    def forward(self, z: torch.Tensor, p_dist: torch.Tensor,
+                d_geomt: torch.Tensor | None = None) -> torch.Tensor:
         value = z + self.project(p_dist)
+        if self.geom_project is not None:
+            if d_geomt is None:
+                raise ValueError("use_d_geomt=True requires real diffusion geometry, not zeros")
+            if d_geomt.shape != (*z.shape[:2], self.geom_project[0].normalized_shape[0]):
+                raise ValueError("d_geomt shape differs from Protenix pair representation")
+            value = value + self.geom_project(d_geomt)
+        elif d_geomt is not None:
+            raise ValueError("d_geomt was provided to a trunk-only head")
         for transition in self.transitions:
             value = transition(value)
         return value
@@ -69,6 +80,7 @@ class TMPTrunkSpecificityHead(nn.Module):
         triangle_multiplicative: str = "torch",
         triangle_attention: str = "torch",
         activation_checkpoint: bool = False,
+        use_d_geomt: bool = False,
     ):
         super().__init__()
         if pairformer_blocks < 0:
@@ -92,8 +104,9 @@ class TMPTrunkSpecificityHead(nn.Module):
             "triangle_multiplicative": triangle_multiplicative,
             "triangle_attention": triangle_attention,
             "activation_checkpoint": activation_checkpoint,
+            "use_d_geomt": use_d_geomt,
         }
-        self.pair_condition = PairCondition(c_dist, c_z)
+        self.pair_condition = PairCondition(c_dist, c_z, c_geom=64 if use_d_geomt else None)
         self.pairformer = nn.ModuleList(
             [
                 PairformerBlock(
@@ -132,6 +145,8 @@ class TMPTrunkSpecificityHead(nn.Module):
         p_dist: torch.Tensor,
         token_asym_id: torch.Tensor,
         roles: tuple[str, ...] | list[str],
+        *,
+        d_geomt: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
         masks = {
             key: value.to(device=s.device)
@@ -142,7 +157,7 @@ class TMPTrunkSpecificityHead(nn.Module):
         unbatched_kernel = 'cuequivariance' in (
             self.config['triangle_multiplicative'], self.config['triangle_attention'])
         s_batch = s if unbatched_kernel else s.unsqueeze(0)
-        z_conditioned = self.pair_condition(z, p_dist)
+        z_conditioned = self.pair_condition(z, p_dist, d_geomt)
         z_batch = z_conditioned if unbatched_kernel else z_conditioned.unsqueeze(0)
         for block in self.pairformer:
             def run_block(s_value, z_value, current_block=block):
@@ -169,8 +184,9 @@ class TMPTrunkSpecificityHead(nn.Module):
         token_asym_id: torch.Tensor,
         roles: tuple[str, ...] | list[str],
         *,
+        d_geomt: torch.Tensor | None = None,
         return_latent: bool = False,
     ):
-        latent, pools = self.encode(s, z, p_dist, token_asym_id, roles)
+        latent, pools = self.encode(s, z, p_dist, token_asym_id, roles, d_geomt=d_geomt)
         logit = self.classifier(latent.unsqueeze(0)).squeeze()
         return (logit, latent, pools) if return_latent else logit
