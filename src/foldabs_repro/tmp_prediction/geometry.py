@@ -13,15 +13,15 @@ def representative_atom_indices(features: dict, n_tokens: int) -> torch.Tensor:
 
     Protenix exposes the representative-atom mask as distogram_rep_atom_mask. This
     is preferable to hard-coding atom_name == CA: it follows Protenix's own
-    token-centre/representative-atom definition and its token mapping.
+    distogram representative-atom definition and its token mapping.
     """
     mapping = features["atom_to_token_idx"].reshape(-1).long()
-    rep_mask = features.get("pae_rep_atom_mask")
+    rep_mask = features.get("distogram_rep_atom_mask")
     if rep_mask is None:
-        raise ValueError("Protenix features must contain pae_rep_atom_mask")
+        raise ValueError("Protenix features must contain distogram_rep_atom_mask")
     rep_mask = rep_mask.reshape(-1).bool()
     if rep_mask.numel() != mapping.numel():
-        raise ValueError("pae_rep_atom_mask and atom_to_token_idx lengths differ")
+        raise ValueError("distogram_rep_atom_mask and atom_to_token_idx lengths differ")
     atoms = torch.where(rep_mask)[0]
     tokens = mapping[atoms]
     expected = torch.arange(n_tokens, device=mapping.device)
