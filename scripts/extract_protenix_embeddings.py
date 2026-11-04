@@ -24,7 +24,7 @@ from protenix_embedding_profile import (DTYPES, atomic_save, cached_esm_dataload
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from foldabs_repro.tmp_prediction.geometry import sample_d_geomt
+from foldabs_repro.tmp_prediction.geometry import sample_d_geom
 
 DEFAULT_PROTENIX_ROOT = Path(__file__).resolve().parents[1] / ".foldtmp-run" / "protenix_assets"
 os.environ.setdefault("PROTENIX_ROOT_DIR", str(DEFAULT_PROTENIX_ROOT))
@@ -126,8 +126,8 @@ def _base_spec(args, checkpoint):
             'sampling_policy': 'fixed_per_record', 'deterministic_algorithms': True,
             'inference_precision': args.dtype, 'cache_precision': args.cache_dtype,
             'checkpoint': str(checkpoint), 'checkpoint_bytes': checkpoint.stat().st_size}
-    if args.use_d_geomt:
-        spec['diffusion_geometry'] = {'feature': 'd_geomt', 'steps': args.diffusion_steps,
+    if args.use_d_geom:
+        spec['diffusion_geometry'] = {'feature': 'd_geom', 'steps': args.diffusion_steps,
                                      'samples': args.diffusion_samples, 'bins': 64,
                                      'max_angstrom': 22.0, 'atom': 'CA'}
     return spec
@@ -141,14 +141,14 @@ def _record_sequences(record, mini):
 
 
 def _validate_geometry(payload, spec):
-    geometry_expected = bool(spec.get('diffusion_geometry', {}).get('feature') == 'd_geomt')
+    geometry_expected = bool(spec.get('diffusion_geometry', {}).get('feature') == 'd_geom')
     if not geometry_expected:
         return
-    value = payload.get('d_geomt')
+    value = payload.get('d_geom')
     n = payload['s'].shape[0]
     if (not isinstance(value, torch.Tensor) or value.shape != (n, n, 64)
             or value.dtype != DTYPES[spec['cache_precision']]):
-        raise ValueError('Diffusion d_geomt missing or invalid shape/dtype')
+        raise ValueError('Diffusion d_geom missing or invalid shape/dtype')
     probs = value.float()
     if (not torch.isfinite(probs).all() or (probs < 0).any()
             or (probs > 1).any()
@@ -203,7 +203,7 @@ def _cached_index_row(
         "s_shape": list(existing["s"].shape),
         "z_shape": list(existing["z"].shape),
         "p_dist_shape": list(existing["p_dist"].shape),
-        **({"d_geomt_shape": list(existing["d_geomt"].shape)} if "d_geomt" in existing else {}),
+        **({"d_geom_shape": list(existing["d_geom"].shape)} if "d_geom" in existing else {}),
     }
 
 
@@ -572,10 +572,10 @@ def main() -> None:
                     'esm_enable': args.model_name == 'protenix_mini_esm_v0.5.0',
                     'esm_model': 'esm2-3b' if args.model_name == 'protenix_mini_esm_v0.5.0' else None,
                     'esm_config': actual_esm_spec, 'channels': {'s':384,'z':128,'p_dist':64},
-                    'diffusion_executed': args.use_d_geomt, 'confidence_executed': False,
+                    'diffusion_executed': args.use_d_geom, 'confidence_executed': False,
                     'kernel_backend': f'{args.trimul_kernel}/{args.triatt_kernel}'}
-        if args.use_d_geomt:
-            run_spec['diffusion_geometry'] = {'feature': 'd_geomt', 'steps': args.diffusion_steps,
+        if args.use_d_geom:
+            run_spec['diffusion_geometry'] = {'feature': 'd_geom', 'steps': args.diffusion_steps,
                                               'samples': args.diffusion_samples, 'bins': 64,
                                               'max_angstrom': 22.0, 'atom': 'CA'}
     else:
@@ -712,10 +712,10 @@ def main() -> None:
                 p_dist = autocasting_disable_decorator(True)(torch.softmax)(
                     runner.model.distogram_head(z), dim=-1
                 )
-                d_geomt = (sample_d_geomt(
+                d_geom = (sample_d_geom(
                     runner.model, features, _s_inputs, s, z,
                     steps=args.diffusion_steps, samples=args.diffusion_samples,
-                ) if args.use_d_geomt else None)
+                ) if args.use_d_geom else None)
 
             payload = {
                 'kernel_backend': f'{args.trimul_kernel}/{args.triatt_kernel}',
@@ -727,8 +727,8 @@ def main() -> None:
                 'z': _cpu_tensor(z, DTYPES[args.cache_dtype]),
                 'p_dist': _cpu_tensor(p_dist, DTYPES[args.cache_dtype]),
             }
-            if d_geomt is not None:
-                payload['d_geomt'] = _cpu_tensor(d_geomt, DTYPES[args.cache_dtype])
+            if d_geom is not None:
+                payload['d_geom'] = _cpu_tensor(d_geom, DTYPES[args.cache_dtype])
             _validate_payload(payload, record, run_spec)
             atomic_save(payload, output_path)
             del payload
@@ -758,10 +758,10 @@ def main() -> None:
                     "s_shape": list(s.shape),
                     "z_shape": list(z.shape),
                     "p_dist_shape": list(p_dist.shape),
-                    **({"d_geomt_shape": list(d_geomt.shape)} if d_geomt is not None else {}),
+                    **({"d_geom_shape": list(d_geom.shape)} if d_geom is not None else {}),
                 }
             )
-            del _s_inputs, s, z, p_dist, d_geomt, features, data
+            del _s_inputs, s, z, p_dist, d_geom, features, data
             torch.cuda.empty_cache()
             print(
                 f"[{input_index + 1}] saved {output_path.name} "
