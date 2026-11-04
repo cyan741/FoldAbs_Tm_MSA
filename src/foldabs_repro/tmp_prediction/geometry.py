@@ -11,7 +11,6 @@ over multiple diffusion samples without averaging coordinates.
 from __future__ import annotations
 
 import torch
-import torch.nn.functional as F
 
 GEOMETRY_BINS = 64
 GEOMETRY_MAX_DISTANCE = 22.0
@@ -67,7 +66,15 @@ def d_geomt_from_coordinates(
     # bins-1 thresholds: [0, step), ..., [22, infinity).
     boundaries = torch.linspace(0, max_distance, bins, device=distances.device)[1:]
     assignments = torch.bucketize(distances.contiguous(), boundaries)
-    d_geomt = F.one_hot(assignments.long(), num_classes=bins).float().mean(dim=0)
+    # Accumulate each sample without materializing [samples,N,N,64], which
+    # becomes prohibitively large for the 32-sample diffusion ablation.
+    d_geomt = torch.zeros((n_tokens, n_tokens, bins),
+                          device=distances.device, dtype=torch.float32)
+    weights = torch.ones((n_tokens, n_tokens, 1),
+                         device=distances.device, dtype=torch.float32)
+    for sample_bins in assignments:
+        d_geomt.scatter_add_(-1, sample_bins.long().unsqueeze(-1), weights)
+    d_geomt.div_(coordinates.shape[0])
     if d_geomt.shape != (n_tokens, n_tokens, bins) or not torch.isfinite(d_geomt).all():
         raise ValueError("Invalid d_geomt geometry")
     return d_geomt
