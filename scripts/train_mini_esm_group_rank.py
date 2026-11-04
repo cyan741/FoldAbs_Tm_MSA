@@ -135,6 +135,7 @@ def train(args):
               'pae_bins': 64 if args.use_d_geom else None,
               'iptm_embedding_dim': 32 if args.use_d_geom else None,
               'confidence_executed': bool(args.use_d_geom),
+              'specificity_feature_version': ('foldabs_d_geom_pae_iptm_v1' if args.use_d_geom else 'trunk_p_dist_v1'),
               'joint_feature_disk_cache': False, 'feature_handoff': 'native',
               'ordering': 'seed+epoch groups; drop shared DDP tail',
               'hostname': os.uname().nodename, 'visible_gpus': os.environ.get('CUDA_VISIBLE_DEVICES')}
