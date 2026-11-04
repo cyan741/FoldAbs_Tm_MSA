@@ -96,8 +96,17 @@ class TMPTrunkSpecificityHead(nn.Module):
         triangle_attention: str = "torch",
         activation_checkpoint: bool = False,
         use_d_geom: bool = False,
+        specificity_feature_version: str | None = None,
     ):
         super().__init__()
+        expected_feature_version = (
+            "foldabs_d_geom_pae_iptm_v1" if use_d_geom else "trunk_p_dist_v1"
+        )
+        if specificity_feature_version is not None and specificity_feature_version != expected_feature_version:
+            raise ValueError(
+                f"Unsupported specificity feature version {specificity_feature_version!r}; "
+                f"expected {expected_feature_version!r}"
+            )
         if pairformer_blocks < 0:
             raise ValueError("pairformer_blocks cannot be negative")
         if triangle_multiplicative not in ('torch', 'cuequivariance') or triangle_attention not in ('torch', 'cuequivariance'):
