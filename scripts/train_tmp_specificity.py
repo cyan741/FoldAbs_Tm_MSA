@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Train a TMP binary classifier on frozen Protenix s/z/p_dist features."""
+"""Train a TMP binary classifier on frozen Protenix features.
+
+Default mode uses s/z/p_dist. Optional --use-d-geom mode follows the
+FoldAbS specificity feature path with d_geom, PAE probabilities and ipTM.
+"""
 
 from __future__ import annotations
 
