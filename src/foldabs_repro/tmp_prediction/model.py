@@ -57,11 +57,11 @@ class PairCondition(nn.Module):
 
 
 class TMPTrunkSpecificityHead(nn.Module):
-    """Trainable TMP classifier over frozen s/z/p_dist trunk representations.
+    """Trainable TMP classifier over frozen Protenix representations.
 
-    This is a phase-1 FoldAbS-style reconstruction. It deliberately does not
-    claim to be the published antibody specificity head because the current
-    extractor does not provide final geometry, PAE or ipTM.
+    Trunk-only by default, with optional frozen diffusion-derived d_geomt.
+    This TMP reconstruction is not the full FoldAbS specificity head:
+    PAE and ipTM are not included.
     """
     def __init__(
         self,
