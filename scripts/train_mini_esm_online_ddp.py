@@ -239,27 +239,32 @@ class OnlineFeatures:
                     self.runner.model.distogram_head(pair), dim=-1)
                 d_geom = None
                 if self.args.use_d_geom:
-                    from foldabs_repro.tmp_prediction.geometry import sample_d_geom
-                    d_geom = sample_d_geom(
+                    from foldabs_repro.tmp_prediction.geometry import sample_foldabs_specificity_features
+                    d_geom, p_pae, iptm = sample_foldabs_specificity_features(
                         self.runner.model, features, s_inputs, single, pair,
                         steps=self.args.diffusion_steps, samples=self.args.diffusion_samples,
                     )
+                else:
+                    p_pae = iptm = None
         # Online consumers use these tensors immediately; avoid an FP16 round trip.
         result = (single, pair, probability, features["asym_id"].long())
-        return (*result, d_geom) if d_geom is not None else result
+        return (*result, d_geom, p_pae, iptm) if d_geom is not None else result
 
 
 def forward(head, features):
     if len(features) == 4:
         single, pair, probability, asym = features
         d_geom = None
-    elif len(features) == 5:
-        single, pair, probability, asym, d_geom = features
+    elif len(features) == 7:
+        single, pair, probability, asym, d_geom, p_pae, iptm = features
     else:
-        raise ValueError("Online TMP features must have 4 or 5 entries")
+        raise ValueError("Online TMP features must have 4 or 7 entries")
     with torch.autocast("cuda", dtype=torch.bfloat16):
         return head(single.float(), pair.float(), probability.float(), asym,
-                    REQUIRED_ROLES, d_geom=None if d_geom is None else d_geom.float()).float()
+                    REQUIRED_ROLES,
+                    d_geom=None if d_geom is None else d_geom.float(),
+                    p_pae=None if p_pae is None else p_pae.float(),
+                    iptm=iptm).float()
 
 
 @torch.no_grad()
@@ -322,10 +327,10 @@ def parse_args():
     parser.add_argument("--group-accumulation-steps", type=int, default=1)
     parser.add_argument("--group-require-full", action="store_true")
     parser.add_argument("--activation-checkpoint", action=argparse.BooleanOptionalAction, default=False)
-    parser.add_argument("--use-d-geomt", action="store_true",
+    parser.add_argument("--use-d-geom", action="store_true",
                         help="Enable frozen Protenix diffusion CA-distance histogram [N,N,64]")
     parser.add_argument("--diffusion-steps", type=int, default=20)
-    parser.add_argument("--diffusion-samples", type=int, default=1)
+    parser.add_argument("--diffusion-samples", type=int, default=32)
     parser.add_argument("--allow-execution-config-change", action="store_true",
                         help="Allow and record precision/recomputation changes when resuming")
     args = parser.parse_args()
@@ -391,7 +396,10 @@ def main():
               "triangle_attention_mask_policy": "omit_all_valid_boolean_masks",
               "diffusion_feature": "d_geom" if args.use_d_geom else None,
               "geometry_bins": 64 if args.use_d_geom else None,
-              "geometry_max_angstrom": 22.0 if args.use_d_geom else None}
+              "geometry_max_angstrom": 22.0 if args.use_d_geom else None,
+              "pae_bins": 64 if args.use_d_geom else None,
+              "iptm_embedding_dim": 32 if args.use_d_geom else None,
+              "confidence_executed": bool(args.use_d_geom)}
     provider = OnlineFeatures(args, rank, device)
     dist.init_process_group("nccl", timeout=timedelta(minutes=30), device_id=device)
     try:
@@ -412,7 +420,7 @@ def main():
                         "gradient_accumulation", "learning_rate", "weight_decay", "smoke_samples", "early_stop_patience"):
                 if saved["run_config"][key] != config[key]:
                     raise ValueError(f"Resume configuration mismatch: {key}")
-            for key, default in (("use_d_geom", False), ("diffusion_steps", 20), ("diffusion_samples", 1)):
+            for key, default in (("use_d_geom", False), ("diffusion_steps", 20), ("diffusion_samples", 32)):
                 if saved["run_config"].get(key, default) != config[key]:
                     raise ValueError(f"Resume diffusion configuration mismatch: {key}")
             head.load_state_dict(saved["model"])
