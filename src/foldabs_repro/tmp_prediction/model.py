@@ -114,6 +114,9 @@ class TMPTrunkSpecificityHead(nn.Module):
             "triangle_attention": triangle_attention,
             "activation_checkpoint": activation_checkpoint,
             "use_d_geom": use_d_geom,
+            "specificity_feature_version": (
+                "foldabs_d_geom_pae_iptm_v1" if use_d_geom else "trunk_p_dist_v1"
+            ),
         }
         self.pair_condition = PairCondition(
             c_dist, c_z, c_geom=64 if use_d_geom else None,
