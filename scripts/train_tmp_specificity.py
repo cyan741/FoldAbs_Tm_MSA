@@ -170,6 +170,10 @@ def evaluate(model, loader, device, loss_pos_weight=None, precision="fp32"):
                 batch["token_asym_id"].to(device), batch["roles"],
                 d_geom=(batch["d_geom"].to(device)
                          if model.config["use_d_geom"] and batch["d_geom"] is not None else None),
+                p_pae=(batch["p_pae"].to(device)
+                       if model.config["use_d_geom"] and batch["p_pae"] is not None else None),
+                iptm=(batch["iptm"].to(device)
+                      if model.config["use_d_geom"] and batch["iptm"] is not None else None),
             ).float()
         target = batch["label"].to(device)
         losses.append(float(F.binary_cross_entropy_with_logits(logit, target, pos_weight=loss_pos_weight).item()))
@@ -243,8 +247,8 @@ def parse_args() -> argparse.Namespace:
                         help="Deprecated compatibility option; validation always runs once per epoch")
     parser.add_argument("--log-every", type=int, default=20)
     parser.add_argument("--pairformer-blocks", type=int, default=4)
-    parser.add_argument("--use-d-geomt", action="store_true",
-                        help="Require diffusion geometry in offline features and condition the head on it")
+    parser.add_argument("--use-d-geom", action="store_true",
+                        help="Require FoldAbS d_geom + PAE probabilities + ipTM features")
     parser.add_argument('--head-kernel', choices=['auto', 'torch', 'cuequivariance'], default='auto',
                         help='auto uses cuEquivariance on CUDA and torch on CPU')
     parser.add_argument('--activation-checkpoint', action='store_true',
@@ -554,8 +558,8 @@ def run_training(
     if peptide_mode:
         peptide_sampling.audit_features(manifest, [row for rows in example_sets.values() for row in rows])
     first = datasets["train"][0]
-    if args.use_d_geom and first["d_geom"] is None:
-        raise ValueError("--use-d-geomt requires new diffusion feature caches")
+    if args.use_d_geom and any(first[key] is None for key in ("d_geom", "p_pae", "iptm")):
+        raise ValueError("--use-d-geom requires d_geom, p_pae and iptm feature caches")
     raw_model = TMPTrunkSpecificityHead(
         c_s=int(first["s"].shape[-1]),
         c_z=int(first["z"].shape[-1]),
@@ -601,7 +605,7 @@ def run_training(
                                    else 0),
             "logical_epoch_samples": positives + negatives,
             "model_config": raw_model.config,
-            "feature_schema": ("protenix_trunk_s_z_pdist_d_geom_v1" if args.use_d_geom
+            "feature_schema": ("foldabs_specificity_s_z_d_geom_p_pae_iptm_v1" if args.use_d_geom
                                else "protenix_trunk_s_z_pdist_v1"),
             "selection_metric": "validation_bce",
             "effective_batch_size": world_size * args.gradient_accumulation,
@@ -725,6 +729,10 @@ def run_training(
                             batch["roles"],
                             d_geom=(batch["d_geom"].to(device)
                                      if args.use_d_geom and batch["d_geom"] is not None else None),
+                            p_pae=(batch["p_pae"].to(device)
+                                   if args.use_d_geom and batch["p_pae"] is not None else None),
+                            iptm=(batch["iptm"].to(device)
+                                  if args.use_d_geom and batch["iptm"] is not None else None),
                         ).float()
                     target = batch["label"].to(device)
                     loss = F.binary_cross_entropy_with_logits(
