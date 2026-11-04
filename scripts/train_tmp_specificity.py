@@ -168,8 +168,8 @@ def evaluate(model, loader, device, loss_pos_weight=None, precision="fp32"):
             logit = model(
                 batch["s"].to(device), batch["z"].to(device), batch["p_dist"].to(device),
                 batch["token_asym_id"].to(device), batch["roles"],
-                d_geomt=(batch["d_geomt"].to(device)
-                         if model.config["use_d_geomt"] and batch["d_geomt"] is not None else None),
+                d_geom=(batch["d_geom"].to(device)
+                         if model.config["use_d_geom"] and batch["d_geom"] is not None else None),
             ).float()
         target = batch["label"].to(device)
         losses.append(float(F.binary_cross_entropy_with_logits(logit, target, pos_weight=loss_pos_weight).item()))
@@ -554,7 +554,7 @@ def run_training(
     if peptide_mode:
         peptide_sampling.audit_features(manifest, [row for rows in example_sets.values() for row in rows])
     first = datasets["train"][0]
-    if args.use_d_geomt and first["d_geomt"] is None:
+    if args.use_d_geom and first["d_geom"] is None:
         raise ValueError("--use-d-geomt requires new diffusion feature caches")
     raw_model = TMPTrunkSpecificityHead(
         c_s=int(first["s"].shape[-1]),
@@ -567,7 +567,7 @@ def run_training(
         triangle_multiplicative=('cuequivariance' if device.type == 'cuda' else 'torch') if args.head_kernel == 'auto' else args.head_kernel,
         triangle_attention=('cuequivariance' if device.type == 'cuda' else 'torch') if args.head_kernel == 'auto' else args.head_kernel,
         activation_checkpoint=args.activation_checkpoint,
-        use_d_geomt=args.use_d_geomt,
+        use_d_geom=args.use_d_geom,
     ).to(device)
     model = (
         DistributedDataParallel(raw_model, device_ids=[rank], output_device=rank)
@@ -601,7 +601,7 @@ def run_training(
                                    else 0),
             "logical_epoch_samples": positives + negatives,
             "model_config": raw_model.config,
-            "feature_schema": ("protenix_trunk_s_z_pdist_d_geomt_v1" if args.use_d_geomt
+            "feature_schema": ("protenix_trunk_s_z_pdist_d_geom_v1" if args.use_d_geom
                                else "protenix_trunk_s_z_pdist_v1"),
             "selection_metric": "validation_bce",
             "effective_batch_size": world_size * args.gradient_accumulation,
@@ -638,7 +638,7 @@ def run_training(
             if resumed["run_config"].get(key) != getattr(args, key):
                 raise ValueError(f"Resume configuration differs: {key}")
         resumed_model_config = dict(resumed["model_config"])
-        resumed_model_config.setdefault("use_d_geomt", False)  # Legacy checkpoints.
+        resumed_model_config.setdefault("use_d_geom", False)  # Legacy checkpoints.
         if resumed_model_config != raw_model.config:
             raise ValueError("Resume model configuration differs")
         if resumed.get("optimizer_state") is None or not resumed.get("rng_states"):
@@ -723,8 +723,8 @@ def run_training(
                             batch["s"].to(device), batch["z"].to(device),
                             batch["p_dist"].to(device), batch["token_asym_id"].to(device),
                             batch["roles"],
-                            d_geomt=(batch["d_geomt"].to(device)
-                                     if args.use_d_geomt and batch["d_geomt"] is not None else None),
+                            d_geom=(batch["d_geom"].to(device)
+                                     if args.use_d_geom and batch["d_geom"] is not None else None),
                         ).float()
                     target = batch["label"].to(device)
                     loss = F.binary_cross_entropy_with_logits(
