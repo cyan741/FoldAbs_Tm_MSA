@@ -1,13 +1,13 @@
 """CPU-only regression tests for diffusion-derived TMP geometry.
 
 The expensive frozen Protenix rollout is validated on a GPU via the smoke
-command in docs/plans/TMP_D_GEOMT_DIFFUSION.md.
+command in docs/plans/TMP_D_GEOM_DIFFUSION.md.
 """
 import torch
 import pytest
 
 from foldabs_repro.tmp_prediction.geometry import (
-    GEOMETRY_BINS, ca_atom_indices, d_geomt_from_coordinates,
+    GEOMETRY_BINS, ca_atom_indices, d_geom_from_coordinates,
 )
 
 
@@ -37,7 +37,7 @@ def test_diffusion_geometry_64_bins_probabilities_symmetry_and_overflow():
         [[0., 0., 0.], [0., 0., 0.], [3., 4., 0.], [0., 0., 0.]],
         [[0., 0., 0.], [0., 0., 0.], [25., 0., 0.], [0., 0., 0.]],
     ])
-    geometry = d_geomt_from_coordinates(coordinates, f, 2)
+    geometry = d_geom_from_coordinates(coordinates, f, 2)
     assert geometry.shape == (2, 2, GEOMETRY_BINS)
     torch.testing.assert_close(geometry.sum(-1), torch.ones(2, 2))
     torch.testing.assert_close(geometry, geometry.transpose(0, 1))
@@ -49,11 +49,11 @@ def test_diffusion_geometry_64_bins_probabilities_symmetry_and_overflow():
 def test_geometry_rejects_missing_or_nonfinite_coordinates():
     f = toy_features()
     with pytest.raises(ValueError, match="Atom count"):
-        d_geomt_from_coordinates(torch.zeros(1, 3, 3), f, 2)
+        d_geom_from_coordinates(torch.zeros(1, 3, 3), f, 2)
     bad = torch.zeros(1, 4, 3)
     bad[0, 1, 0] = float("nan")
     with pytest.raises(ValueError, match="non-finite"):
-        d_geomt_from_coordinates(bad, f, 2)
+        d_geom_from_coordinates(bad, f, 2)
 
 
 def test_geometry_pair_condition_does_not_silently_accept_missing_tensor():
