@@ -62,8 +62,8 @@ def main() -> None:
                 logit, latent, pools = model(
                     batch["s"].to(device), batch["z"].to(device), batch["p_dist"].to(device),
                     batch["token_asym_id"].to(device), batch["roles"],
-                    d_geomt=(batch["d_geomt"].to(device)
-                             if model.config["use_d_geomt"] and batch["d_geomt"] is not None else None),
+                    d_geom=(batch["d_geom"].to(device)
+                             if model.config["use_d_geom"] and batch["d_geom"] is not None else None),
                     return_latent=True,
                 )
             row = {
