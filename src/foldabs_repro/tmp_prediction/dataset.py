@@ -77,11 +77,22 @@ class TMPFeatureDataset(Dataset):
         if missing:
             raise ValueError(f"Incomplete Protenix feature {example.feature_path}: {sorted(missing)}")
         geometry = payload.get("d_geom")
+        pae = payload.get("p_pae")
+        iptm = payload.get("iptm")
         if geometry is not None:
             n = payload["s"].shape[0]
             if (not isinstance(geometry, torch.Tensor) or geometry.shape != (n, n, 64)
-                    or not torch.isfinite(geometry.float()).all()):
+                    or not torch.isfinite(geometry.float()).all()
+                    or not torch.allclose(geometry.float().sum(-1), torch.ones(n, n), atol=0.003, rtol=0)):
                 raise ValueError(f"Invalid d_geom in {example.feature_path}")
+            if (not isinstance(pae, torch.Tensor) or pae.shape != (n, n, 64)
+                    or not torch.isfinite(pae.float()).all()
+                    or not torch.allclose(pae.float().sum(-1), torch.ones(n, n), atol=0.003, rtol=0)):
+                raise ValueError(f"Invalid p_pae in {example.feature_path}")
+            if not isinstance(iptm, torch.Tensor) or iptm.numel() != 1 or not torch.isfinite(iptm.float()).all():
+                raise ValueError(f"Invalid iptm in {example.feature_path}")
+        elif pae is not None or iptm is not None:
+            raise ValueError(f"Incomplete FoldAbS specificity features in {example.feature_path}")
         return {
             "sample_id": example.sample_id,
             "original_id": example.original_id,
@@ -92,6 +103,8 @@ class TMPFeatureDataset(Dataset):
             "z": payload["z"].float(),
             "p_dist": payload["p_dist"].float(),
             "d_geom": None if geometry is None else geometry.float(),
+            "p_pae": None if pae is None else pae.float(),
+            "iptm": None if iptm is None else iptm.float().reshape(()),
             "label": None if example.label is None else torch.tensor(example.label, dtype=torch.float32),
         }
 
