@@ -11,9 +11,9 @@ PAE_BINS = 64
 def representative_atom_indices(features: dict, n_tokens: int) -> torch.Tensor:
     """Map each Protenix token to its designated representative atom.
 
-    Protenix exposes the representative-atom mask as distogram_rep_atom_mask. This
-    is preferable to hard-coding atom_name == CA: it follows Protenix's own
-    distogram representative-atom definition and its token mapping.
+    Protenix exposes distogram_rep_atom_mask: Cβ for standard protein
+    residues and Cα for glycine. Use this upstream mask rather than hard-coding
+    atom names, and map its selected atoms back to token order.
     """
     mapping = features["atom_to_token_idx"].reshape(-1).long()
     rep_mask = features.get("distogram_rep_atom_mask")
