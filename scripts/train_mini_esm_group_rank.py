@@ -132,6 +132,9 @@ def train(args):
               'diffusion_feature': 'd_geom' if args.use_d_geom else None,
               'geometry_bins': 64 if args.use_d_geom else None,
               'geometry_max_angstrom': 22.0 if args.use_d_geom else None,
+              'pae_bins': 64 if args.use_d_geom else None,
+              'iptm_embedding_dim': 32 if args.use_d_geom else None,
+              'confidence_executed': bool(args.use_d_geom),
               'joint_feature_disk_cache': False, 'feature_handoff': 'native',
               'ordering': 'seed+epoch groups; drop shared DDP tail',
               'hostname': os.uname().nodename, 'visible_gpus': os.environ.get('CUDA_VISIBLE_DEVICES')}
@@ -160,7 +163,7 @@ def train(args):
                     raise ValueError(f'Resume configuration mismatch: {key}')
             if args.resume.parent != args.output_dir:
                 raise ValueError('Resume in original output directory to retain best.pt')
-            for key, default in (('use_d_geom', False), ('diffusion_steps', 20), ('diffusion_samples', 1)):
+            for key, default in (('use_d_geom', False), ('diffusion_steps', 20), ('diffusion_samples', 32)):
                 if saved['run_config'].get(key, default) != config[key]:
                     raise ValueError(f'Resume diffusion configuration mismatch: {key}')
             head.load_state_dict(saved['model'])
