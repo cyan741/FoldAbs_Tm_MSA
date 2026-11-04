@@ -399,7 +399,8 @@ def main():
               "geometry_max_angstrom": 22.0 if args.use_d_geom else None,
               "pae_bins": 64 if args.use_d_geom else None,
               "iptm_embedding_dim": 32 if args.use_d_geom else None,
-              "confidence_executed": bool(args.use_d_geom)}
+              "confidence_executed": bool(args.use_d_geom),
+              "specificity_feature_version": ("foldabs_d_geom_pae_iptm_v1" if args.use_d_geom else "trunk_p_dist_v1")}
     provider = OnlineFeatures(args, rank, device)
     dist.init_process_group("nccl", timeout=timedelta(minutes=30), device_id=device)
     try:
