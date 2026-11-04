@@ -237,29 +237,29 @@ class OnlineFeatures:
                     chunk_size=self.runner.model.configs.infer_setting.chunk_size)
                 probability = autocasting_disable_decorator(True)(torch.softmax)(
                     self.runner.model.distogram_head(pair), dim=-1)
-                d_geomt = None
-                if self.args.use_d_geomt:
-                    from foldabs_repro.tmp_prediction.geometry import sample_d_geomt
-                    d_geomt = sample_d_geomt(
+                d_geom = None
+                if self.args.use_d_geom:
+                    from foldabs_repro.tmp_prediction.geometry import sample_d_geom
+                    d_geom = sample_d_geom(
                         self.runner.model, features, s_inputs, single, pair,
                         steps=self.args.diffusion_steps, samples=self.args.diffusion_samples,
                     )
         # Online consumers use these tensors immediately; avoid an FP16 round trip.
         result = (single, pair, probability, features["asym_id"].long())
-        return (*result, d_geomt) if d_geomt is not None else result
+        return (*result, d_geom) if d_geom is not None else result
 
 
 def forward(head, features):
     if len(features) == 4:
         single, pair, probability, asym = features
-        d_geomt = None
+        d_geom = None
     elif len(features) == 5:
-        single, pair, probability, asym, d_geomt = features
+        single, pair, probability, asym, d_geom = features
     else:
         raise ValueError("Online TMP features must have 4 or 5 entries")
     with torch.autocast("cuda", dtype=torch.bfloat16):
         return head(single.float(), pair.float(), probability.float(), asym,
-                    REQUIRED_ROLES, d_geomt=None if d_geomt is None else d_geomt.float()).float()
+                    REQUIRED_ROLES, d_geom=None if d_geom is None else d_geom.float()).float()
 
 
 @torch.no_grad()
@@ -389,16 +389,16 @@ def main():
               "activation_checkpoint": args.activation_checkpoint, "feature_handoff": "native",
               "kernels": "cuequivariance", "ordering": "seed+epoch shuffle, masked tail",
               "triangle_attention_mask_policy": "omit_all_valid_boolean_masks",
-              "diffusion_feature": "d_geomt" if args.use_d_geomt else None,
-              "geometry_bins": 64 if args.use_d_geomt else None,
-              "geometry_max_angstrom": 22.0 if args.use_d_geomt else None}
+              "diffusion_feature": "d_geom" if args.use_d_geom else None,
+              "geometry_bins": 64 if args.use_d_geom else None,
+              "geometry_max_angstrom": 22.0 if args.use_d_geom else None}
     provider = OnlineFeatures(args, rank, device)
     dist.init_process_group("nccl", timeout=timedelta(minutes=30), device_id=device)
     try:
         head = TMPTrunkSpecificityHead(c_s=384, c_z=128, c_dist=64, pairformer_blocks=4,
             pooling_mode="C", hidden_dim=512, dropout=0.1, triangle_multiplicative="cuequivariance",
             triangle_attention="cuequivariance", activation_checkpoint=args.activation_checkpoint,
-            use_d_geomt=args.use_d_geomt).to(device)
+            use_d_geom=args.use_d_geom).to(device)
         ddp = DistributedDataParallel(head, device_ids=[local_rank], broadcast_buffers=False)
         optimizer = torch.optim.AdamW(head.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, min_lr=1e-6)
@@ -412,7 +412,7 @@ def main():
                         "gradient_accumulation", "learning_rate", "weight_decay", "smoke_samples", "early_stop_patience"):
                 if saved["run_config"][key] != config[key]:
                     raise ValueError(f"Resume configuration mismatch: {key}")
-            for key, default in (("use_d_geomt", False), ("diffusion_steps", 20), ("diffusion_samples", 1)):
+            for key, default in (("use_d_geom", False), ("diffusion_steps", 20), ("diffusion_samples", 1)):
                 if saved["run_config"].get(key, default) != config[key]:
                     raise ValueError(f"Resume diffusion configuration mismatch: {key}")
             head.load_state_dict(saved["model"])
