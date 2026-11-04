@@ -479,7 +479,7 @@ def _finish_worker(args, output_dir, index_rows, generated_count, reused_count,
 def main() -> None:
     torch.set_num_threads(4)
     parser = argparse.ArgumentParser(
-        description="Extract frozen Protenix-v1 s, z, and p_dist tensors."
+        description="Extract frozen Protenix trunk features and optional FoldAbS specificity features."
     )
     parser.add_argument("--input-json", required=True)
     parser.add_argument("--output-dir", required=True)
