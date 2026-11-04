@@ -11,14 +11,14 @@ def toy_features():
     # Two tokens, each with one representative atom and one non-representative atom.
     return {
         "atom_to_token_idx": torch.tensor([0, 0, 1, 1]),
-        "pae_rep_atom_mask": torch.tensor([False, True, True, False]),
+        "distogram_rep_atom_mask": torch.tensor([False, True, True, False]),
     }
 
 
 def test_representative_atom_selection_uses_protenix_mask():
     f = toy_features()
     assert representative_atom_indices(f, 2).tolist() == [1, 2]
-    f["pae_rep_atom_mask"] = torch.tensor([False, False, True, False])
+    f["distogram_rep_atom_mask"] = torch.tensor([False, False, True, False])
     with pytest.raises(ValueError, match="exactly one representative atom"):
         representative_atom_indices(f, 2)
 
