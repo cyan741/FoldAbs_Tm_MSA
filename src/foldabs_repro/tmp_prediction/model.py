@@ -32,25 +32,51 @@ class ResidualTransition(nn.Module):
 
 
 class PairCondition(nn.Module):
-    """Condition frozen Protenix z on its distogram probabilities."""
-    def __init__(self, c_dist: int, c_z: int):
+    """Pairwise conditioning: trunk distogram baseline or FoldAbS d_geom + PAE."""
+    def __init__(self, c_dist: int, c_z: int, c_geom: int | None = None,
+                 c_pae: int | None = None):
         super().__init__()
-        self.project = nn.Sequential(nn.LayerNorm(c_dist), nn.Linear(c_dist, c_z))
+        self.specificity_project = (
+            nn.Sequential(nn.LayerNorm(c_geom + c_pae), nn.Linear(c_geom + c_pae, c_z))
+            if c_geom is not None and c_pae is not None else None
+        )
+        # Keep the historical "project" key for trunk-only checkpoint compatibility.
+        self.project = (
+            nn.Sequential(nn.LayerNorm(c_dist), nn.Linear(c_dist, c_z))
+            if self.specificity_project is None else None
+        )
         self.transitions = nn.ModuleList([ResidualTransition(c_z), ResidualTransition(c_z)])
 
-    def forward(self, z: torch.Tensor, p_dist: torch.Tensor) -> torch.Tensor:
-        value = z + self.project(p_dist)
+    def forward(self, z: torch.Tensor, p_dist: torch.Tensor | None,
+                d_geom: torch.Tensor | None = None,
+                p_pae: torch.Tensor | None = None) -> torch.Tensor:
+        if self.specificity_project is not None:
+            if d_geom is None or p_pae is None:
+                raise ValueError("use_d_geom=True requires d_geom and p_pae")
+            expected = (*z.shape[:2], self.specificity_project[0].normalized_shape[0] // 2)
+            if d_geom.shape != expected or p_pae.shape != expected:
+                raise ValueError("d_geom/p_pae must both be [N_token,N_token,64]")
+            condition = torch.cat([d_geom, p_pae], dim=-1)
+            value = z + self.specificity_project(condition)
+        else:
+            if p_dist is None:
+                raise ValueError("Trunk-only PairCondition requires p_dist")
+            if d_geom is not None or p_pae is not None:
+                raise ValueError("d_geom/p_pae require use_d_geom=True")
+            if self.project is None:
+                raise RuntimeError("Trunk distogram projection is not initialized")
+            value = z + self.project(p_dist)
         for transition in self.transitions:
             value = transition(value)
         return value
 
 
 class TMPTrunkSpecificityHead(nn.Module):
-    """Trainable TMP classifier over frozen s/z/p_dist trunk representations.
+    """Trainable TMP classifier over frozen Protenix representations.
 
-    This is a phase-1 FoldAbS-style reconstruction. It deliberately does not
-    claim to be the published antibody specificity head because the current
-    extractor does not provide final geometry, PAE or ipTM.
+    Trunk-only by default. The optional specificity mode follows FoldAbS:
+    concatenate diffusion-derived d_geom and PAE probabilities for PairCond,
+    then fuse a 32-dimensional ipTM embedding after interface pooling.
     """
     def __init__(
         self,
@@ -69,8 +95,18 @@ class TMPTrunkSpecificityHead(nn.Module):
         triangle_multiplicative: str = "torch",
         triangle_attention: str = "torch",
         activation_checkpoint: bool = False,
+        use_d_geom: bool = False,
+        specificity_feature_version: str | None = None,
     ):
         super().__init__()
+        expected_feature_version = (
+            "foldabs_d_geom_pae_iptm_v1" if use_d_geom else "trunk_p_dist_v1"
+        )
+        if specificity_feature_version is not None and specificity_feature_version != expected_feature_version:
+            raise ValueError(
+                f"Unsupported specificity feature version {specificity_feature_version!r}; "
+                f"expected {expected_feature_version!r}"
+            )
         if pairformer_blocks < 0:
             raise ValueError("pairformer_blocks cannot be negative")
         if triangle_multiplicative not in ('torch', 'cuequivariance') or triangle_attention not in ('torch', 'cuequivariance'):
@@ -92,8 +128,18 @@ class TMPTrunkSpecificityHead(nn.Module):
             "triangle_multiplicative": triangle_multiplicative,
             "triangle_attention": triangle_attention,
             "activation_checkpoint": activation_checkpoint,
+            "use_d_geom": use_d_geom,
+            "specificity_feature_version": (
+                "foldabs_d_geom_pae_iptm_v1" if use_d_geom else "trunk_p_dist_v1"
+            ),
         }
-        self.pair_condition = PairCondition(c_dist, c_z)
+        self.pair_condition = PairCondition(
+            c_dist, c_z, c_geom=64 if use_d_geom else None,
+            c_pae=64 if use_d_geom else None,
+        )
+        self.iptm_embedding = (
+            nn.Sequential(nn.Linear(1, 32), nn.GELU()) if use_d_geom else None
+        )
         self.pairformer = nn.ModuleList(
             [
                 PairformerBlock(
@@ -113,7 +159,7 @@ class TMPTrunkSpecificityHead(nn.Module):
         # initialization for comparisons using the same seed.
         self.pooling = InterfacePooling(c_s, c_z, mode=pooling_mode)
         # Four entity-level s pools plus five biologically distinct interfaces.
-        input_dim = 4 * c_s + 5 * c_z
+        input_dim = 4 * c_s + 5 * c_z + (32 if use_d_geom else 0)
         self.classifier = nn.Sequential(
             nn.LayerNorm(input_dim),
             nn.Linear(input_dim, hidden_dim),
@@ -132,6 +178,9 @@ class TMPTrunkSpecificityHead(nn.Module):
         p_dist: torch.Tensor,
         token_asym_id: torch.Tensor,
         roles: tuple[str, ...] | list[str],
+        *,
+        d_geom: torch.Tensor | None = None,
+        p_pae: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
         masks = {
             key: value.to(device=s.device)
@@ -142,7 +191,7 @@ class TMPTrunkSpecificityHead(nn.Module):
         unbatched_kernel = 'cuequivariance' in (
             self.config['triangle_multiplicative'], self.config['triangle_attention'])
         s_batch = s if unbatched_kernel else s.unsqueeze(0)
-        z_conditioned = self.pair_condition(z, p_dist)
+        z_conditioned = self.pair_condition(z, p_dist, d_geom, p_pae)
         z_batch = z_conditioned if unbatched_kernel else z_conditioned.unsqueeze(0)
         for block in self.pairformer:
             def run_block(s_value, z_value, current_block=block):
@@ -169,8 +218,23 @@ class TMPTrunkSpecificityHead(nn.Module):
         token_asym_id: torch.Tensor,
         roles: tuple[str, ...] | list[str],
         *,
+        d_geom: torch.Tensor | None = None,
+        p_pae: torch.Tensor | None = None,
+        iptm: torch.Tensor | float | None = None,
         return_latent: bool = False,
     ):
-        latent, pools = self.encode(s, z, p_dist, token_asym_id, roles)
-        logit = self.classifier(latent.unsqueeze(0)).squeeze()
+        latent, pools = self.encode(
+            s, z, p_dist, token_asym_id, roles, d_geom=d_geom, p_pae=p_pae
+        )
+        if self.iptm_embedding is not None:
+            if iptm is None:
+                raise ValueError("use_d_geom=True requires the Protenix ipTM scalar")
+            iptm_tensor = torch.as_tensor(iptm, device=latent.device, dtype=latent.dtype).reshape(1, 1)
+            iptm_embedding = self.iptm_embedding(iptm_tensor).reshape(-1)
+            classifier_input = torch.cat([latent, iptm_embedding], dim=-1)
+        else:
+            if p_pae is not None or iptm is not None:
+                raise ValueError("p_pae/iptm require use_d_geom=True")
+            classifier_input = latent
+        logit = self.classifier(classifier_input.unsqueeze(0)).squeeze()
         return (logit, latent, pools) if return_latent else logit

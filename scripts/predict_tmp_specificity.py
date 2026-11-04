@@ -61,7 +61,14 @@ def main() -> None:
                                 enabled=precision == "bf16"):
                 logit, latent, pools = model(
                     batch["s"].to(device), batch["z"].to(device), batch["p_dist"].to(device),
-                    batch["token_asym_id"].to(device), batch["roles"], return_latent=True,
+                    batch["token_asym_id"].to(device), batch["roles"],
+                    d_geom=(batch["d_geom"].to(device)
+                             if model.config["use_d_geom"] and batch["d_geom"] is not None else None),
+                    p_pae=(batch["p_pae"].to(device)
+                           if model.config["use_d_geom"] and batch["p_pae"] is not None else None),
+                    iptm=(batch["iptm"].to(device)
+                          if model.config["use_d_geom"] and batch["iptm"] is not None else None),
+                    return_latent=True,
                 )
             row = {
                 "ID": batch["original_id"],

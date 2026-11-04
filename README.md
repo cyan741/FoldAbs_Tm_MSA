@@ -39,7 +39,7 @@ Mini-ESM 联合表示的主要字段如下，`N` 为复合物 token 数：
 
 `p_dist` 经可训练投影后注入 `z`，再进入分类头的 Pairformer。在线主线使用 C 模式注意力池化，汇总 4 个实体与 5 个界面，形成 2176 维读出。encoder 与 distogram head 冻结，分类头参与训练。
 
-当前提取停止于 trunk/distogram，不执行结构 diffusion 或 confidence 推理；模型不以最终坐标、PAE 或 ipTM 为输入。
+默认提取停止于 trunk，使用 s/z/p_dist 作为 trunk-only baseline。可选 `--use-d-geom` 模式按 FoldAbS specificity 路径调用冻结 Protenix diffusion 与 confidence head，提取代表原子距离分布 d_geom、PAE 概率 p_pae 和 ipTM；将 [d_geom, p_pae] 拼接后经 PairCondition 注入 z，并在 pooling 后融合 32-D ipTM embedding。详见 [FoldAbS-aligned d_geom 实现与验收](docs/plans/TMP_D_GEOM_DIFFUSION.md)。
 
 ## 2. 已实现的功能
 

@@ -129,6 +129,13 @@ def train(args):
               'effective_groups_per_update': world_size * args.group_accumulation_steps,
               'max_samples_per_update': world_size * args.group_accumulation_steps * (1 + args.group_negatives),
               'encoder_cycles': 4, 'head_blocks': 4, 'head_pooling': 'C', 'precision': 'bf16',
+              'diffusion_feature': 'd_geom' if args.use_d_geom else None,
+              'geometry_bins': 64 if args.use_d_geom else None,
+              'geometry_max_angstrom': 22.0 if args.use_d_geom else None,
+              'pae_bins': 64 if args.use_d_geom else None,
+              'iptm_embedding_dim': 32 if args.use_d_geom else None,
+              'confidence_executed': bool(args.use_d_geom),
+              'specificity_feature_version': ('foldabs_d_geom_pae_iptm_v1' if args.use_d_geom else 'trunk_p_dist_v1'),
               'joint_feature_disk_cache': False, 'feature_handoff': 'native',
               'ordering': 'seed+epoch groups; drop shared DDP tail',
               'hostname': os.uname().nodename, 'visible_gpus': os.environ.get('CUDA_VISIBLE_DEVICES')}
@@ -137,7 +144,8 @@ def train(args):
     try:
         head = TMPTrunkSpecificityHead(c_s=384, c_z=128, c_dist=64, pairformer_blocks=4,
             pooling_mode='C', hidden_dim=512, dropout=0.1, triangle_multiplicative='cuequivariance',
-            triangle_attention='cuequivariance', activation_checkpoint=args.activation_checkpoint).to(device)
+            triangle_attention='cuequivariance', activation_checkpoint=args.activation_checkpoint,
+            use_d_geom=args.use_d_geom).to(device)
         ddp = DistributedDataParallel(GroupForward(head, forward), device_ids=[local_rank], broadcast_buffers=False)
         optimizer = torch.optim.AdamW(head.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=2, min_lr=1e-6)
@@ -156,6 +164,11 @@ def train(args):
                     raise ValueError(f'Resume configuration mismatch: {key}')
             if args.resume.parent != args.output_dir:
                 raise ValueError('Resume in original output directory to retain best.pt')
+            for key, default in (('use_d_geom', False), ('diffusion_steps', 20), ('diffusion_samples', 32)):
+                if saved['run_config'].get(key, default) != config[key]:
+                    raise ValueError(f'Resume diffusion configuration mismatch: {key}')
+            if saved['run_config'].get('specificity_feature_version', 'trunk_p_dist_v1') != config['specificity_feature_version']:
+                raise ValueError('Resume specificity feature topology mismatch')
             head.load_state_dict(saved['model'])
             optimizer.load_state_dict(saved['optimizer'])
             scheduler.load_state_dict(saved['scheduler'])
