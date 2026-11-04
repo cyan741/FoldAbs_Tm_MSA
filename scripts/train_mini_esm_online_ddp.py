@@ -254,7 +254,7 @@ class OnlineFeatures:
 def forward(head, features):
     if len(features) == 4:
         single, pair, probability, asym = features
-        d_geom = None
+        d_geom = p_pae = iptm = None
     elif len(features) == 7:
         single, pair, probability, asym, d_geom, p_pae, iptm = features
     else:
@@ -328,7 +328,7 @@ def parse_args():
     parser.add_argument("--group-require-full", action="store_true")
     parser.add_argument("--activation-checkpoint", action=argparse.BooleanOptionalAction, default=False)
     parser.add_argument("--use-d-geom", action="store_true",
-                        help="Enable frozen Protenix diffusion CA-distance histogram [N,N,64]")
+                        help="Enable FoldAbS specificity features: d_geom + PAE conditioning + iPTM fusion")
     parser.add_argument("--diffusion-steps", type=int, default=20)
     parser.add_argument("--diffusion-samples", type=int, default=32)
     parser.add_argument("--allow-execution-config-change", action="store_true",
